@@ -1,6 +1,6 @@
 <template>
   <div
-    class="m-1 rounded-md shadow-md text-gray-900 text-shadow-lg"
+    class="m-2 rounded-md shadow-md text-gray-900 text-shadow-lg"
     :class="{
       'bg-green-00': true && submission.is_eligible,
       'bg-red-00': true && !submission.is_eligible,
@@ -33,16 +33,19 @@
       </button>
       <button
         class="py border mt-1 md:mt-0 border-green-700 ml-auto px-4 rounded-md bg-green-800 text-white shadow-lg"
-        v-if="submission.is_eligible"
+        v-if="canBeTurnedIn"
       >
         <i class="fas fa-paper-plane"></i> Consegna
       </button>
     </div>
+
+    <!-- testcase list -->
+    <!--<transition name="smooth">-->
     <div class="p-3 rounded-b-md bg-gray-50" v-show="expanded">
       <div
         v-for="(testcase, index) in public_detail_testcases"
         :key="index"
-        class="border-b pb-2 border-gray-600 last:border-b-0"
+        class="border-b pb-2 border-gray-300 last:border-b-0"
       >
         <div class="my-3">
           <p>
@@ -80,11 +83,12 @@
         </div>
       </div>
       <p class="my-3" v-if="submission.public_details.failed_secret_tests">
-        <i class="fas fa-times-circle text-red-900"></i> Test case
+        <i class="far fa-times-circle text-red-900"></i> Test case
         <span class="font-semibold text-red-900">segreti falliti:</span>
         {{ submission.public_details.failed_secret_tests }}
       </p>
     </div>
+    <!--</transition>-->
   </div>
 </template>
 
@@ -94,6 +98,7 @@ export default {
   props: {
     submission: Object,
     index: Number,
+    canBeTurnedIn: Boolean,
   },
   data() {
     return {
