@@ -26,7 +26,7 @@
             Testo dell'esercizio
           </button>
           <button
-            @click="fakeSubmission()"
+            @click="submit()"
             :disabled="submitCooldown != 0"
             class="w-40 transition-all disabled:opacity-50 duration-75 rounded-t-md p-1 px-3 font-medium bg-green-600 hover:bg-green-700 cursor-pointer text-white shadow-md"
           >
@@ -101,7 +101,7 @@
           <div
             class=""
             v-for="(submission, index) in submissions"
-            :key="submission"
+            :key="submission.id"
           >
             <Submission
               :canBeTurnedIn="submission.is_eligible && !index"
@@ -116,6 +116,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import AceEditor from "vuejs-ace-editor";
 import Submission from "../components/Submission.vue";
 import TestCase from "../components/TestCase.vue";
@@ -127,32 +128,36 @@ export default {
     // testcases: Array,
   },
   mounted() {
-    this.testcases = [
-      {
-        parameters: "1, 2",
-        output: 2,
-        is_public: true,
-        passed: true,
-      },
-      {
-        parameters: "-1, 0",
-        output: -1,
-        is_public: true,
-        passed: false,
-      },
-      {
-        parameters: "1, 2",
-        output: 2,
-        is_public: true,
-        passed: true,
-      },
-      {
-        parameters: "-1, 0",
-        output: -1,
-        is_public: true,
-        passed: false,
-      },
-    ];
+    axios
+      .get("/exams/my_exam")
+      .then((response) => {
+        console.log(response.data);
+        this.testcases = response.data.exercise.public_testcases;
+        this.exerciseId = response.data.exercise.id;
+        alert(response.data.exercise.text);
+      })
+      .catch((error) => {
+        console.log(JSON.stringify(error));
+      });
+
+    // this.testcases = [
+    //   {
+    //     assertion:
+    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
+    //   },
+    //   {
+    //     assertion:
+    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
+    //   },
+    //   {
+    //     assertion:
+    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
+    //   },
+    //   {
+    //     assertion:
+    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
+    //   },
+    // ];
 
     // set the editor height to approximately 70% of parent height
     this.editorHeight = this.$parent.$refs.app.clientHeight / 1.4 + "px";
@@ -176,6 +181,7 @@ export default {
   },
   data() {
     return {
+      exerciseId: null,
       testcases: [],
       assignmentText: "",
       editorElement: document.getElementById("app"),
@@ -214,6 +220,21 @@ export default {
     };
   },
   methods: {
+    submit() {
+      this.processingSubmission = true;
+      axios
+        .post(`/exercises/${this.exerciseId}/submissions/`, {
+          code: this.code,
+        })
+        .then((response) => {
+          console.log(response.data);
+          this.submissions.unshift(response.data);
+          this.processingSubmission = false;
+        })
+        .catch((error) => {
+          console.log(JSON.stringify(error));
+        });
+    },
     fakeSubmission() {
       this.submitCooldown = 10;
       this.submitCooldownHandle = setInterval(() => {
@@ -227,25 +248,22 @@ export default {
       setTimeout(() => {
         this.submissions.unshift({
           id: Math.random(),
-          user: 2,
-          code: "function max(a,b) { return a>b?a:b }",
-          timestamp: "2021-03-05T21:54:23.744126Z",
+          user: 1,
+          code: "function f(arr) { return arr.map(u => u.username + '1' ) }",
+          timestamp: "2021-03-12T16:21:11.682704+01:00",
           is_eligible: Math.random() > 0.5,
           has_been_turned_in: false,
           public_details: {
-            1: {
-              parameters: "1, 2",
-              output: 2,
-              is_public: true,
-              passed: true,
-            },
-            3: {
-              parameters: "-1, 0",
-              output: -1,
-              is_public: true,
-              passed: false,
-            },
-            failed_secret_tests: 0,
+            tests: [
+              {
+                id: 4,
+                assertion:
+                  'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
+                is_public: true,
+                passed: true,
+              },
+            ],
+            failed_secret_tests: 1,
           },
         });
         this.processingSubmission = false;

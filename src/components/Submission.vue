@@ -43,7 +43,7 @@
     <!--<transition name="smooth">-->
     <div class="p-3 rounded-b-md bg-gray-50" v-show="expanded">
       <div
-        v-for="(testcase, index) in public_detail_testcases"
+        v-for="(testcase, index) in submission.public_details.tests"
         :key="index"
         class="border-b pb-2 border-gray-300 last:border-b-0"
       >
@@ -67,19 +67,25 @@
             >
           </p>
           <p class="font-medium mb-1">
-            Input:
             <span
-              class="break-all text-white font-mono bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
-              >{{ testcase.parameters }}</span
+              class="break-all text-white font-mono text-xs bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
+              >{{ testcase.assertion }}</span
             >
           </p>
-          <p class="font-medium">
+          <p v-if="!testcase.passed" class="font-medium mb-1">
+            Errore:
+            <span
+              class="break-all text-white font-mono bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
+              >{{ testcase.error }}</span
+            >
+          </p>
+          <!-- <p class="font-medium">
             Output:
             <span
               class="break-all text-white font-mono bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
               >{{ testcase.output }}</span
             >
-          </p>
+          </p> -->
         </div>
       </div>
       <p class="my-3" v-if="submission.public_details.failed_secret_tests">
@@ -104,18 +110,6 @@ export default {
     return {
       expanded: false,
     };
-  },
-  computed: {
-    public_detail_testcases() {
-      // get all the public_details object minus the failed_secret_tests property
-      const {
-        failed_secret_tests,
-        ...details
-      } = this.submission.public_details;
-
-      failed_secret_tests; // evaluate variable to prevent linter from raising "no-unused"
-      return details;
-    },
   },
 };
 </script>

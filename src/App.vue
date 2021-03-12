@@ -6,7 +6,11 @@
       integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu"
       crossorigin="anonymous"
     />
-    <nav class="flex w-full p-3 text-white bg-gray-900">Username</nav>
+    <nav class="flex w-full p-3 text-white bg-gray-900">
+      <template v-if="!$store.state.isAuthenticated">
+        <router-link to="/login">Login</router-link>
+      </template>
+    </nav>
 
     <!--<div id="nav">
       <router-link to="/">Editor</router-link> |
@@ -23,5 +27,20 @@
     </footer>
   </div>
 </template>
-<style>
-</style>
+<script>
+import axios from "axios";
+export default {
+  name: "App",
+  beforeCreate() {
+    this.$store.commit("initializeStore");
+
+    const token = this.$store.token;
+
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = "Token " + token;
+    } else {
+      axios.defaults.headers.common["Authorization"] = "";
+    }
+  },
+};
+</script>
