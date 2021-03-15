@@ -1,34 +1,36 @@
 <template>
-  <div id="editor-view" ref="editorView" class="my-5 px-1">
+  <div id="editor-view" ref="editorView" class="px-1 my-5">
     <!-- main editor block -->
-    <div class="flex mt-5 w-full flex-wrap md:flex-nowrap">
+    <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
       <div
-        class="w-full lg:w-3/5 h-full border border-gray-200 rounded-lg shadow-lg"
+        class="w-full h-full border border-gray-200 rounded-lg shadow-lg lg:w-3/5"
       >
         <div class="flex bg-gray-900 rounded-t-lg">
           <div
-            class="transition-all duration-75 bg-gray-500 hover:bg-gray-700 cursor-pointer text-white rounded-t-md py-1 px-3 mr-1 shadow-inner"
+            class="px-3 py-1 mr-1 text-white transition-all duration-75 bg-gray-500 shadow-inner cursor-pointer hover:bg-gray-700 rounded-t-md"
             @click="pane = 'editor'"
             :class="{ 'bg-gray-700': pane == 'editor' }"
           >
             Editor
           </div>
           <div
-            class="transition-all duration-75 rounded-t-md bg-gray-500 hover:bg-gray-700 cursor-pointer text-white py-1 px-3 shadow-inner mr-auto"
+            class="px-3 py-1 mr-auto text-white transition-all duration-75 bg-gray-500 shadow-inner cursor-pointer rounded-t-md hover:bg-gray-700"
             @click="pane = 'testcases'"
             :class="{ 'bg-gray-700': pane == 'testcases' }"
           >
             Test case
           </div>
           <button
-            class="transition-all duration-75 mr-1 rounded-t-md p-1 px-3 font-medium bg-indigo-600 hover:bg-indigo-700 cursor-pointer text-white shadow-md"
+            @click="pane = 'text'"
+            class="p-1 px-3 mr-1 font-medium text-white transition-all duration-75 bg-indigo-700 shadow-md cursor-pointer rounded-t-md hover:bg-indigo-800"
+            :class="{ 'bg-indigo-800': pane == 'text' }"
           >
             Testo dell'esercizio
           </button>
           <button
             @click="submit()"
-            :disabled="submitCooldown != 0"
-            class="w-40 transition-all disabled:opacity-50 duration-75 rounded-t-md p-1 px-3 font-medium bg-green-600 hover:bg-green-700 cursor-pointer text-white shadow-md"
+            :disabled="submitCooldown != 0 || !code.length"
+            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
           >
             <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
             {{ !submitCooldown ? "Esegui codice" : submitCooldown }}
@@ -49,35 +51,42 @@
         </div>
         <div
           :style="'height:' + editorHeight"
-          class="border overflow-auto border-transparent bg-gray-200 rounded-b-lg"
+          class="overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
           v-show="pane == 'testcases'"
         >
           <div
-            class="bg-yellow-600 text-gray-200 font-medium rounded-xl p-4 m-2 shadow-md"
+            class="p-4 m-2 font-medium text-gray-200 bg-yellow-600 shadow-md rounded-xl"
           >
-            <i class="fas fa-eye-slash mr-2"></i> Il tuo codice potrebbe essere
+            <i class="mr-2 fas fa-eye-slash"></i> Il tuo codice potrebbe essere
             eseguito anche con test case non presenti in questa lista.
           </div>
           <div v-for="(testcase, index) in testcases" :key="index">
             <TestCase :testcase="testcase" :index="index + 1"></TestCase>
           </div>
         </div>
+        <div
+          :style="'height:' + editorHeight"
+          class="p-3 overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
+          v-show="pane == 'text'"
+        >
+          <h1 class="my-2 text-2xl font-medium">{{ examName }}</h1>
+          <div v-highlight v-html="processedAssignmentText"></div>
+        </div>
       </div>
-
       <!-- submissions sidebar -->
       <div
-        class="md:ml-3 w-full lg:w-2/5 bg-gray-200 border rounded-lg shadow-md"
+        class="w-full bg-gray-200 border rounded-lg shadow-md md:ml-3 lg:w-2/5"
       >
-        <h3 class="bg-gray-800 font-medium p-2 rounded-t-lg text-white text-xl">
+        <h3 class="p-2 text-xl font-medium text-white bg-gray-800 rounded-t-lg">
           Sottomissioni
         </h3>
         <!-- fake submission for loading -->
         <div
           v-show="processingSubmission"
-          class="flex m-2 mb-0 p-3 opacity-50 bg-gray-400 rounded-md shadow-md text-black text-shadow-lg"
+          class="flex p-3 m-2 mb-0 text-black bg-gray-400 rounded-md shadow-md opacity-50 text-shadow-lg"
         >
           <svg
-            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -107,11 +116,21 @@
               :canBeTurnedIn="submission.is_eligible && !index"
               :index="submissions.length - index"
               :submission="submission"
+              @turnIn="confirmTurnIn(submission.id)"
             ></Submission>
           </div>
         </div>
       </div>
     </div>
+    <Dialog
+    v-if="dialog.shown"
+    :string="dialog.string"
+    :subText="dialog.subText"
+    :confirmOnly="dialog.confirmOnly"
+    :severity="dialog.severity"
+    @yes="dialog.onYes.function(dialog.onYes.param)"
+    @no="dialog.onNo.function(dialog.onNo.param)"
+    ></Dialog>
   </div>
 </template>
 
@@ -120,45 +139,20 @@ import axios from "axios";
 import AceEditor from "vuejs-ace-editor";
 import Submission from "../components/Submission.vue";
 import TestCase from "../components/TestCase.vue";
+import "vue-code-highlight/themes/duotone-sea.css";
+import Dialog from "../components/Dialog.vue"
 export default {
   name: "Editor",
-  components: { AceEditor, Submission, TestCase },
+  components: { AceEditor, Submission, TestCase, Dialog },
+
   props: {
     // exerciseText: String,
     // testcases: Array,
   },
+  created() {
+    this.getExam();
+  },
   mounted() {
-    axios
-      .get("/exams/my_exam")
-      .then((response) => {
-        console.log(response.data);
-        this.testcases = response.data.exercise.public_testcases;
-        this.exerciseId = response.data.exercise.id;
-        alert(response.data.exercise.text);
-      })
-      .catch((error) => {
-        console.log(JSON.stringify(error));
-      });
-
-    // this.testcases = [
-    //   {
-    //     assertion:
-    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
-    //   },
-    //   {
-    //     assertion:
-    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
-    //   },
-    //   {
-    //     assertion:
-    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
-    //   },
-    //   {
-    //     assertion:
-    //       'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
-    //   },
-    // ];
-
     // set the editor height to approximately 70% of parent height
     this.editorHeight = this.$parent.$refs.app.clientHeight / 1.4 + "px";
 
@@ -181,6 +175,10 @@ export default {
   },
   data() {
     return {
+      dialog: {
+        shown: false,
+      },
+      examName: null,
       exerciseId: null,
       testcases: [],
       assignmentText: "",
@@ -191,36 +189,36 @@ export default {
       submitCooldownHandle: null,
       editorOptions: {},
       processingSubmission: false,
-      submissions: [
-        // {
-        //   id: 1,
-        //   user: 2,
-        //   code: "function max(a,b) { return a>b?a:b }",
-        //   timestamp: "2021-03-05T21:54:23.744126Z",
-        //   is_eligible: false,
-        //   has_been_turned_in: false,
-        //   public_details: {
-        //     1: {
-        //       parameters: ["1", "2"],
-        //       output: 2,
-        //       is_public: true,
-        //       passed: false,
-        //     },
-        //     3: {
-        //       parameters: ["-1", "0"],
-        //       output: 0,
-        //       is_public: true,
-        //       passed: false,
-        //     },
-        //     failed_secret_tests: 1,
-        //   },
-        // },
-      ],
-      pane: "editor",
+      submissions: [],
+      pane: "text",
     };
   },
   methods: {
+    getExam() {
+      axios
+        .get("/exams/my_exam")
+        .then((response) => {
+          console.log(response);
+          this.testcases = response.data.exercise.public_testcases;
+          this.exerciseId = response.data.exercise.id;
+          this.code = response.data.exercise.starting_code;
+          this.assignmentText = response.data.exercise.text;
+          this.submissions = response.data.submissions
+          this.examName = response.data.name;
+        })
+        .catch((error) => {
+          this.$store.commit("setMessage", error.response.data.message ?? error.message)
+        });
+    },
     submit() {
+      this.submitCooldown = 10;
+      this.submitCooldownHandle = setInterval(() => {
+        this.submitCooldown--;
+        if (!this.submitCooldown) {
+          clearInterval(this.submitCooldownHandle);
+          this.submitCooldownHandle = null;
+        }
+      }, 1000);
       this.processingSubmission = true;
       axios
         .post(`/exercises/${this.exerciseId}/submissions/`, {
@@ -235,41 +233,32 @@ export default {
           console.log(JSON.stringify(error));
         });
     },
-    fakeSubmission() {
-      this.submitCooldown = 10;
-      this.submitCooldownHandle = setInterval(() => {
-        this.submitCooldown--;
-        if (!this.submitCooldown) {
-          clearInterval(this.submitCooldownHandle);
-          this.submitCooldownHandle = null;
-        }
-      }, 1000);
-      this.processingSubmission = true;
-      setTimeout(() => {
-        this.submissions.unshift({
-          id: Math.random(),
-          user: 1,
-          code: "function f(arr) { return arr.map(u => u.username + '1' ) }",
-          timestamp: "2021-03-12T16:21:11.682704+01:00",
-          is_eligible: Math.random() > 0.5,
-          has_been_turned_in: false,
-          public_details: {
-            tests: [
-              {
-                id: 4,
-                assertion:
-                  'assert.deepStrictEqual(f([{username: "sam", age: 21}, {username: "elly", age: 18}]), ["sam", "elly"])',
-                is_public: true,
-                passed: true,
-              },
-            ],
-            failed_secret_tests: 1,
-          },
-        });
-        this.processingSubmission = false;
-      }, 2000);
+    confirmTurnIn(id) {
+      id
+      this.dialog = {
+        shown: true,
+        string: "Sei sicuro di voler consegnare?",
+        subText: "Una volta confermata, la consegna non potrà più essere modificata.",
+        confirmOnly: false,
+        onYes: {function: this.turnIn, param: id},
+        onNo: { function: () => this.dialog = { shown: false } },
+      }
     },
-    editorInit: function () {
+    turnIn(id) {
+      this.dialog = { shown: false }
+      console.log(id)
+      axios
+        .put(`/exercises/${this.exerciseId}/submissions/${id}/turn_in/`, {
+        })
+        .then(() => {
+          this.$store.commit("setMessage", "Consegna avvenuta con successo. Puoi chiudere questa pagina.")
+        })
+        .catch((error) => {
+          this.$store.commit("setMessage", error.response.data.message ?? error.message)
+          console.log(JSON.stringify(error));
+        });
+    },
+    editorInit() {
       require("brace/ext/language_tools"); //language extension prerequsite...
       require("brace/mode/html");
       require("brace/mode/javascript"); //language
@@ -278,10 +267,43 @@ export default {
       require("brace/snippets/javascript"); //snippet
     },
   },
+  computed: {
+    processedAssignmentText() {
+      // repaces `'s inside the assignment text with highlighted js code
+      return this.assignmentText
+        ?.replaceAll(
+          /```(.*)```/g,
+          `
+        <div
+        class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
+        >
+          <pre class=" language-javascript"><code class=" language-javascript">$1</code></pre>
+        </div>
+      `
+        )
+        ?.replaceAll(
+          /`(.*)`/g,
+          `
+        <div
+        class="inline-block p-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
+        >
+          <pre style="line-height: 0.95; overflow-y: hidden" class=" language-javascript"><code style="line-height: 0.5" class=" language-javascript">$1</code></pre>
+        </div>
+      `
+        );
+    },
+  },
 };
 </script>
 <style>
 .ace_scroller.ace_scroll-left {
   box-shadow: 10px 0 10px -10px rgb(0 0 0 / 20%) inset;
+}
+code[class*="language-"],
+pre[class*="language-"] {
+  padding: 0 !important;
+  margin: 0 !important;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 </style>

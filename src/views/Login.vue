@@ -1,43 +1,50 @@
 <template>
-  <div class="page-login">
+  <div class="border shadow-md border-gray-300 m-auto w-2/5 p-10 rounded-lg">
     <div class="columns">
       <div class="column is-4 is-offset-4">
-        <h1 class="title">Log in</h1>
+        <h1 class="font-medium text-3xl text-center">Login</h1>
 
-        <form @submit.prevent="submitForm">
-          <div class="field">
-            <label>Username</label>
+        <form @submit.prevent="submitForm" class="flex-column">
+          <div class="my-5 mx-auto text-center">
             <div class="control">
-              <input name="username" class="input" v-model="username" />
+              <input
+                name="username"
+                class="border rounded-md p-2"
+                placeholder="Username"
+                v-model="username"
+              />
             </div>
           </div>
 
-          <div class="field">
-            <label>Password</label>
+          <div class="my-5 mx-auto text-center">
             <div class="control">
               <input
                 type="password"
                 name="password"
-                class="input"
+                placeholder="Password"
+                class="border rounded-md p-2"
                 v-model="password"
               />
             </div>
           </div>
 
-          <div class="notification is-danger" v-if="errors.length">
+          <div
+            class="p-3 my-3 rounded-md bg-red-300 w-4/5 text-gray-800 mx-auto"
+            v-if="errors.length"
+          >
             <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
           </div>
 
-          <div class="field">
+          <div class="text-center">
             <div class="control">
-              <button class="button is-success">Log in</button>
+              <button
+                class="bg-green-600 px-3 py-1 font-medium text-white rounded-lg shadow-inner"
+              >
+                Entra
+              </button>
             </div>
           </div>
         </form>
-
-        <hr />
-
-        <router-link to="/sign-up">Click here</router-link> to sign up!
       </div>
     </div>
   </div>
@@ -74,6 +81,7 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
+            this.errors = [];
             for (const property in error.response.data) {
               this.errors.push(`${property}: ${error.response.data[property]}`);
             }
@@ -87,6 +95,7 @@ export default {
       axios
         .get("/api/v1/users/me")
         .then((response) => {
+          console.log(response);
           this.$store.commit("setUser", {
             username: response.data.username,
             id: response.data.id,

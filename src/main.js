@@ -4,6 +4,10 @@ import router from './router'
 import './index.css'
 import axios from "axios"
 import { store } from "./store"
+import VueCodeHighlight from 'vue-code-highlight';
+import "vue-code-highlight/themes/duotone-sea.css";
+
+Vue.use(VueCodeHighlight) //registers the v-highlight directive
 
 Vue.config.productionTip = false
 

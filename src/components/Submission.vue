@@ -1,13 +1,13 @@
 <template>
   <div
-    class="m-2 rounded-md shadow-md text-gray-900 text-shadow-lg"
+    class="m-2 text-gray-900 rounded-md shadow-md text-shadow-lg"
     :class="{
       'bg-green-00': true && submission.is_eligible,
       'bg-red-00': true && !submission.is_eligible,
     }"
   >
     <div
-      class="flex flex-wrap md:flex-nowrap p-3 text-gray-100"
+      class="flex flex-wrap p-3 text-gray-100 md:flex-nowrap"
       :class="{
         'rounded-md': !expanded,
         'rounded-t-md': expanded,
@@ -17,7 +17,7 @@
     >
       <span class="mr-3 text-lg font-medium"
         ><i
-          class="far mr-1"
+          class="mr-1 far"
           :class="{
             'fa-check-circle text-green-900': submission.is_eligible,
             'fa-times-circle text-red-900': !submission.is_eligible,
@@ -27,12 +27,13 @@
       >
       <button
         @click="expanded = !expanded"
-        class="ml-auto md:ml-0 border text-white border-gray-700 py px-3 rounded-md shadow-inner bg-gray-800"
+        class="px-3 ml-auto text-white bg-gray-800 border border-gray-700 rounded-md shadow-inner md:ml-0 py"
       >
         {{ expanded ? "Nascondi" : "Dettagli" }}
       </button>
       <button
-        class="py border mt-1 md:mt-0 border-green-700 ml-auto px-4 rounded-md bg-green-800 text-white shadow-lg"
+        @click="$emit('turnIn')"
+        class="px-4 mt-1 ml-auto text-white bg-green-800 border border-green-700 rounded-md shadow-lg py md:mt-0"
         v-if="canBeTurnedIn"
       >
         <i class="fas fa-paper-plane"></i> Consegna
@@ -42,10 +43,19 @@
     <!-- testcase list -->
     <!--<transition name="smooth">-->
     <div class="p-3 rounded-b-md bg-gray-50" v-show="expanded">
+      <div v-if="submission.public_details.error">
+            Errore durante l'esecuzione:
+            <vue-code-highlight
+              language="javascript"
+              class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
+            >
+              {{ submission.public_details.error }}
+            </vue-code-highlight>
+        </div>
       <div
         v-for="(testcase, index) in submission.public_details.tests"
         :key="index"
-        class="border-b pb-2 border-gray-300 last:border-b-0"
+        class="pb-2 border-b border-gray-300 last:border-b-0"
       >
         <div class="my-3">
           <p>
@@ -66,18 +76,22 @@
               >{{ !testcase.passed ? "non " : "" }} superato</span
             >
           </p>
-          <p class="font-medium mb-1">
-            <span
-              class="break-all text-white font-mono text-xs bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
-              >{{ testcase.assertion }}</span
+          <p class="mb-1 font-medium">
+            <vue-code-highlight
+              language="javascript"
+              class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
             >
+              <pre>{{ testcase.assertion }}</pre>
+            </vue-code-highlight>
           </p>
-          <p v-if="!testcase.passed" class="font-medium mb-1">
+          <p v-if="!testcase.passed" class="mb-1 break-all">
             Errore:
-            <span
-              class="break-all text-white font-mono bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
-              >{{ testcase.error }}</span
+            <vue-code-highlight
+              language="javascript"
+              class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
             >
+              {{ testcase.error }}
+            </vue-code-highlight>
           </p>
           <!-- <p class="font-medium">
             Output:
@@ -89,7 +103,7 @@
         </div>
       </div>
       <p class="my-3" v-if="submission.public_details.failed_secret_tests">
-        <i class="far fa-times-circle text-red-900"></i> Test case
+        <i class="text-red-900 far fa-times-circle"></i> Test case
         <span class="font-semibold text-red-900">segreti falliti:</span>
         {{ submission.public_details.failed_secret_tests }}
       </p>
@@ -99,8 +113,13 @@
 </template>
 
 <script>
+import { component as VueCodeHighlight } from "vue-code-highlight";
+import "vue-code-highlight/themes/duotone-sea.css";
 export default {
   name: "Submission",
+  components: {
+    VueCodeHighlight,
+  },
   props: {
     submission: Object,
     index: Number,
@@ -115,4 +134,11 @@ export default {
 </script>
 
 <style>
+code[class*="language-"],
+pre[class*="language-"] {
+  padding: 0;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
 </style>
