@@ -27,16 +27,17 @@
       >
       <button
         @click="expanded = !expanded"
-        class="px-3 ml-auto text-white bg-gray-800 border border-gray-700 rounded-md shadow-inner md:ml-0 py"
+        class="px-3 ml-auto text-white transition-all duration-150 bg-gray-800 border border-gray-700 rounded-md shadow-inner hover:bg-gray-900 md:ml-0 py"
       >
-        {{ expanded ? "Nascondi" : "Dettagli" }}
+        <i class="mr-1 transition-transform duration-75 transform fas fa-caret-right"
+        :class="{'rotate-90': expanded }"></i> {{ expanded ? "Nascondi" : "Dettagli" }}
       </button>
       <button
         @click="$emit('turnIn')"
-        class="px-4 mt-1 ml-auto text-white bg-green-800 border border-green-700 rounded-md shadow-lg py md:mt-0"
+        class="px-3 mt-1 ml-auto text-white transition-all duration-100 bg-green-800 border border-green-700 rounded-md shadow-lg hover:bg-green-900 py md:mt-0"
         v-if="canBeTurnedIn"
       >
-        <i class="fas fa-paper-plane"></i> Consegna
+        <i class="mr-1 fas fa-paper-plane"></i> Consegna
       </button>
     </div>
 

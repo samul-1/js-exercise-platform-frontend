@@ -1,18 +1,29 @@
 <template>
-  <div class="fixed top-0 left-0 flex items-center justify-center w-full h-full">
-    <div class="absolute z-10 w-full h-full bg-gray-900 opacity-80"></div>
-
-    <div class="z-20 w-3/5 px-10 py-10 bg-white rounded-lg shadow-md ">
-      <div class="mb-10">
-        <p class="mb-4 text-2xl">{{ string }}</p>
-        <p class="mt-4 text-md">{{ subText }}</p>
-      </div>
-      <div class="flex mt-5">
-        <button class="px-3 py-1 ml-auto mr-2 text-white bg-green-600 rounded-md " @click="$emit('yes')">{{ confirmOnly ? "Ok" : "Sì" }}</button>
-        <button class="px-3 py-1 text-white bg-gray-900 rounded-md " @click="$emit('no')" v-if="!confirmOnly">No</button>
-      </div>
+  <transition
+    name="fade"
+    @after-enter="showContent = true"
+    appear
+  >
+    <div class="fixed top-0 left-0 flex items-center justify-center w-full h-full">
+      <div 
+      @click="chooseAndHide(confirmOnly ? 'yes' : 'no')"
+      style="width: 100vw !important; height: 100vh !important"
+      class="absolute z-10 w-full h-full transition-none bg-gray-900 opacity-80"></div>
+      <transition name="bounce" @after-leave="$emit(choice); "
+>
+        <div v-if="showContent" class="z-20 w-3/5 px-10 py-10 bg-white rounded-lg shadow-lg ">
+          <div class="mb-10">
+            <p class="mb-4 text-2xl">{{ string }}</p>
+            <p class="mt-4 text-md">{{ subText }}</p>
+          </div>
+          <div class="flex mt-5">
+            <button class="px-5 py-2 ml-auto mr-2 text-lg text-white transition-all duration-100 bg-green-600 rounded-md hover:bg-green-800 " @click="chooseAndHide('yes')">{{ confirmOnly ? "Ok" : "Sì" }}</button>
+            <button class="px-5 py-2 text-lg transition-all duration-150 border border-gray-200 rounded-md shadow hover:text-white hover:bg-gray-800" @click="chooseAndHide('no')" v-if="!confirmOnly">No</button>
+          </div>
+        </div>
+      </transition>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script>
@@ -24,10 +35,50 @@ export default {
       dismissable: Boolean,
       severity: Number,
       confirmOnly: Boolean,
+    },
+    data() {
+      return {
+        choice: '',
+        showContent: false,
+      }
+    },
+    methods: {
+      // make a method that, upon clicking button, puts in a 'selection' variable either
+      // 'yes' or 'no', then does showContent = false, and the @after-leave will emit the value
+      chooseAndHide(choice) {
+        this.choice = choice
+        this.showContent = false
+      }
     }
 }
 </script>
 
 <style>
+.bounce-enter-active {
+  animation: bounce-in .2s;
+}
+.bounce-leave-active {
+  animation: bounce-in .25s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: .9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
 
+.fade-enter-active, .fade-leave-active {
+  transition: 0.1s opacity ease-out;
+}
 </style>

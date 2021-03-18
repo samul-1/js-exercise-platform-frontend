@@ -1,116 +1,98 @@
 <template>
-  <div class="border shadow-md border-gray-300 m-auto w-2/5 p-10 rounded-lg">
-    <div class="columns">
-      <div class="column is-4 is-offset-4">
-        <h1 class="font-medium text-3xl text-center">Login</h1>
+  <div class="w-3/5 px-32 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md">
+    <h1 class="text-3xl font-medium">Login</h1>
+    <div class="mt-5">
+      <p class="">Effettua l'accesso con la tua email <strong>@studenti.unipi.it</strong></p>
 
-        <form @submit.prevent="submitForm" class="flex-column">
-          <div class="my-5 mx-auto text-center">
-            <div class="control">
-              <input
-                name="username"
-                class="border rounded-md p-2"
-                placeholder="Username"
-                v-model="username"
-              />
-            </div>
-          </div>
-
-          <div class="my-5 mx-auto text-center">
-            <div class="control">
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                class="border rounded-md p-2"
-                v-model="password"
-              />
-            </div>
-          </div>
-
-          <div
-            class="p-3 my-3 rounded-md bg-red-300 w-4/5 text-gray-800 mx-auto"
-            v-if="errors.length"
-          >
-            <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
-          </div>
-
-          <div class="text-center">
-            <div class="control">
-              <button
-                class="bg-green-600 px-3 py-1 font-medium text-white rounded-lg shadow-inner"
-              >
-                Entra
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+      <g-signin-button
+          class=""
+          :params="googleSignInParams"
+          @success="onGoogleSignInSuccess"
+          @error="onGoogleSignInError"
+        >
+          <button class="w-3/5 px-3 py-3 mx-auto mt-10 font-medium text-white bg-green-600 rounded-lg shadow-inner active:bg-green-700 btn btn-block btn-success">
+            <i class="mr-1 fas fa-lock"></i> Entra
+          </button>
+        </g-signin-button>
     </div>
   </div>
 </template>
 
 <script>
+
 import axios from "axios";
 export default {
   name: "Login",
+  components: {
+    
+  },
+  mounted() {
+    this.$store.commit("removeToken")
+    localStorage.removeItem("token");
+  },
   data() {
     return {
+      user: {},
       username: "",
       password: "",
       errors: [],
+      googleSignInParams: {
+        client_id: '956826904172-mcsaj1bqcllv93bpad7dmd0e3oil4758.apps.googleusercontent.com' // '600729137370-h25svjos6nbofm48mmtacd3hjq6ogu95.apps.googleusercontent.com'
+      },
     };
   },
   methods: {
-    async submitForm(e) {
-      e;
-      axios.defaults.headers.common["Authorization"] = "";
-      localStorage.removeItem("token");
-      const formData = {
-        username: this.username,
-        password: this.password,
-      };
-      await axios
-        .post("/api/v1/token/login/", formData)
-        .then((response) => {
-          const token = response.data.auth_token;
-          this.$store.commit("setToken", token);
+     async onGoogleSignInSuccess (resp) {
+      console.log('successfully signed in with google:', resp)
 
-          axios.defaults.headers.common["Authorization"] = "Token " + token;
-          localStorage.setItem("token", token);
-        })
-        .catch((error) => {
-          if (error.response) {
-            this.errors = [];
-            for (const property in error.response.data) {
-              this.errors.push(`${property}: ${error.response.data[property]}`);
-            }
-            console.log(JSON.stringify(error.response.data));
-          } else if (error.message) {
-            console.log(JSON.stringify(error.message));
-          } else {
-            console.log(JSON.stringify(error));
-          }
+      // get access token from google
+      const token =  resp.tc?.access_token ?? resp.uc?.access_token // ? what's going on here?
+
+      // log in with access token
+      await axios.post('http://localhost:8000/users/auth/convert-token',
+      {
+        "grant_type": "convert_token", 
+        "client_id": "j19J7lrby2t6WVOa9LxWs9fW6IgAX7GH8cuRjJhn",
+        "client_secret": "UXzLJpaW8n1G4yR45CwJbGR4IztwxomCioheiSoRlhkSn3KTm5caBghWVTzx5nmKdcYCVYiSy8O2JeP2MeDAEZoqhMKtjbBI7bScLta5jUXSewyCKw2PX1b7D8twpe9V",
+        "backend": "google-oauth2",
+        "token": token
+      })
+      .then(resp => {
+        console.log('successfully logged in to service:', resp)
+        console.log(resp.data)
+
+        // save login key to store, local storage, and set it to axios headers
+        this.$store.commit("setToken", resp.data.access_token);
+        axios.defaults.headers.common["Authorization"] = "Bearer " + resp.data.access_token;
+        localStorage.setItem("token", resp.data.access_token);
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
+      // get user info from service
+      axios.get("/api/v1/users/me")
+      .then((response) => {
+        console.log('user info:', response);
+        // save user details to store and local storage
+        this.$store.commit("setUser", {
+          email: response.data.email,
+          id: response.data.id,
         });
-      axios
-        .get("/api/v1/users/me")
-        .then((response) => {
-          console.log(response);
-          this.$store.commit("setUser", {
-            username: response.data.username,
-            id: response.data.id,
-          });
-          localStorage.setItem("username", response.data.username);
-          localStorage.setItem("userid", response.data.id);
-          this.$router.push("/");
-        })
-        .catch((error) => {
-          console.log(JSON.stringify(error));
-        });
+        localStorage.setItem("email", response.data.email);
+        localStorage.setItem("userid", response.data.id);
+
+        // redirect to main view
+        this.$router.push("/");
+      })
+      .catch((error) => {
+        console.log("error getting user info", JSON.stringify(error));
+      });
+    },
+    onGoogleSignInError (error) {
+      alert("I cookie devono essere abilitati per utilizzare questo servizio. Esci dalla modalità incognito se la stai attualmente utilizzando, o abilita i cookie.")
+      console.log('google sign in error', error)
     },
   },
 };
 </script>
-
-<style>
-</style>

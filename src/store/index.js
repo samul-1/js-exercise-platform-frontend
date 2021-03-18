@@ -8,7 +8,7 @@ export const store = new Vuex.Store({
     plugins: [createPersistedState()],
     state: {
         user: {
-            username: ''
+            email: ''
         },
         isAuthenticated: false,
         token: '',

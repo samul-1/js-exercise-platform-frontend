@@ -6,6 +6,7 @@ import axios from "axios"
 import { store } from "./store"
 import VueCodeHighlight from 'vue-code-highlight';
 import "vue-code-highlight/themes/duotone-sea.css";
+import GSignInButton from 'vue-google-signin-button'
 
 Vue.use(VueCodeHighlight) //registers the v-highlight directive
 
@@ -13,6 +14,7 @@ Vue.config.productionTip = false
 
 axios.defaults.baseURL = "http://127.0.0.1:8000"
 
+Vue.use(GSignInButton)
 
 new Vue({
   store,

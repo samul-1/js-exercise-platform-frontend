@@ -14,7 +14,7 @@
       <div class="my-auto ml-auto">
         <template v-if="$store.state.isAuthenticated">
           <p>
-            <i class="mr-2 far fa-user"></i>{{ $store.state.user.username }}
+            <i class="mr-2 far fa-user"></i>{{ $store.state.user.email }}
           </p>
         </template>
         <!-- <template v-else>
@@ -51,15 +51,18 @@ export default {
   beforeCreate() {
     this.$store.commit("initializeStore");
 
+    // get data about user authentication from the store if user is logged in
     const token = this.$store.state.token;
 
     if (token) {
-      axios.defaults.headers.common["Authorization"] = "Token " + token;
+      axios.defaults.headers.common["Authorization"] = "Bearer " + token;
     } else {
+      // redirect to login view if user isn't authenticated
       this.$router.push("/login");
       axios.defaults.headers.common["Authorization"] = "";
     }
   },
+
 };
 </script>
 <style>
