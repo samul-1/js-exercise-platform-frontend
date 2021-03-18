@@ -2,15 +2,16 @@
   <div class="w-3/5 px-32 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md">
     <h1 class="text-3xl font-medium">Login</h1>
     <div class="mt-5">
-      <p class="">Effettua l'accesso con la tua email <strong>@studenti.unipi.it</strong></p>
-
+      <!--<p class="">Verrai reindirizzato al sito dell'Università di Pisa. </p>-->
+      <p>Effettua l'accesso con la tua email <strong>@studenti.unipi.it</strong>.</p>
+      <p class="mt-3"><i class="fas fa-exclamation-circle text-red-700"></i> <span class="text-red-700 font-semibold">Attenzione:</span> i cookie devono essere abilitati per effettuare il login, e non si deve essere in modalità incognito.</p>
       <g-signin-button
           class=""
           :params="googleSignInParams"
           @success="onGoogleSignInSuccess"
           @error="onGoogleSignInError"
         >
-          <button class="w-3/5 px-3 py-3 mx-auto mt-10 font-medium text-white bg-green-600 rounded-lg shadow-inner active:bg-green-700 btn btn-block btn-success">
+          <button class="w-3/5 px-3 py-3 mx-auto mt-6 font-medium text-white bg-green-600 rounded-lg shadow-inner active:bg-green-700 btn btn-block btn-success">
             <i class="mr-1 fas fa-lock"></i> Entra
           </button>
         </g-signin-button>
@@ -37,7 +38,8 @@ export default {
       password: "",
       errors: [],
       googleSignInParams: {
-        client_id: '956826904172-mcsaj1bqcllv93bpad7dmd0e3oil4758.apps.googleusercontent.com' // '600729137370-h25svjos6nbofm48mmtacd3hjq6ogu95.apps.googleusercontent.com'
+        client_id: '956826904172-mcsaj1bqcllv93bpad7dmd0e3oil4758.apps.googleusercontent.com', // '600729137370-h25svjos6nbofm48mmtacd3hjq6ogu95.apps.googleusercontent.com'
+        hosted_domain: "studenti.unipi.it",
       },
     };
   },

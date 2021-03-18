@@ -73,12 +73,12 @@
                         case non presenti in questa lista.
                     </div>
                     <div
-                        v-for="(testcase, index) in testcases"
-                        :key="index"
+                        v-for="testcase in testcases"
+                        :key="testcase.id"
                     >
                         <TestCase
                             :testcase="testcase"
-                            :index="index + 1"
+                            :index="testcase.id"
                         ></TestCase>
                     </div>
                 </div>
@@ -256,17 +256,31 @@ export default {
     },
     methods: {
         getExam() {
+            console.log("getting exam")
             axios
-                .get('/exams/my_exam')
+                .post('/exams/my_exam/')
                 .then((response) => {
                     console.log(response);
+
+                    // server will return 204 if all exercises have been completed
+                    if(response.status == 204) {
+                        this.$store.commit(
+                            'setMessage',
+                            'Hai completato tutti gli esercizi. Puoi chiudere questa pagina.'
+                        );
+                        return
+                    }
+                    // copy response data into the corresponding fields
+                    this.examName = response.data.name;
+                    
+                    this.exerciseId = response.data.exercise.id;
+                    this.assignmentText = response.data.exercise.text;
+                    this.code = response.data.exercise.starting_code;
+
                     this.testcases =
                         response.data.exercise.public_testcases;
-                    this.exerciseId = response.data.exercise.id;
-                    this.code = response.data.exercise.starting_code;
-                    this.assignmentText = response.data.exercise.text;
                     this.submissions = response.data.submissions;
-                    this.examName = response.data.name;
+
                 })
                 .catch((error) => {
                     if (error.response.status == 401) {
@@ -327,10 +341,8 @@ export default {
                     {}
                 )
                 .then(() => {
-                    this.$store.commit(
-                        'setMessage',
-                        'Consegna avvenuta con successo. Puoi chiudere questa pagina.'
-                    );
+                    // ask for next exercise
+                    this.getExam()
                 })
                 .catch((error) => {
                     this.$store.commit(
