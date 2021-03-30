@@ -4,7 +4,7 @@
     <div class="mt-5">
       <!--<p class="">Verrai reindirizzato al sito dell'Università di Pisa. </p>-->
       <p>Effettua l'accesso con la tua email <strong>@studenti.unipi.it</strong>.</p>
-      <p class="mt-3"><i class="fas fa-exclamation-circle text-red-700"></i> <span class="text-red-700 font-semibold">Attenzione:</span> i cookie devono essere abilitati per effettuare il login, e non si deve essere in modalità incognito.</p>
+      <p class="mt-3"><i class="text-red-700 fas fa-exclamation-circle"></i> <span class="font-semibold text-red-700">Attenzione:</span> i cookie devono essere abilitati per effettuare il login, e non si deve essere in modalità incognito.</p>
       <g-signin-button
           class=""
           :params="googleSignInParams"
