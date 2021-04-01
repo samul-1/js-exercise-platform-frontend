@@ -58,14 +58,13 @@ export default {
     if (token) {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
     } else {
-      // redirect to login view if user isn't authenticated
-      //this.$router.push("/login");
       axios.defaults.headers.common['Authorization'] = ''
     }
   }
 }
 </script>
 <style>
+/* Custom code highlight colors  */
 .token.property,
 .token.function {
   color: #a0b4ff !important;

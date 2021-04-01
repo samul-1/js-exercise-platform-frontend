@@ -41,7 +41,7 @@ export const store = new Vuex.Store({
     },
     setUser (state, user) {
       state.user = user
-      localStorage.setItem('id', user.id)
+      localStorage.setItem('userid', user.id)
       localStorage.setItem('email', user.email)
       localStorage.setItem('is_teacher', user.is_teacher)
     },

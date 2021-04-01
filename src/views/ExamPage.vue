@@ -1,5 +1,6 @@
 <template>
   <div id="editor-view" ref="editorView" class="px-4 my-5">
+    <!-- // todo make into spinner component -->
     <div
       v-if="loading"
       class="fixed z-50"
@@ -26,6 +27,7 @@
         ></path>
       </svg>
     </div>
+    <!-- // todo end spinner -->
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
       <div
@@ -150,6 +152,7 @@
             </button>
           </div>
           <Skeleton v-if="!exercise.text.length"></Skeleton>
+          <!-- // ! use the generic highlight function from constants.js -->
           <div v-else v-highlight v-html="processedAssignmentText"></div>
         </div>
 
@@ -185,6 +188,7 @@
             v-show="processingSubmission"
             class="flex p-3 m-2 mb-0 text-black bg-gray-300 rounded-md shadow-md opacity-50 text-shadow-lg"
           >
+            <!-- //! spinner component -->
             <svg
               class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
               xmlns="http://www.w3.org/2000/svg"
@@ -204,7 +208,8 @@
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path></svg
-            >Valutazione codice in corso...
+            ><!-- // ! end spinner -->
+            Valutazione codice in corso...
           </div>
           <div class="overflow-auto">
             <div
@@ -233,6 +238,7 @@
       @no="dialog.onNo.callback(dialog.onNo.param)"
     ></Dialog>
     <transition name="bounce">
+      <!-- // ! use the generic highlight function from constants.js -->
       <DraggablePopup
         v-show="popupOpen"
         :title="examName"
@@ -265,7 +271,11 @@ export default {
     DraggablePopup
   },
   created () {
-    this.getExam()
+    if (!this.$store.state.isAuthenticated) {
+      this.$router.push('/login')
+    } else {
+      this.getExam()
+    }
   },
   mounted () {
     // set the editor height to approximately 70% of parent height
@@ -337,7 +347,7 @@ export default {
         .then(response => {
           console.log(response)
           this.loading = false
-          // server will return 204 if all exercises and questions have been completed
+          // backend will return 204 if all exercises and questions have been completed
           if (response.status == 204) {
             this.$store.commit(
               'setMessage',
@@ -357,7 +367,7 @@ export default {
           // save exercise
           if (response.data.exercise) {
             const { starting_code, ...exercise } = response.data.exercise
-            this.code = starting_code // set initial editor code to that specified in the exercise
+            this.code = starting_code // set initial editor code to that specified in exercise
             this.exercise = exercise
             // move to assignment text pane
             this.pane = 'text'
@@ -368,9 +378,9 @@ export default {
           this.submissions = response.data.submissions
         })
         .catch(error => {
-          if (error.response.status == 401) {
+          if (error.response.status == 401 || error.response.status == 403) {
             this.$router.push('/login')
-            this.$store.commit('removeToken')
+            // this.$store.commit('removeToken')
           } else {
             this.$store.commit(
               'setMessage',
@@ -381,9 +391,8 @@ export default {
     },
     submitCode () {
       // submits code to the server, temporarily disables submit button for cooldown,
-      // and shows the submission details upon receiving them back from the server,
-      // then loads next question or exercise
-      this.submitCooldown = 10
+      // and shows the submission details upon receiving them back from the server
+      this.submitCooldown = 10 // ! pull this out from constants
       this.submitCooldownHandle = setInterval(() => {
         this.submitCooldown--
         if (!this.submitCooldown) {
@@ -391,6 +400,8 @@ export default {
           this.submitCooldownHandle = null
         }
       }, 1000)
+
+      // show fake "loading" submission
       this.processingSubmission = true
       axios
         .post(`/exercises/${this.exercise.id}/submissions/`, {
@@ -398,7 +409,9 @@ export default {
         })
         .then(response => {
           console.log(response.data)
+          // add new submission to submission list
           this.submissions.unshift(response.data)
+          // hide fake "loading" submission
           this.processingSubmission = false
         })
         .catch(error => {
@@ -431,7 +444,6 @@ export default {
     },
     confirmTurnIn (id) {
       // shows a dialog that prompts the user for confirmation to turn in a submission
-      id
       this.dialog = {
         shown: true,
         string: 'Sei sicuro di voler consegnare?',
@@ -458,14 +470,16 @@ export default {
         }
       }
     },
-    turnIn (id) {
+    turnIn (submissionId) {
       // makes a PUT request to the server asking to turn in an eligible submission
       this.dialog = { shown: false }
-      console.log(id)
       axios
-        .put(`/exercises/${this.exerciseId}/submissions/${id}/turn_in/`, {})
+        .put(
+          `/exercises/${this.exercise.id}/submissions/${submissionId}/turn_in/`,
+          {}
+        )
         .then(() => {
-          // ask for next exercise
+          // ask for next exercise or question
           this.getExam()
         })
         .catch(error => {
@@ -487,6 +501,7 @@ export default {
     }
   },
   computed: {
+    // ! use the generic version in constants.js and delete this
     processedAssignmentText () {
       // repaces `'s inside the assignment text with highlighted js code
       return this.exercise.text

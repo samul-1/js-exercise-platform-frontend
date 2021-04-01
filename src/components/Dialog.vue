@@ -62,8 +62,6 @@ export default {
     }
   },
   methods: {
-    // make a method that, upon clicking button, puts in a 'selection' variable either
-    // 'yes' or 'no', then does showContent = false, and the @after-leave will emit the value
     chooseAndHide (choice) {
       this.choice = choice
       this.showContent = false

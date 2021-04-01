@@ -3,7 +3,7 @@
     class="m-2 text-gray-900 rounded-md shadow-md text-shadow-lg"
     :class="{
       'bg-green-00': true && submission.is_eligible,
-      'bg-red-00': true && !submission.is_eligible,
+      'bg-red-00': true && !submission.is_eligible
     }"
   >
     <div
@@ -12,26 +12,32 @@
         'rounded-md': !expanded,
         'rounded-t-md': expanded,
         'bg-green-500': submission.is_eligible,
-        'bg-red-400': !submission.is_eligible,
+        'bg-red-400': !submission.is_eligible
       }"
     >
-      <span class="mr-3 text-lg font-medium"
+      <span class="mr-3 font-medium text-md"
         ><i
           class="mr-1 far"
           :class="{
             'fa-check-circle text-green-900': submission.is_eligible,
-            'fa-times-circle text-red-900': !submission.is_eligible,
+            'fa-times-circle text-red-900': !submission.is_eligible
           }"
         ></i>
-        Sottomissione #{{ index }}</span
+        Sott{{ failedTests > 0 ? '.' : 'omissione' }} #{{ index }}</span
       >
       <button
         @click="expanded = !expanded"
         class="px-3 ml-auto text-white transition-all duration-150 bg-gray-800 border border-gray-700 rounded-md shadow-inner hover:bg-gray-900 md:ml-0 py"
       >
-        <i class="mr-1 transition-transform duration-75 transform fas fa-caret-right"
-        :class="{'rotate-90': expanded }"></i> {{ expanded ? "Nascondi" : "Dettagli" }}
+        <i
+          class="mr-1 transition-transform duration-75 transform fas fa-caret-right"
+          :class="{ 'rotate-90': expanded }"
+        ></i>
+        {{ expanded ? 'Nascondi' : 'Dettagli' }}
       </button>
+      <div v-if="failedTests" class="ml-2">
+        ({{ failedTests }} test fallit{{ failedTests == 1 ? 'o' : 'i' }})
+      </div>
       <button
         @click="$emit('turnIn')"
         class="px-3 mt-1 ml-auto text-white transition-all duration-100 bg-green-800 border border-green-700 rounded-md shadow-lg hover:bg-green-900 py md:mt-0"
@@ -40,19 +46,18 @@
         <i class="mr-1 fas fa-paper-plane"></i> Consegna
       </button>
     </div>
-
     <!-- testcase list -->
     <!--<transition name="smooth">-->
     <div class="p-3 rounded-b-md bg-gray-50" v-show="expanded">
       <div v-if="submission.public_details.error">
-            Errore durante l'esecuzione:
-            <vue-code-highlight
-              language="javascript"
-              class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
-            >
-              {{ submission.public_details.error }}
-            </vue-code-highlight>
-        </div>
+        Errore durante l'esecuzione:
+        <vue-code-highlight
+          language="javascript"
+          class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
+        >
+          {{ submission.public_details.error }}
+        </vue-code-highlight>
+      </div>
       <div
         v-for="(testcase, index) in submission.public_details.tests"
         :key="index"
@@ -64,7 +69,7 @@
               class="far"
               :class="{
                 'fa-check-circle text-green-900': testcase.passed,
-                'fa-times-circle text-red-900': !testcase.passed,
+                'fa-times-circle text-red-900': !testcase.passed
               }"
             ></i>
             Test case
@@ -72,9 +77,9 @@
               class="font-semibold"
               :class="{
                 'text-green-900': testcase.passed,
-                'text-red-900': !testcase.passed,
+                'text-red-900': !testcase.passed
               }"
-              >{{ !testcase.passed ? "non " : "" }} superato</span
+              >{{ !testcase.passed ? 'non ' : '' }} superato</span
             >
           </p>
           <p class="mb-1 font-medium">
@@ -114,29 +119,40 @@
 </template>
 
 <script>
-import { component as VueCodeHighlight } from "vue-code-highlight";
-import "vue-code-highlight/themes/duotone-sea.css";
+import { component as VueCodeHighlight } from 'vue-code-highlight'
+import 'vue-code-highlight/themes/duotone-sea.css'
 export default {
-  name: "Submission",
+  name: 'Submission',
   components: {
-    VueCodeHighlight,
+    VueCodeHighlight
   },
   props: {
     submission: Object,
     index: Number,
-    canBeTurnedIn: Boolean,
+    canBeTurnedIn: Boolean
   },
-  data() {
+  data () {
     return {
-      expanded: false,
-    };
+      expanded: false
+    }
   },
-};
+  computed: {
+    failedTests () {
+      if (!this.submission.public_details.tests) {
+        return 0
+      }
+      return (
+        this.submission.public_details.tests.filter(t => !t.passed).length +
+        this.submission.public_details.failed_secret_tests
+      )
+    }
+  }
+}
 </script>
 
 <style>
-code[class*="language-"],
-pre[class*="language-"] {
+code[class*='language-'],
+pre[class*='language-'] {
   padding: 0;
   margin: 0;
   white-space: pre-wrap;

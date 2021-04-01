@@ -2,7 +2,9 @@
   <div
     class="w-3/5 px-32 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md"
   >
-    <h1 class="text-3xl font-medium">Login</h1>
+    <h1 class="text-3xl font-medium">
+      Login {{ $route.params.role == 'teacher' ? ' docente' : '' }}
+    </h1>
     <div class="mt-5">
       <p>
         Effettua l'accesso con la tua email
@@ -88,7 +90,7 @@ export default {
           console.log(err)
         })
 
-      // get user info from service
+      // get user info from backend
       axios
         .get('/api/v1/users/me')
         .then(response => {
