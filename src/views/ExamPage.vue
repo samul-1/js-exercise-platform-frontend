@@ -2,7 +2,7 @@
   <div id="editor-view" ref="editorView" class="px-4 my-5">
     <div
       v-if="loading"
-      class="fixed"
+      class="fixed z-50"
       style="top:50%; left:50%; transform: translate(-50%,-50%); filter: drop-shadow(3px 4px 3px gray);"
     >
       <svg
@@ -137,9 +137,18 @@
           class="p-3 overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
           v-show="pane == 'text'"
         >
-          <h1 class="my-2 text-2xl font-medium">
-            {{ examName }}
-          </h1>
+          <div class="flex w-full">
+            <h1 class="my-2 text-2xl font-medium">
+              {{ examName }}
+            </h1>
+            <button
+              @click="popupOpen = true"
+              class="h-8 px-3 ml-auto text-white bg-indigo-800 rounded-md shadow-sm"
+            >
+              <i class="mr-1 far fa-window-restore"></i> Apri il testo in un
+              popup
+            </button>
+          </div>
           <Skeleton v-if="!exercise.text.length"></Skeleton>
           <div v-else v-highlight v-html="processedAssignmentText"></div>
         </div>
@@ -220,9 +229,17 @@
       :subText="dialog.subText"
       :confirmOnly="dialog.confirmOnly"
       :severity="dialog.severity"
-      @yes="dialog.onYes.function(dialog.onYes.param)"
-      @no="dialog.onNo.function(dialog.onNo.param)"
+      @yes="dialog.onYes.callback(dialog.onYes.param)"
+      @no="dialog.onNo.callback(dialog.onNo.param)"
     ></Dialog>
+    <transition name="bounce">
+      <DraggablePopup
+        v-show="popupOpen"
+        :title="examName"
+        :content="processedAssignmentText"
+        @hide="popupOpen = false"
+      ></DraggablePopup>
+    </transition>
   </div>
 </template>
 
@@ -235,15 +252,17 @@ import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion.vue'
 import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
+import DraggablePopup from '../components/DraggablePopup.vue'
 export default {
-  name: 'Editor',
+  name: 'ExamPage',
   components: {
     AceEditor,
     Submission,
     TestCase,
     Dialog,
     MultipleChoiceQuestion,
-    Skeleton
+    Skeleton,
+    DraggablePopup
   },
   created () {
     this.getExam()
@@ -305,7 +324,8 @@ export default {
 
       processingSubmission: false,
       submissions: [],
-      pane: ''
+      pane: 'text',
+      popupOpen: false
     }
   },
   methods: {
@@ -418,9 +438,9 @@ export default {
         subText:
           'Una volta confermata, la consegna non potrà più essere modificata.',
         confirmOnly: false,
-        onYes: { function: this.turnIn, param: id },
+        onYes: { callback: this.turnIn, param: id },
         onNo: {
-          function: () => (this.dialog = { shown: false })
+          callback: () => (this.dialog = { shown: false })
         }
       }
     },
@@ -432,9 +452,9 @@ export default {
         subText: 'Se confermi, non potrai più tornare indietro.',
         confirmOnly: false,
         severity: 2,
-        onYes: { function: this.submitAnswer, param: true },
+        onYes: { callback: this.submitAnswer, param: true },
         onNo: {
-          function: () => (this.dialog = { shown: false })
+          callback: () => (this.dialog = { shown: false })
         }
       }
     },
@@ -470,7 +490,7 @@ export default {
     processedAssignmentText () {
       // repaces `'s inside the assignment text with highlighted js code
       return this.exercise.text
-        ?.replaceAll(
+        ?.replace(
           /```(.*)```/g,
           `
         <div
@@ -480,7 +500,7 @@ export default {
         </div>
       `
         )
-        ?.replaceAll(
+        ?.replace(
           /`(.*)`/g,
           `
         <div
@@ -507,7 +527,7 @@ pre[class*='language-'] {
 }
 
 .bounce-x-enter-active {
-  animation: bounce-x-in 1s;
+  animation: bounce-x-in 0.4s;
 }
 .bounce-x-leave-active {
   animation: bounce-x-out 0s;
@@ -518,7 +538,11 @@ pre[class*='language-'] {
     opacity: 0;
   }
   50% {
-    transform: scaleX(1.02);
+    opacity: 0.9;
+    transform: scaleX(0.98);
+  }
+  95% {
+    transform: scaleX(1.03);
     opacity: 1;
   }
   100% {
