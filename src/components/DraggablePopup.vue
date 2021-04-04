@@ -7,8 +7,8 @@
     draggable="true"
   >
     <div
-      style="width: 98%; height:98%"
-      class="absolute bg-transparent opacity-5"
+      :style="overlayStyle"
+      class="absolute bg-transparent "
       @mousedown="dragMouseDown"
     ></div>
     <div class="flex w-full px-4 pt-3">
@@ -40,8 +40,19 @@ export default {
       default: ''
     }
   },
+  mounted () {
+    // keep draggable area in sync with actual scroll width and height of the popup
+    setInterval(() => {
+      this.overlayHeight =
+        window.document.getElementById('draggable-container').scrollHeight - 10
+      this.overlayWidth =
+        window.document.getElementById('draggable-container').scrollWidth - 10
+    }, 1000)
+  },
   data () {
     return {
+      overlayHeight: null,
+      overlayWidth: null,
       positions: {
         clientX: undefined,
         clientY: undefined,
@@ -93,6 +104,11 @@ export default {
     },
     resize () {
       console.log('resizing')
+    }
+  },
+  computed: {
+    overlayStyle () {
+      return `width: ${this.overlayWidth}px; height: ${this.overlayHeight}px;`
     }
   }
 }

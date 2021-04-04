@@ -31,7 +31,7 @@
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
       <div
-        class="w-full h-full transition-all duration-300 border border-gray-200 rounded-lg shadow-lg"
+        class="w-full h-full transition-all duration-300 border border-gray-200 shadow-sm rounded-xl"
         :class="{ 'lg:w-3/5': exercise.id }"
       >
         <!-- tabs -->
@@ -128,8 +128,11 @@
             <i class="mr-2 fas fa-eye-slash"></i> Il tuo codice potrebbe essere
             eseguito anche con test case non presenti in questa lista.
           </div>
-          <div v-for="testcase in exercise.public_testcases" :key="testcase.id">
-            <TestCase :testcase="testcase" :index="testcase.id"></TestCase>
+          <div
+            v-for="(testcase, index) in exercise.public_testcases"
+            :key="testcase.id"
+          >
+            <TestCase :testcase="testcase" :index="index + 1"></TestCase>
           </div>
         </div>
 
@@ -171,7 +174,7 @@
       <!-- submissions sidebar -->
       <transition name="bounce-x">
         <div
-          class="bg-gray-200 border rounded-lg shadow-md md:ml-3"
+          class="bg-gray-200 border shadow-sm rounded-xl md:ml-3"
           v-show="exercise.id"
           :class="{
             'w-0 w-lg:0': !exercise.id,
@@ -392,14 +395,14 @@ export default {
     submitCode () {
       // submits code to the server, temporarily disables submit button for cooldown,
       // and shows the submission details upon receiving them back from the server
-      this.submitCooldown = 10 // ! pull this out from constants
-      this.submitCooldownHandle = setInterval(() => {
-        this.submitCooldown--
-        if (!this.submitCooldown) {
-          clearInterval(this.submitCooldownHandle)
-          this.submitCooldownHandle = null
-        }
-      }, 1000)
+      // this.submitCooldown = 10 // ! pull this out from constants
+      // this.submitCooldownHandle = setInterval(() => {
+      //   this.submitCooldown--
+      //   if (!this.submitCooldown) {
+      //     clearInterval(this.submitCooldownHandle)
+      //     this.submitCooldownHandle = null
+      //   }
+      // }, 1000)
 
       // show fake "loading" submission
       this.processingSubmission = true

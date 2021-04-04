@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ExamPage from '../views/ExamPage.vue'
 import Login from '../views/Login.vue'
+import ExamEditor from '../components/ExamEditor.vue'
+import TeacherDashboard from '../views/TeacherDashboard.vue'
 import { store } from '../store'
 
 Vue.use(VueRouter)
@@ -16,6 +18,16 @@ const routes = [
     path: '/login/:role?',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/dashboard',
+    name: 'TeacherDashoard',
+    component: TeacherDashboard
+  },
+  {
+    path: '/create',
+    name: 'CreateExam',
+    component: ExamEditor
   }
 ]
 

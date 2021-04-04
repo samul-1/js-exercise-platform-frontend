@@ -122,7 +122,11 @@ export default {
       // If the logged in user is a teacher, redirects the user to the teacher dashboard
       // If the logged in user a student, redirects the student to the exam page
       // TODO implement
-      this.$router.push('/exam')
+      if (this.$store.state.user.is_teacher) {
+        this.$router.push('/create')
+      } else {
+        this.$router.push('/exam')
+      }
     }
   }
 }
