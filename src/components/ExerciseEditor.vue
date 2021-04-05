@@ -17,7 +17,7 @@
           class="tall"
           :value="exercise.text"
           @input="update('text', $event)"
-          :id="exercise.uuid + '-text-editor'"
+          :id="exercise.id + '-text-editor'"
           :editor-toolbar="toolbar"
         ></VueEditor>
       </div>
@@ -89,8 +89,8 @@
       <transition-group name="bounce">
         <TestCaseEditor
           v-for="(testcase, index) in exercise.testcases"
-          :key="testcase.uuid"
-          :id="testcase.uuid"
+          :key="testcase.id"
+          :id="testcase.id"
           v-model="exercise.testcases[index]"
           @delete="exercise.testcases.splice(index, 1)"
           @input="updateDeep('testcases', index, $event)"
@@ -126,7 +126,7 @@ export default {
       aceEditorOptions,
       toolbar,
       exercise: {
-        uuid: null,
+        id: null,
         text: '',
         starting_code: '',
         min_passing_testcases: 1,
@@ -156,7 +156,7 @@ export default {
 
       const id = uuid.v4()
       return {
-        uuid: id,
+        id,
         assertion: '',
         is_public: true
       }

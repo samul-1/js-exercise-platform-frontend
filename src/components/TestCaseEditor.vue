@@ -18,12 +18,12 @@
         type="checkbox"
         class="cursor-pointer"
         :checked="testcase.is_public"
-        :id="testcase.uuid + '-public-check'"
+        :id="testcase.id + '-public-check'"
         @input="update('is_public', $event.target.checked)"
       />
 
       <label
-        :for="testcase.uuid + '-public-check'"
+        :for="testcase.id + '-public-check'"
         class="mx-1 cursor-pointer select-none"
         >Test case pubblico</label
       >
@@ -55,7 +55,7 @@ export default {
   data () {
     return {
       aceEditorOptions,
-      testcase: { uuid: null, assertion: '', is_public: true }
+      testcase: { id: null, assertion: '', is_public: true }
     }
   },
   methods: {

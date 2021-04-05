@@ -123,7 +123,7 @@
           v-show="pane == 'testcases'"
         >
           <div
-            class="p-4 m-2 font-medium text-gray-200 bg-yellow-600 shadow-md rounded-xl"
+            class="p-4 m-2 font-medium text-gray-200 bg-yellow-600 shadow-sm rounded-xl"
           >
             <i class="mr-2 fas fa-eye-slash"></i> Il tuo codice potrebbe essere
             eseguito anche con test case non presenti in questa lista.
@@ -230,6 +230,7 @@
           </div>
         </div>
       </transition>
+      <!-- end submission sidebar -->
     </div>
     <Dialog
       v-if="dialog.shown"
@@ -395,14 +396,14 @@ export default {
     submitCode () {
       // submits code to the server, temporarily disables submit button for cooldown,
       // and shows the submission details upon receiving them back from the server
-      // this.submitCooldown = 10 // ! pull this out from constants
-      // this.submitCooldownHandle = setInterval(() => {
-      //   this.submitCooldown--
-      //   if (!this.submitCooldown) {
-      //     clearInterval(this.submitCooldownHandle)
-      //     this.submitCooldownHandle = null
-      //   }
-      // }, 1000)
+      this.submitCooldown = 10 // ! pull this out from constants
+      this.submitCooldownHandle = setInterval(() => {
+        this.submitCooldown--
+        if (!this.submitCooldown) {
+          clearInterval(this.submitCooldownHandle)
+          this.submitCooldownHandle = null
+        }
+      }, 1000)
 
       // show fake "loading" submission
       this.processingSubmission = true

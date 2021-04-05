@@ -1,6 +1,8 @@
 <template>
   <div class="mx-8 my-4 ">
-    <h1 class="text-3xl">Crea nuovo esame</h1>
+    <h1 class="text-3xl">
+      {{ $route.params.examid ? 'Aggiorna esame' : 'Crea nuovo esame' }}
+    </h1>
 
     <div class="grid grid-cols-2 mt-8">
       <div class="mr">
@@ -17,6 +19,7 @@
           <h2 class="mb-2 text-xl">Data e ora inizio</h2>
           <date-picker
             v-model="exam.begin_timestamp"
+            :value-type="'format'"
             type="datetime"
           ></date-picker>
         </div>
@@ -25,6 +28,7 @@
           <h2 class="mb-2 text-xl">Data e ora fine</h2>
           <date-picker
             v-model="exam.end_timestamp"
+            :value-type="'format'"
             type="datetime"
           ></date-picker>
         </div>
@@ -45,8 +49,8 @@
       <transition-group name="bounce">
         <ExerciseEditor
           v-for="(exercise, index) in exam.exercises"
-          :id="exercise.uuid"
-          :key="exercise.uuid"
+          :id="exercise.id"
+          :key="exercise.id"
           v-model="exam.exercises[index]"
           @delete="confirmDeletion(index)"
         ></ExerciseEditor>
@@ -58,7 +62,8 @@
       :disabled="invalidForm"
       class="px-4 py-2 mt-10 mb-2 font-medium text-white bg-green-700 rounded-lg shadow-inner disabled:opacity-50"
     >
-      <i class="mr-1 fas fa-check"></i> Conferma e crea
+      <i class="mr-1 fas fa-check"></i>
+      {{ $route.params.examid ? 'Aggiorna' : 'Conferma e crea' }}
     </button>
   </div>
 </template>
@@ -80,55 +85,65 @@ export default {
     ExerciseEditor
   },
   created () {
+    const id = this.$route.params.examid
+    if (id) {
+      axios
+        .get(`/exams/${id}/`)
+        .then(response => {
+          this.exam = response.data
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
     // this.exam.exercises.unshift(this.newExercise())
-
     // for debugging
-    setTimeout(() => {
-      this.exam = {
-        name: '<p>Secondo appello</p>',
-        begin_timestamp: '2021-04-21T22:01:00.000Z',
-        end_timestamp: '2021-05-11T22:10:00.000Z',
-        questions: [],
-        exercises: [
-          {
-            uuid: 'aab0823c-324d-48fe-a79f-2cc9fbc63c6a',
-            text: '<p>Testo es2</p>',
-            starting_code: 'cod2',
-            min_passing_testcases: 2,
-            testcases: [
-              {
-                uuid: '4a15b134-834e-4d81-a9b9-18860a1e1290',
-                assertion: 'assert 22',
-                is_public: false
-              },
-              {
-                uuid: 'f2ee9563-7021-43dc-a08f-07a570738220',
-                assertion: 'assert 21',
-                is_public: true
-              }
-            ]
-          },
-          {
-            uuid: 'd6c9dc69-88cc-437c-a538-913bdfcf9225',
-            text: '<p>Testo es1</p>',
-            starting_code: 'cod',
-            min_passing_testcases: 1,
-            testcases: [
-              {
-                uuid: 'f320af07-6cbf-4468-9d2e-2fd499d9c408',
-                assertion: 'assert 1 2',
-                is_public: false
-              },
-              {
-                uuid: '0833ee44-8b03-48c5-bb1f-f07a241c7cb5',
-                assertion: 'assert 1 1',
-                is_public: true
-              }
-            ]
-          }
-        ]
-      }
-    }, 100)
+    // setTimeout(() => {
+    //   this.exam = {
+    //     name: '<p>Secondo appello</p>',
+    //     begin_timestamp: '2021-04-21T22:01:00.000Z',
+    //     end_timestamp: '2021-05-11T22:10:00.000Z',
+    //     questions: [],
+    //     exercises: [
+    //       {
+    //         uuid: 'aab0823c-324d-48fe-a79f-2cc9fbc63c6a',
+    //         text: '<p>Testo es2</p>',
+    //         starting_code: 'cod2',
+    //         min_passing_testcases: 2,
+    //         testcases: [
+    //           {
+    //             uuid: '4a15b134-834e-4d81-a9b9-18860a1e1290',
+    //             assertion: 'assert 22',
+    //             is_public: false
+    //           },
+    //           {
+    //             uuid: 'f2ee9563-7021-43dc-a08f-07a570738220',
+    //             assertion: 'assert 21',
+    //             is_public: true
+    //           }
+    //         ]
+    //       },
+    //       {
+    //         uuid: 'd6c9dc69-88cc-437c-a538-913bdfcf9225',
+    //         text: '<p>Testo es1</p>',
+    //         starting_code: 'cod',
+    //         min_passing_testcases: 1,
+    //         testcases: [
+    //           {
+    //             uuid: 'f320af07-6cbf-4468-9d2e-2fd499d9c408',
+    //             assertion: 'assert 1 2',
+    //             is_public: false
+    //           },
+    //           {
+    //             uuid: '0833ee44-8b03-48c5-bb1f-f07a241c7cb5',
+    //             assertion: 'assert 1 1',
+    //             is_public: true
+    //           }
+    //         ]
+    //       }
+    //     ]
+    //   }
+    // }, 100)
   },
   data () {
     return {
@@ -145,30 +160,42 @@ export default {
   methods: {
     submit () {
       console.log(JSON.stringify(this.exam))
-      axios
-        .post('/exams/', { ...this.exam })
-        .then(response => {
-          console.log(response)
-        })
-        .catch(error => {
-          console.log(error)
-          // if (error.response.status == 401 || error.response.status == 403) {
-          //   this.$router.push('/login')
-          //   // this.$store.commit('removeToken')
-          // } else {
-          //   this.$store.commit(
-          //     'setMessage',
-          //     error.response.data.message ?? error.message
-          //   )
-          // }
-        })
+      const id = this.$route.params.examid
+      if (id) {
+        axios
+          .put(`/exams/${id}/`, { ...this.exam })
+          .then(response => {
+            console.log(response)
+          })
+          .catch(error => {
+            console.log(error)
+          })
+      } else {
+        axios
+          .post('/exams/', { ...this.exam })
+          .then(response => {
+            console.log(response)
+          })
+          .catch(error => {
+            console.log(error)
+            // if (error.response.status == 401 || error.response.status == 403) {
+            //   this.$router.push('/login')
+            //   // this.$store.commit('removeToken')
+            // } else {
+            //   this.$store.commit(
+            //     'setMessage',
+            //     error.response.data.message ?? error.message
+            //   )
+            // }
+          })
+      }
     },
     newExercise () {
       // returns a new empty exercise with unique id
 
       const id = uuid.v4()
       return {
-        uuid: id,
+        id,
         text: '',
         starting_code: '',
         min_passing_testcases: 1,

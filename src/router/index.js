@@ -4,6 +4,7 @@ import ExamPage from '../views/ExamPage.vue'
 import Login from '../views/Login.vue'
 import ExamEditor from '../components/ExamEditor.vue'
 import TeacherDashboard from '../views/TeacherDashboard.vue'
+import ExamList from '../views/ExamList.vue'
 import { store } from '../store'
 
 Vue.use(VueRouter)
@@ -25,9 +26,14 @@ const routes = [
     component: TeacherDashboard
   },
   {
-    path: '/create',
-    name: 'CreateExam',
+    path: '/editor/:examid?',
+    name: 'EditExam',
     component: ExamEditor
+  },
+  {
+    path: '/exams',
+    name: 'ExamList',
+    component: ExamList
   }
 ]
 
