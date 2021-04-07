@@ -101,7 +101,7 @@
 </template>
 
 <script>
-import { uuid } from 'vue-uuid'
+//import { uuid } from 'vue-uuid'
 import { VueEditor } from 'vue2-editor'
 import AceEditor from 'vuejs-ace-editor'
 import TestCaseEditor from '../components/TestCaseEditor.vue'
@@ -154,7 +154,8 @@ export default {
     newTestCase () {
       // returns a new empty test case with unique id
 
-      const id = uuid.v4()
+      //const id = uuid.v4()
+      const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
       return {
         id,
         assertion: '',

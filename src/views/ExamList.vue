@@ -54,6 +54,7 @@ export default {
     axios
       .get('/exams/')
       .then(response => {
+        console.log(response)
         this.exams = response.data
       })
       .catch(error => {

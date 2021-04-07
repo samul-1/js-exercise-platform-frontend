@@ -345,9 +345,10 @@ export default {
   methods: {
     getExam () {
       console.log('getting exam')
+      const examId = this.$route.params.examId
       this.loading = true
       axios
-        .post('/exams/my_exam/')
+        .post(`/exams/${examId}/my_exam/`)
         .then(response => {
           console.log(response)
           this.loading = false

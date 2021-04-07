@@ -37,6 +37,28 @@
 
     <div>
       <div class="flex mt-10">
+        <h2 class="mr-4 text-xl">Domande a risposta multipla</h2>
+        <button
+          @click="exam.questions.unshift(newQuestion())"
+          class="px-3 text-white bg-green-700 rounded-md shadow-sm"
+        >
+          <i class="fas fa-plus-circle"></i> Aggiungi
+        </button>
+      </div>
+
+      <transition-group name="bounce">
+        <MultipleChoiceQuestionEditor
+          v-for="(question, index) in exam.questions"
+          :id="question.id"
+          :key="question.id"
+          v-model="exam.questions[index]"
+          @delete="confirmDeletion(exam.questions, index)"
+        ></MultipleChoiceQuestionEditor>
+      </transition-group>
+    </div>
+
+    <div>
+      <div class="flex mt-10">
         <h2 class="mr-4 text-xl">Esercizi</h2>
         <button
           @click="exam.exercises.unshift(newExercise())"
@@ -52,7 +74,7 @@
           :id="exercise.id"
           :key="exercise.id"
           v-model="exam.exercises[index]"
-          @delete="confirmDeletion(index)"
+          @delete="confirmDeletion(exam.exercises, index)"
         ></ExerciseEditor>
       </transition-group>
     </div>
@@ -71,10 +93,11 @@
 <script>
 import axios from 'axios'
 import ExerciseEditor from '../components/ExerciseEditor.vue'
+import MultipleChoiceQuestionEditor from '../components/MultipleChoiceQuestionEditor.vue'
 import { VueEditor } from 'vue2-editor'
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
-import { uuid } from 'vue-uuid'
+//import { uuid } from 'vue-uuid'
 import { toolbar } from '../constants.js'
 
 export default {
@@ -82,7 +105,8 @@ export default {
   components: {
     VueEditor,
     DatePicker,
-    ExerciseEditor
+    ExerciseEditor,
+    MultipleChoiceQuestionEditor
   },
   created () {
     const id = this.$route.params.examid
@@ -90,60 +114,13 @@ export default {
       axios
         .get(`/exams/${id}/`)
         .then(response => {
+          console.log(response)
           this.exam = response.data
         })
         .catch(error => {
           console.log(error)
         })
     }
-    // this.exam.exercises.unshift(this.newExercise())
-    // for debugging
-    // setTimeout(() => {
-    //   this.exam = {
-    //     name: '<p>Secondo appello</p>',
-    //     begin_timestamp: '2021-04-21T22:01:00.000Z',
-    //     end_timestamp: '2021-05-11T22:10:00.000Z',
-    //     questions: [],
-    //     exercises: [
-    //       {
-    //         uuid: 'aab0823c-324d-48fe-a79f-2cc9fbc63c6a',
-    //         text: '<p>Testo es2</p>',
-    //         starting_code: 'cod2',
-    //         min_passing_testcases: 2,
-    //         testcases: [
-    //           {
-    //             uuid: '4a15b134-834e-4d81-a9b9-18860a1e1290',
-    //             assertion: 'assert 22',
-    //             is_public: false
-    //           },
-    //           {
-    //             uuid: 'f2ee9563-7021-43dc-a08f-07a570738220',
-    //             assertion: 'assert 21',
-    //             is_public: true
-    //           }
-    //         ]
-    //       },
-    //       {
-    //         uuid: 'd6c9dc69-88cc-437c-a538-913bdfcf9225',
-    //         text: '<p>Testo es1</p>',
-    //         starting_code: 'cod',
-    //         min_passing_testcases: 1,
-    //         testcases: [
-    //           {
-    //             uuid: 'f320af07-6cbf-4468-9d2e-2fd499d9c408',
-    //             assertion: 'assert 1 2',
-    //             is_public: false
-    //           },
-    //           {
-    //             uuid: '0833ee44-8b03-48c5-bb1f-f07a241c7cb5',
-    //             assertion: 'assert 1 1',
-    //             is_public: true
-    //           }
-    //         ]
-    //       }
-    //     ]
-    //   }
-    // }, 100)
   },
   data () {
     return {
@@ -193,7 +170,8 @@ export default {
     newExercise () {
       // returns a new empty exercise with unique id
 
-      const id = uuid.v4()
+      //const id = uuid.v4()
+      const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
       return {
         id,
         text: '',
@@ -202,9 +180,20 @@ export default {
         testcases: []
       }
     },
-    confirmDeletion (exerciseIndex) {
-      if (confirm('Sei sicuro di voler eliminare questo esercizio?')) {
-        this.exam.exercises.splice(exerciseIndex, 1)
+    newQuestion () {
+      // returns a new empty question with unique id
+
+      //const id = uuid.v4()
+      const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
+      return {
+        id,
+        text: '',
+        answers: []
+      }
+    },
+    confirmDeletion (arr, index) {
+      if (confirm("Confermi l'eliminazione?")) {
+        arr.splice(index, 1)
       }
     }
   },

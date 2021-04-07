@@ -11,7 +11,7 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/exam',
+    path: '/exam/:examId?',
     name: 'ExamPage',
     component: ExamPage
   },
