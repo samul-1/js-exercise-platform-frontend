@@ -97,7 +97,7 @@ import MultipleChoiceQuestionEditor from '../components/MultipleChoiceQuestionEd
 import { VueEditor } from 'vue2-editor'
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
-//import { uuid } from 'vue-uuid'
+import { uuid } from 'vue-uuid'
 import { toolbar } from '../constants.js'
 
 export default {
@@ -136,44 +136,55 @@ export default {
   },
   methods: {
     submit () {
-      console.log(JSON.stringify(this.exam))
+      console.log(JSON.stringify(this.strippedIdExam))
       const id = this.$route.params.examid
-      if (id) {
-        axios
-          .put(`/exams/${id}/`, { ...this.exam })
-          .then(response => {
-            console.log(response)
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      } else {
-        axios
-          .post('/exams/', { ...this.exam })
-          .then(response => {
-            console.log(response)
-          })
-          .catch(error => {
-            console.log(error)
-            // if (error.response.status == 401 || error.response.status == 403) {
-            //   this.$router.push('/login')
-            //   // this.$store.commit('removeToken')
-            // } else {
-            //   this.$store.commit(
-            //     'setMessage',
-            //     error.response.data.message ?? error.message
-            //   )
-            // }
-          })
-      }
+      const action = id ? axios.put : axios.post
+
+      action('/exams/' + (id ? `${id}/` : ''), { ...this.strippedIdExam })
+        .then(response => {
+          console.log(response)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+
+      // if (id) {
+      //   axios
+      //     .put(`/exams/${id}/`, { ...this.strippedIdExam })
+      //     .then(response => {
+      //       console.log(response)
+      //     })
+      //     .catch(error => {
+      //       console.log(error)
+      //     })
+      // } else {
+      //   axios
+      //     .post('/exams/', { ...this.strippedIdexam })
+      //     .then(response => {
+      //       console.log(response)
+      //     })
+      //     .catch(error => {
+      //       console.log(error)
+      //       // if (error.response.status == 401 || error.response.status == 403) {
+      //       //   this.$router.push('/login')
+      //       //   // this.$store.commit('removeToken')
+      //       // } else {
+      //       //   this.$store.commit(
+      //       //     'setMessage',
+      //       //     error.response.data.message ?? error.message
+      //       //   )
+      //       // }
+      //     })
+      // }
     },
     newExercise () {
       // returns a new empty exercise with unique id
 
-      //const id = uuid.v4()
-      const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
+      const id = uuid.v4()
+      //const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
       return {
         id,
+        stripId: true, // indicate this id is only for local identification and needs to be stripped off when submitting to backend
         text: '',
         starting_code: '',
         min_passing_testcases: 1,
@@ -183,10 +194,11 @@ export default {
     newQuestion () {
       // returns a new empty question with unique id
 
-      //const id = uuid.v4()
-      const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
+      const id = uuid.v4()
+      //const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
       return {
         id,
+        stripId: true, // indicate this id is only for local identification and needs to be stripped off when submitting to backend
         text: '',
         answers: []
       }
@@ -198,10 +210,55 @@ export default {
     }
   },
   computed: {
+    strippedIdExam () {
+      /*
+      Returns the exam object without all the local id's generated for questions, their answers,
+      exercises, and their testcases. It's used to send data to the server without sending the
+      local identifiers that are only needed by the frontend
+      */
+      function _stripId (arr) {
+        // takes in an array of objects with the keys `stripId` and `id`;
+        // returns the same objects without those two keys
+        const _arr = arr['__ob__'].value
+
+        // keep id's where `stripId` property is absent (or falsy)
+        const dontStrip = _arr.filter(e => !e.stripId)
+
+        return [
+          ..._arr
+            .filter(e => e.stripId)
+            // eslint-disable-next-line no-unused-vars
+            .map(({ stripId, id, ...rest }) => rest), // strip off the `id` and `stripId` properties
+          ...dontStrip
+        ]
+      }
+
+      const { questions, exercises, ...exam } = this.exam
+
+      const strippedQuestions = _stripId(questions)
+      const strippedExercises = _stripId(exercises)
+
+      return {
+        questions: strippedQuestions.map(({ answers, ...question }) => {
+          return {
+            answers: _stripId(answers),
+            ...question
+          }
+        }),
+        exercises: strippedExercises.map(({ testcases, ...exercise }) => {
+          return {
+            testcases: _stripId(testcases),
+            ...exercise
+          }
+        }),
+        ...exam
+      }
+    },
     invalidForm () {
+      // todo add checks for timestamps and questions
       return (
-        !this.exam.name.length || // no name was specified for this exam
-        !this.exam.exercises.length || // no exercises were added to this exam
+        !this.exam.name.length || // no name specified
+        (!this.exam.exercises.length && !this.exam.questions.length) || // no exercises or question
         this.exam.exercises.some(
           e =>
             !e.text.length || // there is at least one exercise with empty text

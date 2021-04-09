@@ -49,6 +49,7 @@
 import { toolbar } from '../constants.js'
 import { VueEditor } from 'vue2-editor'
 import AnswerEditor from '../components/AnswerEditor.vue'
+import { uuid } from 'vue-uuid'
 
 export default {
   name: 'MultipleChoiceQuestionEditor',
@@ -87,9 +88,13 @@ export default {
     },
     newAnswer () {
       // returns a new empty answer with unique id
-      const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
+
+      //const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
+      const id = uuid.v4()
+
       return {
         id,
+        stripId: true, // indicate this id is only for local identification and needs to be stripped off when submitting to backend
         text: '',
         is_right_answer: false
       }
