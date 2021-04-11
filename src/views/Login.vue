@@ -99,7 +99,8 @@ export default {
           this.$store.commit('setUser', {
             email: response.data.email,
             id: response.data.id,
-            is_teacher: response.data.is_teacher
+            is_teacher: response.data.is_teacher,
+            course: response.data.course
           })
 
           // redirect to correct view depending on user type

@@ -23,12 +23,17 @@ export const store = new Vuex.Store({
 
         state.user.email = localStorage.getItem('email')
         state.user.id = localStorage.getItem('userid')
-        state.user.is_teacher = localStorage.getItem('is_teacher')
+        state.user.is_teacher = localStorage.getItem('is_teacher') === 'true'
+        state.user.course =
+          localStorage.getItem('course') === 'null'
+            ? null
+            : localStorage.getItem('course')
       } else {
         state.user = {
           email: null,
           id: null,
-          is_teacher: null
+          is_teacher: null,
+          course: null
         }
         state.token = ''
         state.isAuthenticated = false
@@ -44,6 +49,7 @@ export const store = new Vuex.Store({
       localStorage.setItem('userid', user.id)
       localStorage.setItem('email', user.email)
       localStorage.setItem('is_teacher', user.is_teacher)
+      localStorage.setItem('course', user.course)
     },
     setMessage (state, msg) {
       state.msg = msg
@@ -60,6 +66,7 @@ export const store = new Vuex.Store({
       localStorage.removeItem('userid')
       localStorage.removeItem('email')
       localStorage.removeItem('is_teacher')
+      localStorage.removeItem('course')
     },
     resetMessage (state) {
       state.msg = null
