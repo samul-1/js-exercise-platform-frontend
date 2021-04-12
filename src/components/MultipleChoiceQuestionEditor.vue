@@ -11,6 +11,22 @@
       </button>
     </div>
     <div class="mb-4">
+      <span class="mr-2">Categoria</span>
+      <select
+        class="p-1 border rounded-md"
+        @change="update('category', question.category)"
+        v-model="question.category"
+      >
+        <option :value="null" selected disabled>Seleziona categoria</option>
+
+        <option
+          v-for="category in categoryChoices"
+          :key="category.id"
+          :value="category.id"
+        >
+          {{ category.name }}
+        </option>
+      </select>
       <h2 class="my-2 text-lg">Testo della domanda</h2>
       <VueEditor
         class="tall"
@@ -57,6 +73,7 @@ export default {
     VueEditor,
     AnswerEditor
   },
+  props: ['categoryChoices'],
   created () {
     this.question = this.$attrs.value
   },

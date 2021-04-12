@@ -10,6 +10,24 @@
         <i class="fas fa-trash"></i>
       </button>
     </div>
+    <div class="mb-4">
+      <span class="mr-2">Categoria</span>
+      <select
+        class="p-1 border rounded-md"
+        @change="update('category', exercise.category)"
+        v-model="exercise.category"
+      >
+        <option :value="null" selected disabled>Seleziona categoria</option>
+
+        <option
+          v-for="category in categoryChoices"
+          :key="category.id"
+          :value="category.id"
+        >
+          {{ category.name }}
+        </option>
+      </select>
+    </div>
     <div class="grid grid-cols-1 lg:grid-cols-2">
       <div class="mr-4">
         <h2 class="my-2 text-lg">Testo dell'esercizio</h2>
@@ -120,7 +138,7 @@ export default {
     // ? might need to investigate this
     this.exercise = this.$attrs.value
   },
-  props: ['id'],
+  props: ['id', 'categoryChoices'],
   data () {
     return {
       aceEditorOptions,
@@ -130,13 +148,15 @@ export default {
         text: '',
         starting_code: '',
         min_passing_testcases: 1,
-        testcases: []
+        testcases: [],
+        category: null
       }
     }
   },
   methods: {
     editorInit,
     update (key, value) {
+      console.log(value)
       // updates supplied key with supplied value; emits change to parent component
 
       this.exercise[key] = value

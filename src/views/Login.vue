@@ -125,7 +125,7 @@ export default {
       if (this.$store.state.user.is_teacher) {
         this.$router.push('/dashboard')
       } else {
-        this.$router.push('/exam')
+        this.$router.push('/exam/1')
       }
     }
   }
