@@ -1,32 +1,7 @@
 <template>
   <div id="editor-view" ref="editorView" class="px-4 my-5">
     <!-- // todo make into spinner component -->
-    <div
-      v-if="loading"
-      class="fixed z-50"
-      style="top:50%; left:50%; transform: translate(-50%,-50%); filter: drop-shadow(3px 4px 3px gray);"
-    >
-      <svg
-        class="w-8 h-8 mr-3 -ml-1 text-black animate-spin"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          class="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          stroke-width="4"
-        ></circle>
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        ></path>
-      </svg>
-    </div>
+    <Spinner v-if="loading"></Spinner>
     <!-- // todo end spinner -->
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
@@ -155,8 +130,7 @@
             </button>
           </div>
           <Skeleton v-if="!exercise.text.length"></Skeleton>
-          <!-- // ! use the generic highlight function from constants.js -->
-          <div v-else v-highlight v-html="processedAssignmentText"></div>
+          <div v-else v-highlight v-html="highlightCode(exercise.text)"></div>
         </div>
 
         <!-- question text pane  -->
@@ -242,11 +216,10 @@
       @no="dialog.onNo.callback(dialog.onNo.param)"
     ></Dialog>
     <transition name="bounce">
-      <!-- // ! use the generic highlight function from constants.js -->
       <DraggablePopup
         v-show="popupOpen"
         :title="examName"
-        :content="processedAssignmentText"
+        :content="highlightCode(exercise.text)"
         @hide="popupOpen = false"
       ></DraggablePopup>
     </transition>
@@ -256,6 +229,7 @@
 <script>
 import axios from 'axios'
 import AceEditor from 'vuejs-ace-editor'
+import Spinner from '../components/Spinner.vue'
 import Submission from '../components/Submission.vue'
 import TestCase from '../components/TestCase.vue'
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion.vue'
@@ -263,6 +237,13 @@ import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
 import DraggablePopup from '../components/DraggablePopup.vue'
+import {
+  highlightCode,
+  aceEditorOptions,
+  SUBMIT_COOLDOWN,
+  editorInit
+} from '../constants.js'
+
 export default {
   name: 'ExamPage',
   components: {
@@ -272,7 +253,8 @@ export default {
     Dialog,
     MultipleChoiceQuestion,
     Skeleton,
-    DraggablePopup
+    DraggablePopup,
+    Spinner
   },
   created () {
     if (!this.$store.state.isAuthenticated) {
@@ -291,21 +273,7 @@ export default {
 
     // set editor options asynchronously because the editor height isn't known at create time
     // and without doing this the font size gets screwed up for some reason
-    setTimeout(
-      () =>
-        (this.editorOptions = {
-          // ! import this from constants.js
-          enableBasicAutocompletion: true,
-          enableLiveAutocompletion: true,
-          fontSize: 17,
-          highlightActiveLine: true,
-          enableSnippets: true,
-          showLineNumbers: true,
-          tabSize: 2,
-          showPrintMargin: false,
-          showGutter: true
-        })
-    )
+    setTimeout(() => (this.editorOptions = aceEditorOptions))
   },
   data () {
     return {
@@ -347,6 +315,7 @@ export default {
     }
   },
   methods: {
+    highlightCode,
     getExam () {
       console.log('getting exam')
       const examId = this.$route.params.examId
@@ -404,7 +373,7 @@ export default {
     submitCode () {
       // submits code to the server, temporarily disables submit button for cooldown,
       // and shows the submission details upon receiving them back from the server
-      this.submitCooldown = 10 // ! pull this out from constants
+      this.submitCooldown = SUBMIT_COOLDOWN
       this.submitCooldownHandle = setInterval(() => {
         this.submitCooldown--
         if (!this.submitCooldown) {
@@ -502,43 +471,9 @@ export default {
           console.log(JSON.stringify(error))
         })
     },
-    editorInit () {
-      // ! import this from constants.js
-      require('brace/ext/language_tools') //language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/javascript') //language
-      require('brace/mode/less')
-      require('brace/theme/monokai')
-      require('brace/snippets/javascript') //snippet
-    }
+    editorInit
   },
-  computed: {
-    // ! use the generic version in constants.js and delete this
-    processedAssignmentText () {
-      // repaces `'s inside the assignment text with highlighted js code
-      return this.exercise.text
-        ?.replace(
-          /```(.*)```/g,
-          `
-        <div
-        class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
-        >
-          <pre class=" language-javascript"><code class=" language-javascript">$1</code></pre>
-        </div>
-      `
-        )
-        ?.replace(
-          /`(.*)`/g,
-          `
-        <div
-        class="inline-block p-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
-        >
-          <pre style="line-height: 0.95; overflow-y: hidden" class=" language-javascript"><code style="line-height: 0.5" class=" language-javascript">$1</code></pre>
-        </div>
-      `
-        )
-    }
-  }
+  computed: {}
 }
 </script>
 <style>

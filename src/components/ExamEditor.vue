@@ -1,5 +1,7 @@
 <template>
   <div class="mx-8 my-4 ">
+    <Spinner v-if="loading"></Spinner>
+
     <h1 class="text-3xl">
       {{ $route.params.examid ? 'Aggiorna esame' : 'Crea nuovo esame' }}
     </h1>
@@ -8,16 +10,21 @@
     <div class="grid grid-cols-2 mt-8">
       <div class="mr">
         <h2 class="mb-2 text-xl">Nome esame</h2>
-        <VueEditor
+        <!--<VueEditor
           v-model="exam.name"
           id="exam-name-editor"
           :editor-toolbar="toolbar"
-        ></VueEditor>
+        ></VueEditor>-->
+        <input
+          class="w-full p-2 mb-6 mr-6 border"
+          type="text"
+          v-model="exam.name"
+        />
       </div>
 
       <div class="grid grid-cols-2">
         <div class="ml-auto">
-          <h2 class="mb-2 text-xl">Data e ora inizio</h2>
+          <h2 class="mb-3 text-xl">Data e ora inizio</h2>
           <date-picker
             v-model="exam.begin_timestamp"
             :value-type="'format'"
@@ -26,7 +33,7 @@
         </div>
 
         <div class="ml-auto">
-          <h2 class="mb-2 text-xl">Data e ora fine</h2>
+          <h2 class="mb-3 text-xl">Data e ora fine</h2>
           <date-picker
             v-model="exam.end_timestamp"
             :value-type="'format'"
@@ -162,20 +169,22 @@ import axios from 'axios'
 import ExerciseEditor from '../components/ExerciseEditor.vue'
 import CategoryEditor from '../components/CategoryEditor.vue'
 import MultipleChoiceQuestionEditor from '../components/MultipleChoiceQuestionEditor.vue'
-import { VueEditor } from 'vue2-editor'
+//import { VueEditor } from 'vue2-editor'
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
 import { uuid } from 'vue-uuid'
-import { toolbar } from '../constants.js'
+//import { toolbar } from '../constants.js'
+import Spinner from '../components/Spinner.vue'
 
 export default {
   name: 'ExamEditor',
   components: {
-    VueEditor,
+    //VueEditor,
     DatePicker,
     ExerciseEditor,
     MultipleChoiceQuestionEditor,
-    CategoryEditor
+    CategoryEditor,
+    Spinner
   },
   watch: {
     // automatically add a category when a question/exercise is added for the first
@@ -198,6 +207,7 @@ export default {
   created () {
     const id = this.$route.params.examid
     if (id) {
+      this.loading = true
       axios
         .get(`/exams/${id}/`)
         .then(response => {
@@ -214,11 +224,15 @@ export default {
         .catch(error => {
           console.log(error)
         })
+        .finally(() => {
+          this.loading = false
+        })
     }
   },
   data () {
     return {
-      toolbar,
+      //toolbar,
+      loading: false,
       exam: {
         name: '',
         begin_timestamp: null,
@@ -232,12 +246,12 @@ export default {
   },
   methods: {
     submit () {
-      console.log(JSON.stringify(this.strippedIdExam))
       const id = this.$route.params.examid
+
+      // if no exam id is supplied, we're creating an exam; otherwise we're upading one
       const action = id ? axios.put : axios.post
 
-      // action('/exams/' + (id ? `${id}/` : ''), { ...this.strippedIdExam })
-
+      this.loading = true
       action('/exams/' + (id ? `${id}/` : ''), { ...this.strippedIdExam })
         .then(response => {
           console.log(response)
@@ -245,6 +259,9 @@ export default {
         .catch(error => {
           console.log(error)
           console.log(error.data)
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     newExercise () {

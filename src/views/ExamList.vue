@@ -1,28 +1,31 @@
 <template>
-  <div class="px-4">
-    <h1 class="mb-10 text-3xl font-medium">Lista esami</h1>
+  <div class="mx-8 my-5 ">
+    <Spinner v-if="loading"></Spinner>
+
+    <h1 class="mb-5 text-3xl font-medium">Lista esami</h1>
     <div
-      class="flex w-full px-2 py-6 my-2 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
+      class="flex w-full px-2 py-6 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
       v-for="exam in exams"
       :key="exam.id"
     >
       <h1 class="mr-2 text-lg" v-html="exam.name"></h1>
       <router-link :to="`/editor/${exam.id}`"
         ><button
-          :disabled="new Date() >= new Date(exam.end_timestamp)"
+          :disabled="new Date() >= new Date(exam.begin_timestamp)"
           class="px-3 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
           Modifica
         </button></router-link
       >
-      <router-link :to="`/reports/${exam.id}`"
-        ><button
-          v-if="new Date() >= new Date(exam.end_timestamp)"
-          class="px-3 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
-        >
-          Risultati
-        </button></router-link
+      <!--<router-link :to="`/reports/${exam.id}`">-->
+      <button
+        @click="getReport(exam)"
+        v-if="new Date() >= new Date(exam.end_timestamp)"
+        class="px-3 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
+        Risultati
+      </button>
+      <!--</router-link>-->
       <div class="flex ml-auto">
         <div
           class="px-2 mr-6 bg-gray-600 rounded-md "
@@ -48,9 +51,14 @@
 
 <script>
 import axios from 'axios'
+import Spinner from '../components/Spinner.vue'
 export default {
   name: 'ExamList',
+  components: {
+    Spinner
+  },
   created () {
+    this.loading = true
     axios
       .get('/exams/')
       .then(response => {
@@ -60,10 +68,14 @@ export default {
       .catch(error => {
         console.log(error)
       })
+      .finally(() => {
+        this.loading = false
+      })
   },
   data () {
     return {
-      exams: []
+      exams: [],
+      loading: false
     }
   },
   methods: {
@@ -71,6 +83,39 @@ export default {
     formatTimestamp (timestamp) {
       // todo implement
       return timestamp
+    },
+    getReport (exam) {
+      this.loading = true
+      axios
+        .post(
+          `exams/${exam.id}/report/`,
+          {},
+          {
+            headers: {
+              Accept: 'text/csv'
+            },
+            responseType: 'blob'
+          }
+        )
+        .then(response => {
+          console.log(response)
+          this.forceFileDownload(response, `${exam.name}.csv`)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    forceFileDownload (response, title) {
+      console.log(title)
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', title)
+      document.body.appendChild(link)
+      link.click()
     }
   }
 }

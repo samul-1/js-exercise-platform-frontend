@@ -46,8 +46,8 @@
         <i class="mr-1 fas fa-paper-plane"></i> Consegna
       </button>
     </div>
+
     <!-- testcase list -->
-    <!--<transition name="smooth">-->
     <div class="p-3 rounded-b-md bg-gray-50" v-show="expanded">
       <div v-if="submission.public_details.error">
         Errore durante l'esecuzione:
@@ -99,13 +99,6 @@
               {{ testcase.error }}
             </vue-code-highlight>
           </p>
-          <!-- <p class="font-medium">
-            Output:
-            <span
-              class="break-all text-white font-mono bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
-              >{{ testcase.output }}</span
-            >
-          </p> -->
         </div>
       </div>
       <p class="my-3" v-if="submission.public_details.failed_secret_tests">
@@ -114,7 +107,6 @@
         {{ submission.public_details.failed_secret_tests }}
       </p>
     </div>
-    <!--</transition>-->
   </div>
 </template>
 

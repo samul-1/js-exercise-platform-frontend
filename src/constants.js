@@ -2,7 +2,7 @@
 export const aceEditorOptions = {
   enableBasicAutocompletion: true,
   enableLiveAutocompletion: true,
-  fontSize: 18,
+  fontSize: 17,
   highlightActiveLine: true,
   enableSnippets: true,
   showLineNumbers: true,
@@ -53,3 +53,6 @@ export function highlightCode (text) {
     `
     )
 }
+
+// determines how long users have to wait before they are able to send a second submission after they've sent one
+export const SUBMIT_COOLDOWN = 10

@@ -4,38 +4,31 @@
     <p class="mb-1">
       <vue-code-highlight
         language="javascript"
-        class="break-all text-white font-mono text-xs bg-gray-800 rounded-md my-1 p-2 shadow-sm"
+        class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
       >
         <pre>{{ testcase.assertion }}</pre>
       </vue-code-highlight>
     </p>
-    <!-- <p class="">
-      Output:
-      <span
-        class="break-all text-white font-mono bg-gray-800 py-0.5 px-2 shadow-sm rounded-md"
-        >{{ testcase.output }}</span
-      >
-    </p> -->
   </div>
 </template>
 
 <script>
-import { component as VueCodeHighlight } from "vue-code-highlight";
-import "vue-code-highlight/themes/duotone-sea.css";
+import { component as VueCodeHighlight } from 'vue-code-highlight'
+import 'vue-code-highlight/themes/duotone-sea.css'
 export default {
-  name: "TestCase",
+  name: 'TestCase',
   components: {
-    VueCodeHighlight,
+    VueCodeHighlight
   },
   props: {
     testcase: Object,
-    index: Number,
-  },
-};
+    index: Number
+  }
+}
 </script>
 
 <style>
-pre[class*="language-"] {
+pre[class*='language-'] {
   padding: 0;
   margin: 0;
   overflow: auto;

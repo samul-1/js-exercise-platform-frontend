@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-3/5 px-32 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md"
+    class="w-3/5 px-32 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md login-box"
   >
     <h1 class="text-3xl font-medium">
       Login {{ $route.params.role == 'teacher' ? ' docente' : '' }}
@@ -139,3 +139,10 @@ export default {
   }
 }
 </script>
+
+<style>
+.login-box {
+  margin-bottom: 0;
+  /*transform: translate(-50%, -50%);*/
+}
+</style>

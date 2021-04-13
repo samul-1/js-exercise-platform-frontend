@@ -60,9 +60,7 @@
       </div>
       <router-view v-else />
     </main>
-    <footer
-      class="flex w-full px-6 py-3 mt-auto text-sm text-white bg-gray-900"
-    >
+    <footer class="flex w-full px-6 py-3 text-sm text-white bg-gray-900">
       <p>
         Powered by
         <a

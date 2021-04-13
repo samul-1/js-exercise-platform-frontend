@@ -20,6 +20,7 @@
 
 <script>
 import 'vue-code-highlight/themes/duotone-sea.css'
+import { highlightCode } from '../constants.js'
 
 export default {
   name: 'MultipleChoiceQuestion',
@@ -47,29 +48,7 @@ export default {
     }
   },
   methods: {
-    highlightCode (text) {
-      return text
-        ?.replace(
-          /```([^`]*)```/g,
-          `
-        <div
-        class="p-2 my-1 text-xs text-white break-all bg-gray-800 rounded-md shadow-sm -mono"
-        >
-          <pre class=" language-javascript"><code class=" language-javascript">$1</code></pre>
-        </div>
-      `
-        )
-        ?.replace(
-          /`([^`]*)`/g,
-          `
-        <div
-        class="inline-block p-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
-        >
-          <pre style="line-height: 0.95; overflow-y: hidden" class=" language-javascript"><code style="line-height: 0.5" class=" language-javascript">$1</code></pre>
-        </div>
-      `
-        )
-    }
+    highlightCode
   }
 }
 </script>
