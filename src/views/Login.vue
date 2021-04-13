@@ -71,9 +71,8 @@ export default {
       await axios
         .post('/users/auth/convert-token', {
           grant_type: 'convert_token',
-          client_id: 'j19J7lrby2t6WVOa9LxWs9fW6IgAX7GH8cuRjJhn',
-          client_secret:
-            'UXzLJpaW8n1G4yR45CwJbGR4IztwxomCioheiSoRlhkSn3KTm5caBghWVTzx5nmKdcYCVYiSy8O2JeP2MeDAEZoqhMKtjbBI7bScLta5jUXSewyCKw2PX1b7D8twpe9V',
+          client_id: process.env.VUE_APP_GOOGLE_OAUTH_CLIENT_ID,
+          client_secret: process.env.VUE_APP_GOOGLE_OAUTH_CLIENT_SECRET,
           backend: 'google-oauth2',
           token: token
         })
