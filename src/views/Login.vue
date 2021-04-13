@@ -69,7 +69,7 @@ export default {
 
       // log in with access token
       await axios
-        .post('http://localhost:8000/users/auth/convert-token', {
+        .post('/users/auth/convert-token', {
           grant_type: 'convert_token',
           client_id: 'j19J7lrby2t6WVOa9LxWs9fW6IgAX7GH8cuRjJhn',
           client_secret:
