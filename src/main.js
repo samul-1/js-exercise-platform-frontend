@@ -10,9 +10,13 @@ import GSignInButton from 'vue-google-signin-button'
 
 Vue.use(VueCodeHighlight) //registers the v-highlight directive
 
+const development = process.env.NODE_ENV !== 'production'
+
 Vue.config.productionTip = false
 
-axios.defaults.baseURL = 'http://127.0.0.1:8000'
+axios.defaults.baseURL = development
+  ? 'http://127.0.0.1:8000'
+  : process.env.AXIOS_BASE
 
 Vue.use(GSignInButton)
 
