@@ -276,6 +276,10 @@ export default {
   },
   created () {
     if (!this.$store.state.isAuthenticated) {
+      this.$store.commit(
+        'setRedirectToAfterLogin',
+        this.$router.currentRoute.fullPath
+      )
       this.$router.push('/login')
     } else {
       this.getExam()
@@ -384,8 +388,11 @@ export default {
         })
         .catch(error => {
           if (error.response.status == 401 || error.response.status == 403) {
+            this.$store.commit(
+              'setRedirectToAfterLogin',
+              this.$router.currentRoute.fullPath
+            )
             this.$router.push('/login')
-            // this.$store.commit('removeToken')
           } else {
             this.$store.commit(
               'setMessage',

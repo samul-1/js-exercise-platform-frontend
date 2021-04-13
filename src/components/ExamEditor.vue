@@ -177,6 +177,24 @@ export default {
     MultipleChoiceQuestionEditor,
     CategoryEditor
   },
+  watch: {
+    // automatically add a category when a question/exercise is added for the first
+    // time and no categories exist yet for that type of item
+    exerciseLen (newVal, oldVal) {
+      if (newVal == 1 && !oldVal && !this.exam.exerciseCategories.length) {
+        this.exam.exerciseCategories.unshift(
+          this.newCategory('e', 'Categoria 1')
+        )
+      }
+    },
+    questionsLen (newVal, oldVal) {
+      if (newVal == 1 && !oldVal && !this.exam.questionCategories.length) {
+        this.exam.questionCategories.unshift(
+          this.newCategory('q', 'Categoria 1')
+        )
+      }
+    }
+  },
   created () {
     const id = this.$route.params.examid
     if (id) {
@@ -262,7 +280,7 @@ export default {
         arr.splice(index, 1)
       }
     },
-    newCategory (item_type) {
+    newCategory (item_type, name = '') {
       // returns a new category with given type and an unique id
 
       const id = uuid.v4()
@@ -270,12 +288,18 @@ export default {
         id,
         item_type,
         _new: true, // indicate this category has just been created in the frontend
-        name: '',
+        name,
         amount: 1
       }
     }
   },
   computed: {
+    exerciseLen () {
+      return this.exam.exercises.length
+    },
+    questionsLen () {
+      return this.exam.questions.length
+    },
     strippedIdExam () {
       /*
       Returns the exam object without all the local id's generated for questions, their answers,

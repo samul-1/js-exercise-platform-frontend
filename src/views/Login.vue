@@ -125,7 +125,15 @@ export default {
       if (this.$store.state.user.is_teacher) {
         this.$router.push('/dashboard')
       } else {
-        this.$router.push('/exam/1')
+        if (this.$store.state.redirectToAfterLogin) {
+          this.$router.push(this.$store.state.redirectToAfterLogin)
+          this.$store.commit('resetRedirectToAfterLogin')
+        } else {
+          this.$store.commit(
+            'setMessage',
+            "Ottieni il link per l'esame dal tuo docente."
+          )
+        }
       }
     }
   }
