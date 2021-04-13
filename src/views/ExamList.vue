@@ -59,7 +59,7 @@ export default {
   },
   created () {
     console.log('node env', process.env.NODE_ENV)
-    console.log('env base url', process.env.AXIOS_BASE)
+    console.log('env base url', process.env.VUE_APP_AXIOS_BASE)
     console.log('axios base url', axios.defaults.baseURL)
     console.log('all envs', process.env)
     this.loading = true

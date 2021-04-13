@@ -16,7 +16,7 @@ Vue.config.productionTip = false
 
 axios.defaults.baseURL = development
   ? 'http://127.0.0.1:8000'
-  : process.env.AXIOS_BASE
+  : process.env.VUE_APP_AXIOS_BASE
 
 Vue.use(GSignInButton)
 
