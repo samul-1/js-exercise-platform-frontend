@@ -35,7 +35,10 @@
         </div>
         <div
           class="px-2 mr-6 bg-green-800 rounded-md animate-pulse"
-          v-if="new Date() >= new Date(exam.begin_timestamp)"
+          v-if="
+            new Date() >= new Date(exam.begin_timestamp) &&
+              new Date() <= new Date(exam.end_timestamp)
+          "
         >
           <span class="text-white align-middle">In corso</span>
         </div>
