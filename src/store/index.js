@@ -14,6 +14,7 @@ export const store = new Vuex.Store({
     isAuthenticated: false,
     token: '',
     msg: null,
+    smallMsg: null,
     redirectToAfterLogin: null
   },
   mutations: {
@@ -56,6 +57,9 @@ export const store = new Vuex.Store({
     setMessage (state, msg) {
       state.msg = msg
     },
+    setSmallMessage (state, msg) {
+      state.smallMsg = msg
+    },
     removeToken (state) {
       state.user = {
         email: null,
@@ -72,6 +76,9 @@ export const store = new Vuex.Store({
     },
     resetMessage (state) {
       state.msg = null
+    },
+    resetSmallMessage (state) {
+      state.smallMsg = null
     },
     setRedirectToAfterLogin (state, path) {
       state.redirectToAfterLogin = path

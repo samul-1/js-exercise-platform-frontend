@@ -15,9 +15,6 @@
         <template v-if="$store.state.isAuthenticated">
           <p><i class="mr-2 far fa-user"></i>{{ $store.state.user.email }}</p>
         </template>
-        <p v-if="$store.state.isAuthenticated && !$store.state.user.course">
-          Scegli corso
-        </p>
         <Dialog
           v-if="
             $store.state.isAuthenticated &&
@@ -43,9 +40,6 @@
             >
           </div>
         </Dialog>
-        <!-- <template v-else>
-          <router-link to="/login">Login</router-link>
-        </template> -->
       </div>
     </nav>
 
@@ -59,6 +53,17 @@
         </h1>
       </div>
       <router-view v-else />
+      <transition name="fade">
+        <div
+          class="fixed px-20 py-4 transform -translate-x-1/2 rounded-md shadow-xl left-1/2 top-20"
+          :class="{
+            'bg-green-400 text-green-900': $store.state.smallMsg.severity == 1
+          }"
+          v-if="$store.state.smallMsg"
+        >
+          {{ $store.state.smallMsg.msg }}
+        </div>
+      </transition>
     </main>
     <footer class="flex w-full px-6 py-3 text-sm text-white bg-gray-900">
       <p>
@@ -93,6 +98,16 @@ export default {
       axios.defaults.headers.common['Authorization'] = ''
     }
   },
+  watch: {
+    storeSmallMsg (newVal) {
+      console.log('newVal', newVal)
+      if (newVal) {
+        setTimeout(() => {
+          this.$store.commit('resetSmallMessage')
+        }, 2000)
+      }
+    }
+  },
   data () {
     return {
       selectedCourse: null,
@@ -116,6 +131,11 @@ export default {
           this.$store.commit('setUser', response.data)
         })
         .catch(error => console.log(error))
+    }
+  },
+  computed: {
+    storeSmallMsg () {
+      return this.$store.state.smallMsg
     }
   }
 }

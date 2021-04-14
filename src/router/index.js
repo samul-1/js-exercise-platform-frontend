@@ -11,6 +11,10 @@ Vue.use(VueRouter)
 
 const routes = [
   {
+    path: '/',
+    redirect: '/login'
+  },
+  {
     path: '/exam/:examId?',
     name: 'ExamPage',
     component: ExamPage

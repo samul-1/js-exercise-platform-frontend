@@ -157,7 +157,7 @@
 
     <button
       @click="submit()"
-      :disabled="invalidForm"
+      :disabled="loading || invalidForm"
       class="px-4 py-2 mt-10 mb-2 font-medium text-white bg-green-700 rounded-lg shadow-inner disabled:opacity-50"
     >
       <i class="mr-1 fas fa-check"></i>
@@ -257,6 +257,10 @@ export default {
       action('/exams/' + (id ? `${id}/` : ''), { ...this.strippedIdExam })
         .then(response => {
           console.log(response)
+          this.$store.commit('setSmallMessage', {
+            severity: 1,
+            msg: 'Operazione avvenuta con successo.'
+          })
           this.$router.push('/exams')
         })
         .catch(error => {
@@ -323,10 +327,10 @@ export default {
     strippedIdExam () {
       /*
       Returns the exam object without all the local id's generated for questions, their answers,
-      exercises, and their testcases. 
+      exercises, and their testcases.
       Merges questionCategories and exerciseCategories into a single array, and renames the
       relevant id fields for locally-generated objects to tell the server they aren't "real" db id's.
-      
+
       It's used to send data to the server without sending the local identifiers that
       are only needed by the frontend, and providing the temporary links for questions/exercises
       to reference categories that don't yet exist on the db
@@ -439,8 +443,10 @@ export default {
             !e.testcases.length || // there is at least one exercise with no test cases
             e.min_passing_testcases < 0 || // there is at least one exercise with an invalid test case threshold
             e.min_passing_testcases > e.testcases.length ||
-            e.testcases.some(t => !t.assertion.length) // there is at least one empty test case
-        )
+            e.testcases.some(t => !t.assertion.length) || // there is at least one empty test case
+            !e.category
+        ) ||
+        this.exam.questions.some(q => !q.category)
       )
     }
   }
