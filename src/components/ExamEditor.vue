@@ -46,6 +46,7 @@
 
     <!-- question categories -->
     <fieldset
+      v-show="exam.questions.length"
       class="mt-4"
       :class="{ 'bordered-fieldset': exam.questionCategories.length }"
     >
@@ -102,11 +103,12 @@
 
     <!-- exercise categories -->
     <fieldset
+      v-show="exam.exercises.length"
       class="mt-10"
       :class="{ 'bordered-fieldset': exam.exerciseCategories.length }"
     >
       <legend class="flex">
-        <h2 class="mr-4 text-xl">Categorie esercizi</h2>
+        <h2 class="mr-4 text-xl">Categorie esercizi di programmazione JS</h2>
         <button
           @click="exam.exerciseCategories.unshift(newCategory('e'))"
           class="px-3 text-white bg-green-700 rounded-md shadow-sm"
@@ -131,7 +133,7 @@
     <!-- exercises -->
     <div>
       <div class="flex mt-10">
-        <h2 class="mr-4 text-xl">Esercizi</h2>
+        <h2 class="mr-4 text-xl">Esercizi di programmazione JS</h2>
         <button
           @click="exam.exercises.unshift(newExercise())"
           class="px-3 text-white bg-green-700 rounded-md shadow-sm"
@@ -255,6 +257,7 @@ export default {
       action('/exams/' + (id ? `${id}/` : ''), { ...this.strippedIdExam })
         .then(response => {
           console.log(response)
+          this.$router.push('/exams')
         })
         .catch(error => {
           console.log(error)
