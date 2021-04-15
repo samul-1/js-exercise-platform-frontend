@@ -4,7 +4,7 @@
 
     <h1 class="mb-5 text-3xl font-medium">Lista esami</h1>
     <div
-      class="flex w-full px-2 py-6 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
+      class="flex w-full px-4 py-6 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
       v-for="exam in exams"
       :key="exam.id"
     >

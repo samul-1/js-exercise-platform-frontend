@@ -121,12 +121,12 @@ export default {
     redirectToMainView () {
       // If the logged in user is a teacher, redirects the user to the teacher dashboard
       // If the logged in user a student, redirects the student to the exam page
-      if (this.$store.state.user.is_teacher) {
-        this.$router.push('/dashboard')
+      if (this.$store.state.redirectToAfterLogin) {
+        this.$router.push(this.$store.state.redirectToAfterLogin)
+        this.$store.commit('resetRedirectToAfterLogin')
       } else {
-        if (this.$store.state.redirectToAfterLogin) {
-          this.$router.push(this.$store.state.redirectToAfterLogin)
-          this.$store.commit('resetRedirectToAfterLogin')
+        if (this.$store.state.user.is_teacher) {
+          this.$router.push('/dashboard')
         } else {
           this.$store.commit(
             'setMessage',

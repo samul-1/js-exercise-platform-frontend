@@ -207,6 +207,13 @@ export default {
     }
   },
   created () {
+    if (!this.$store.state.isAuthenticated) {
+      this.$store.commit(
+        'setRedirectToAfterLogin',
+        this.$router.currentRoute.fullPath
+      )
+      this.$router.push('/login/teacher')
+    }
     const id = this.$route.params.examid
     if (id) {
       this.loading = true
@@ -224,7 +231,18 @@ export default {
           }
         })
         .catch(error => {
-          console.log(error)
+          if (error.response.status == 401 || error.response.status == 403) {
+            this.$store.commit(
+              'setRedirectToAfterLogin',
+              this.$router.currentRoute.fullPath
+            )
+            this.$router.push('/login/teacher')
+          } else {
+            this.$store.commit(
+              'setMessage',
+              error.response.data.message ?? error.message
+            )
+          }
         })
         .finally(() => {
           this.loading = false
@@ -398,6 +416,15 @@ export default {
         return _category._new ? { category_uuid: _category.id, ...rest } : obj
       }
 
+      function _stripExtraTags (obj) {
+        // todo implement
+        const { text, ...rest } = obj
+        return {
+          text: text.slice(3, -4),
+          ...rest
+        }
+      }
+
       const {
         questions,
         exercises,
@@ -414,13 +441,13 @@ export default {
         questions: strippedQuestions.map(({ answers, ...question }) => {
           return {
             answers: _stripId(answers), // remove locally-generated id's from answers
-            ..._remapCategoryIds(question) // change `category` property name to `category_uuid` if it points to a new category
+            ..._remapCategoryIds(_stripExtraTags(question)) // change `category` property name to `category_uuid` if it points to a new category
           }
         }),
         exercises: strippedExercises.map(({ testcases, ...exercise }) => {
           return {
             testcases: _stripId(testcases), // remove locally-generated id's from testcases
-            ..._remapCategoryIds(exercise) // change `category` property name to `category_uuid` if it points to a new category
+            ..._remapCategoryIds(_stripExtraTags(exercise)) // change `category` property name to `category_uuid` if it points to a new category
           }
         }),
         categories: [
