@@ -31,12 +31,19 @@
     <div class="grid grid-cols-1 lg:grid-cols-2">
       <div class="mr-4">
         <h2 class="my-2 text-lg">Testo dell'esercizio</h2>
+        <la-tex-preview
+          v-show="selection.length"
+          :text="selection"
+          @closePreview="selection = ''"
+        ></la-tex-preview>
         <VueEditor
           class="tall"
           :value="exercise.text"
           @input="update('text', $event)"
           :id="exercise.id + '-text-editor'"
+          :ref="exercise.id + '-text-editor'"
           :editor-toolbar="toolbar"
+          @selection-change="setPreview($event)"
         ></VueEditor>
       </div>
       <div>
@@ -124,13 +131,15 @@ import { VueEditor } from 'vue2-editor'
 import AceEditor from 'vuejs-ace-editor'
 import TestCaseEditor from '../components/TestCaseEditor.vue'
 import { aceEditorOptions, toolbar, editorInit } from '../constants.js'
+import LaTexPreview from '../components/LaTexPreview.vue'
 
 export default {
   name: 'ExerciseEditor',
   components: {
     VueEditor,
     AceEditor,
-    TestCaseEditor
+    TestCaseEditor,
+    LaTexPreview
   },
   created () {
     //this.exercise.uuid = this.id
@@ -150,11 +159,20 @@ export default {
         min_passing_testcases: 1,
         testcases: [],
         category: null
-      }
+      },
+      selection: ''
     }
   },
   methods: {
     editorInit,
+    setPreview (event) {
+      console.log(event)
+      const editor = this.$refs[this.exercise.id + '-text-editor']
+      const range = editor.quill.getSelection()
+      console.log(editor.quill.getText(range.index, range.length))
+      console.log(editor)
+      this.selection = editor.quill.getText(range.index, range.length)
+    },
     update (key, value) {
       console.log(value)
       // updates supplied key with supplied value; emits change to parent component

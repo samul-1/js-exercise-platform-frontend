@@ -28,12 +28,19 @@
         </option>
       </select>
       <h2 class="my-2 text-lg">Testo della domanda</h2>
+      <la-tex-preview
+        v-show="selection.length"
+        :text="selection"
+        @closePreview="selection = ''"
+      ></la-tex-preview>
       <VueEditor
         class="tall"
         :value="question.text"
         @input="update('text', $event)"
         :id="question.id + '-text-editor'"
         :editor-toolbar="toolbar"
+        @selection-change="setPreview($event)"
+        :ref="question.id + '-text-editor'"
       ></VueEditor>
     </div>
 
@@ -66,12 +73,13 @@ import { toolbar } from '../constants.js'
 import { VueEditor } from 'vue2-editor'
 import AnswerEditor from '../components/AnswerEditor.vue'
 import { uuid } from 'vue-uuid'
-
+import LaTexPreview from '../components/LaTexPreview.vue'
 export default {
   name: 'MultipleChoiceQuestionEditor',
   components: {
     VueEditor,
-    AnswerEditor
+    AnswerEditor,
+    LaTexPreview
   },
   props: ['categoryChoices'],
   created () {
@@ -84,10 +92,19 @@ export default {
         id: null,
         text: '',
         answers: []
-      }
+      },
+      selection: ''
     }
   },
   methods: {
+    setPreview (event) {
+      console.log(event)
+      const editor = this.$refs[this.question.id + '-text-editor']
+      const range = editor.quill.getSelection()
+      console.log(editor.quill.getText(range.index, range.length))
+      console.log(editor)
+      this.selection = editor.quill.getText(range.index, range.length)
+    },
     update (key, value) {
       // updates supplied key with supplied value; emits change to parent component
 
@@ -120,4 +137,15 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active,
+.fade-leave {
+  transition: 0.25s opacity ease-out;
+}
+</style>
