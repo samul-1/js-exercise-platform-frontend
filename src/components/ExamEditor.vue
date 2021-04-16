@@ -356,7 +356,9 @@ export default {
       function _stripId (arr) {
         // takes in an array of objects with the keys `stripId` and `id`;
         // returns the same objects without those two keys
-        const _arr = arr['__ob__'].value
+
+        // we might be passed a "normal" array or a vue array, which contains extra keys
+        const _arr = arr['__ob__']?.value ?? arr
 
         // keep id's where `stripId` property is absent (or falsy)
         const dontStrip = _arr.filter(e => !e.stripId)
@@ -417,12 +419,23 @@ export default {
       }
 
       function _stripExtraTags (obj) {
-        // todo implement
+        // removes the unwanted <p> tags vue2editor adds to every line, and substitues in <br />
+        // tags to keep consistency with user-typed newlines; also substitutes <pre> tags with ```
         const { text, ...rest } = obj
         return {
-          text: text.slice(3, -4),
+          text: text
+            .replace(/<\/p>/g, '<br />')
+            .replace(/<p>/g, '')
+            .replace(/<br\s*\/?>(<br\s*\/?>)+/g, '<br />')
+            .replace(/<\/?pre[^>]*>/g, '```'),
           ...rest
         }
+      }
+
+      function _stripExtraTagsArr (arr) {
+        // wrapper to apply _stripExtraTags to a vue array
+        const _arr = arr['__ob__'].value
+        return _arr.map(a => _stripExtraTags(a))
       }
 
       const {
@@ -440,7 +453,7 @@ export default {
       return {
         questions: strippedQuestions.map(({ answers, ...question }) => {
           return {
-            answers: _stripId(answers), // remove locally-generated id's from answers
+            answers: _stripId(_stripExtraTagsArr(answers)), // remove locally-generated id's from answers
             ..._remapCategoryIds(_stripExtraTags(question)) // change `category` property name to `category_uuid` if it points to a new category
           }
         }),
