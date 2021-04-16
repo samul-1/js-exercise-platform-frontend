@@ -30,7 +30,22 @@
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2">
       <div class="mr-4">
-        <h2 class="my-2 text-lg">Testo dell'esercizio</h2>
+        <div class="flex">
+          <h2 class="my-2 text-lg">Testo dell'esercizio</h2>
+          <div class="my-auto ml-auto text-xs">
+            <div
+              class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-500 rounded-full"
+            >
+              <i class="far fa-lightbulb fa-inverse"></i>
+            </div>
+          </div>
+
+          <p class="my-auto text-xs text-gray-600">
+            Evidenzia il codice LaTeX per vederne l'anteprima
+          </p>
+          <p></p>
+        </div>
+
         <la-tex-preview
           v-show="selection.length"
           :text="selection"
