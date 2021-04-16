@@ -6,15 +6,17 @@
         :text="selection"
         @closePreview="selection = ''"
       ></la-tex-preview>
-      <VueEditor
-        class="tall"
-        :value="answer.text"
-        @input="update('text', $event)"
-        :id="answer.id + '-text-editor'"
-        :ref="answer.id + '-text-editor'"
-        @selection-change="setPreview($event)"
-        :editor-toolbar="toolbar"
-      ></VueEditor>
+      <div class="tex2jax_ignore">
+        <VueEditor
+          class="tall"
+          :value="answer.text"
+          @input="update('text', $event)"
+          :id="answer.id + '-text-editor'"
+          :ref="answer.id + '-text-editor'"
+          @selection-change="setPreview($event)"
+          :editor-toolbar="toolbar"
+        ></VueEditor>
+      </div>
     </div>
 
     <div class="self-center ml-auto">

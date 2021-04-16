@@ -47,15 +47,17 @@
         :text="selection"
         @closePreview="selection = ''"
       ></la-tex-preview>
-      <VueEditor
-        class="tall"
-        :value="question.text"
-        @input="update('text', $event)"
-        :id="question.id + '-text-editor'"
-        :editor-toolbar="toolbar"
-        @selection-change="setPreview($event)"
-        :ref="question.id + '-text-editor'"
-      ></VueEditor>
+      <div class="tex2jax_ignore">
+        <VueEditor
+          class="tall"
+          :value="question.text"
+          @input="update('text', $event)"
+          :id="question.id + '-text-editor'"
+          :editor-toolbar="toolbar"
+          @selection-change="setPreview($event)"
+          :ref="question.id + '-text-editor'"
+        ></VueEditor>
+      </div>
     </div>
 
     <div class="flex mt-2">

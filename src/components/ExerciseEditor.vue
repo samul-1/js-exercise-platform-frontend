@@ -51,15 +51,17 @@
           :text="selection"
           @closePreview="selection = ''"
         ></la-tex-preview>
-        <VueEditor
-          class="tall"
-          :value="exercise.text"
-          @input="update('text', $event)"
-          :id="exercise.id + '-text-editor'"
-          :ref="exercise.id + '-text-editor'"
-          :editor-toolbar="toolbar"
-          @selection-change="setPreview($event)"
-        ></VueEditor>
+        <div class="tex2jax_ignore">
+          <VueEditor
+            class="tall"
+            :value="exercise.text"
+            @input="update('text', $event)"
+            :id="exercise.id + '-text-editor'"
+            :ref="exercise.id + '-text-editor'"
+            :editor-toolbar="toolbar"
+            @selection-change="setPreview($event)"
+          ></VueEditor>
+        </div>
       </div>
       <div>
         <h2 class="my-2 text-lg">Codice iniziale</h2>

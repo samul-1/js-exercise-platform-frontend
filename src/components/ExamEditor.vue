@@ -476,6 +476,8 @@ export default {
       // todo add checks for timestamps and questions
       return (
         !this.exam.name.length || // no name specified
+        !this.exam.begin_timestamp ||
+        !this.exam.end_timestamp ||
         (!this.exam.exercises.length && !this.exam.questions.length) || // no exercises or question
         this.exam.exercises.some(
           e =>
