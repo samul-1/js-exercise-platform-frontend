@@ -50,7 +50,7 @@
           <button
             v-if="question.id"
             @click="submitAnswer()"
-            :disabled="selectedAnswer == null"
+            :disabled="selectedAnswer == null && !answerText.length"
             class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
           >
             <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
@@ -139,10 +139,11 @@
           class="p-3 overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
           v-show="pane == 'question'"
         >
-          <MultipleChoiceQuestion
+          <Question
             :question="question"
             @answer="selectedAnswer = $event"
-          ></MultipleChoiceQuestion>
+            @text="answerText = $event"
+          ></Question>
         </div>
       </div>
       <!-- submissions sidebar -->
@@ -232,7 +233,7 @@ import AceEditor from 'vuejs-ace-editor'
 import Spinner from '../components/Spinner.vue'
 import Submission from '../components/Submission.vue'
 import TestCase from '../components/TestCase.vue'
-import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion.vue'
+import Question from '../components/Question.vue'
 import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
@@ -251,7 +252,7 @@ export default {
     Submission,
     TestCase,
     Dialog,
-    MultipleChoiceQuestion,
+    Question,
     Skeleton,
     DraggablePopup,
     Spinner
@@ -307,6 +308,7 @@ export default {
 
       code: '',
       selectedAnswer: null,
+      answerText: '',
 
       processingSubmission: false,
       submissions: [],
@@ -405,6 +407,7 @@ export default {
       // send a null answer even if the user had clicked on an answer before deciding to skip
       if (resetAnswer) {
         this.selectedAnswer = null
+        this.answerText = ''
       }
 
       // close confirmation dialog if it had been opened
@@ -412,7 +415,8 @@ export default {
 
       axios
         .post(`/questions/${this.question.id}/given_answers/`, {
-          answer: this.selectedAnswer
+          answer: this.selectedAnswer,
+          text: this.answerText
         })
         .then(response => {
           console.log(response.data)

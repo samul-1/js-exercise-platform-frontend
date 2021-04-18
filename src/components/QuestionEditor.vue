@@ -11,22 +11,43 @@
       </button>
     </div>
     <div class="mb-4">
-      <span class="mr-2">Categoria</span>
-      <select
-        class="p-1 border rounded-md"
-        @change="update('category', question.category)"
-        v-model="question.category"
-      >
-        <option :value="null" selected disabled>Seleziona categoria</option>
-
-        <option
-          v-for="category in categoryChoices"
-          :key="category.id"
-          :value="category.id"
+      <div class="flex">
+        <span class="mr-2">Categoria</span>
+        <select
+          class="p-1 border rounded-md"
+          @change="update('category', question.category)"
+          v-model="question.category"
         >
-          {{ category.name }}
-        </option>
-      </select>
+          <option :value="null" selected disabled>Seleziona categoria</option>
+
+          <option
+            v-for="category in categoryChoices"
+            :key="category.id"
+            :value="category.id"
+          >
+            {{ category.name }}
+          </option>
+        </select>
+        <div class="ml-4">
+          <span
+            >Domanda
+            <strong>
+              {{
+                question.question_type == 'm' ? 'a scelta multipla' : 'aperta'
+              }}</strong
+            ></span
+          >
+          <button
+            @click="
+              switchQuestionType(question.question_type == 'm' ? 'o' : 'm')
+            "
+            class="px-3 py-1 ml-2 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+          >
+            <i class="fas fa-exchange-alt"></i> Cambia in domanda
+            {{ question.question_type == 'o' ? 'a scelta multipla' : 'aperta' }}
+          </button>
+        </div>
+      </div>
       <div class="flex">
         <h2 class="my-2 text-lg">Testo della domanda</h2>
         <div class="my-auto ml-auto text-xs">
@@ -59,27 +80,28 @@
         ></VueEditor>
       </div>
     </div>
-
-    <div class="flex mt-2">
-      <h2 class="mr-4 text-lg">Risposte</h2>
-      <button
-        @click="question.answers.unshift(newAnswer())"
-        class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
-      >
-        <i class="fas fa-plus-circle"></i> Aggiungi
-      </button>
-    </div>
-    <div>
-      <transition-group name="bounce">
-        <AnswerEditor
-          v-for="(answer, index) in question.answers"
-          :key="answer.id"
-          :id="answer.id"
-          v-model="question.answers[index]"
-          @delete="question.answers.splice(index, 1)"
-          @input="updateDeep('answers', index, $event)"
-        ></AnswerEditor>
-      </transition-group>
+    <div v-show="question.question_type == 'm'">
+      <div class="flex mt-2">
+        <h2 class="mr-4 text-lg">Risposte</h2>
+        <button
+          @click="question.answers.unshift(newAnswer())"
+          class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+        >
+          <i class="fas fa-plus-circle"></i> Aggiungi
+        </button>
+      </div>
+      <div>
+        <transition-group name="bounce">
+          <AnswerEditor
+            v-for="(answer, index) in question.answers"
+            :key="answer.id"
+            :id="answer.id"
+            v-model="question.answers[index]"
+            @delete="question.answers.splice(index, 1)"
+            @input="updateDeep('answers', index, $event)"
+          ></AnswerEditor>
+        </transition-group>
+      </div>
     </div>
   </div>
 </template>
@@ -87,11 +109,11 @@
 <script>
 import { toolbar } from '../constants.js'
 import { VueEditor } from 'vue2-editor'
-import AnswerEditor from '../components/AnswerEditor.vue'
+import AnswerEditor from './AnswerEditor.vue'
 import { uuid } from 'vue-uuid'
-import LaTexPreview from '../components/LaTexPreview.vue'
+import LaTexPreview from './LaTexPreview.vue'
 export default {
-  name: 'MultipleChoiceQuestionEditor',
+  name: 'QuestionEditor',
   components: {
     VueEditor,
     AnswerEditor,
@@ -107,12 +129,28 @@ export default {
       question: {
         id: null,
         text: '',
-        answers: []
+        answers: [],
+        category: null,
+        question_type: 'm'
       },
       selection: ''
     }
   },
   methods: {
+    switchQuestionType (newType) {
+      if (newType != 'm' && this.question.answers.length > 0) {
+        if (
+          !confirm(
+            'Hai già aggiunto delle risposte a questa domanda. Cambiando modalità, le risposte verranno cancellate.'
+          )
+        ) {
+          return
+        }
+        this.question.answers = []
+      }
+      this.question.question_type = newType
+      this.update('question_type', this.question.question_type)
+    },
     setPreview (event) {
       console.log(event)
       const editor = this.$refs[this.question.id + '-text-editor']

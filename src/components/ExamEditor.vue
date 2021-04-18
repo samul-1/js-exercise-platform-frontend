@@ -89,14 +89,14 @@
       </div>
 
       <transition-group name="bounce">
-        <MultipleChoiceQuestionEditor
+        <QuestionEditor
           v-for="(question, index) in exam.questions"
           :id="question.id"
           :key="question.id"
           v-model="exam.questions[index]"
           @delete="confirmDeletion(exam.questions, index)"
           :category-choices="exam.questionCategories"
-        ></MultipleChoiceQuestionEditor>
+        ></QuestionEditor>
       </transition-group>
     </div>
     <!-- end questions -->
@@ -170,7 +170,7 @@
 import axios from 'axios'
 import ExerciseEditor from '../components/ExerciseEditor.vue'
 import CategoryEditor from '../components/CategoryEditor.vue'
-import MultipleChoiceQuestionEditor from '../components/MultipleChoiceQuestionEditor.vue'
+import QuestionEditor from './QuestionEditor.vue'
 //import { VueEditor } from 'vue2-editor'
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
@@ -184,7 +184,7 @@ export default {
     //VueEditor,
     DatePicker,
     ExerciseEditor,
-    MultipleChoiceQuestionEditor,
+    QuestionEditor,
     CategoryEditor,
     Spinner
   },
@@ -308,13 +308,13 @@ export default {
       // returns a new empty question with unique id
 
       const id = uuid.v4()
-      //const id = Math.ceil(Math.random() * (100000 - 80000) + 80000)
       return {
         id,
         stripId: true, // indicate this id is only for local identification and needs to be stripped off when submitting to backend
         text: '',
         answers: [],
-        category: null
+        category: null,
+        question_type: 'm'
       }
     },
     confirmDeletion (arr, index) {
