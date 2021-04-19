@@ -79,7 +79,7 @@
     <!-- questions -->
     <div>
       <div class="flex mt-10">
-        <h2 class="mr-4 text-xl">Domande a risposta multipla</h2>
+        <h2 class="mr-4 text-xl">Domande</h2>
         <button
           @click="exam.questions.unshift(newQuestion())"
           class="px-3 text-white bg-green-700 rounded-md shadow-sm"
@@ -324,14 +324,15 @@ export default {
     },
     newCategory (item_type, name = '') {
       // returns a new category with given type and an unique id
-
       const id = uuid.v4()
       return {
         id,
         item_type,
         _new: true, // indicate this category has just been created in the frontend
         name,
-        amount: 1
+        amount: 1,
+        is_aggregated_question: false,
+        introduction_text: ''
       }
     }
   },
@@ -380,7 +381,11 @@ export default {
         so that the backend knows to use that id for temporary referencing during the concurrent creation of
         both categories and questions/exercises, as well as stripping off the `_new` property
         */
+
+        // TODO for each category with `is_aggreated_question` set to true, set the number of questions
+        // TODO for that cat to the number of questions of that cat
         const _arr = arr['__ob__'].value
+
         const dontStrip = _arr.filter(e => !e._new) // no change needed for categories that aren't new
 
         return [
@@ -388,10 +393,19 @@ export default {
             .filter(e => e._new)
             // eslint-disable-next-line no-unused-vars
             .map(({ id, _new, ...rest }) => {
-              return { tmp_uuid: id, ...rest }
+              return { tmp_uuid: id, ...rest } // rename `id` prop to `tmp_uuid`
             }),
           ...dontStrip
         ]
+
+        // return [
+        //   ...ret.filter(c => c.item_type != 'q' || !c.is_aggregated_question),
+        //   ...ret
+        //     .filter(c => c.item_type == 'q')
+        //     .map(({ amount, id, ...rest }) => {
+        //       return { amount: this.exam.questions.filter(q=>q.category==id).length, id, ...rest }
+        //     })
+        // ]
       }
 
       const _remapCategoryIds = obj => {
