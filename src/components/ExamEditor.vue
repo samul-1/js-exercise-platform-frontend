@@ -373,23 +373,39 @@ export default {
         ]
       }
 
-      function _processCategories (arr) {
-        // _renameNewCategoriesIdProperty
+      const _processCategories = arr => {
         /*
         Takes in an array of category objects.
-        For each category, if it has the `_new` property set to true, renames its `id` field to `tmp_uuid`
+        
+        For each category, if it has the `is_aggregated_question` property set to true, changes the `amount` property
+        to be equal to the number of questions that belong to that category (overwrites whatever value was in place before).
+
+        Then, for each category, if it has the `_new` property set to true, renames its `id` field to `tmp_uuid`
         so that the backend knows to use that id for temporary referencing during the concurrent creation of
-        both categories and questions/exercises, as well as stripping off the `_new` property
+        both categories and questions/exercises, and it strips off the `_new` property
         */
 
-        // TODO for each category with `is_aggreated_question` set to true, set the number of questions
-        // TODO for that cat to the number of questions of that cat
         const _arr = arr['__ob__'].value
 
-        const dontStrip = _arr.filter(e => !e._new) // no change needed for categories that aren't new
+        const ret = [
+          ..._arr.filter(c => c.item_type != 'q' || !c.is_aggregated_question), // leave exercise categories and categories that aren't aggregated questions alone
+          ..._arr
+            .filter(c => c.item_type == 'q' && c.is_aggregated_question) // filter for aggregate questions
+            // eslint-disable-next-line no-unused-vars
+            .map(({ amount, id, ...rest }) => {
+              return {
+                amount: this.exam.questions.filter(q => q.category === id)
+                  .length, // the `amount` must be equal to the number of questions belonging to this category
+                id,
+                ...rest
+              }
+            })
+        ]
+
+        const dontStrip = ret.filter(e => !e._new) // no change needed for categories that aren't new
 
         return [
-          ...arr
+          ...ret
             .filter(e => e._new)
             // eslint-disable-next-line no-unused-vars
             .map(({ id, _new, ...rest }) => {
@@ -397,22 +413,14 @@ export default {
             }),
           ...dontStrip
         ]
-
-        // return [
-        //   ...ret.filter(c => c.item_type != 'q' || !c.is_aggregated_question),
-        //   ...ret
-        //     .filter(c => c.item_type == 'q')
-        //     .map(({ amount, id, ...rest }) => {
-        //       return { amount: this.exam.questions.filter(q=>q.category==id).length, id, ...rest }
-        //     })
-        // ]
       }
 
       const _remapCategoryIds = obj => {
         // _renameCategoryProperties
         /*
         Takes in a question/exericise object.
-        Looks up the category referenced in the `category` property.
+
+        Looks up the category referenced in the `category` property:
         If the referenced category has the property `_new` set (and therefore its id is a locally-generated
         uuid and not its id as in the backend db), then the `category` property of the exercise/question is
         renamed to `category_uuid`, to tell the server to use that uuid for temporary referencing
