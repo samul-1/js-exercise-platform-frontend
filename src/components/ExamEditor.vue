@@ -158,10 +158,18 @@
     <button
       @click="submit()"
       :disabled="loading || invalidForm"
-      class="px-4 py-2 mt-10 mb-2 font-medium text-white bg-green-700 rounded-lg shadow-inner disabled:opacity-50"
+      class="px-4 py-2 mt-10 mb-2 mr-4 text-white bg-green-700 rounded-lg shadow-inner disabled:opacity-50"
     >
       <i class="mr-1 fas fa-check"></i>
       {{ $route.params.examid ? 'Aggiorna' : 'Conferma e crea' }}
+    </button>
+    <button
+      @click="submit(true)"
+      :disabled="loading || invalidForm"
+      class="px-4 py-2 mt-10 mb-2 text-white bg-gray-500 rounded-lg shadow-inner disabled:opacity-50"
+    >
+      <i class="mr-1 far fa-file"></i>
+      Salva come bozza
     </button>
   </div>
 </template>
@@ -214,6 +222,9 @@ export default {
       )
       this.$router.push('/login/teacher')
     }
+    if (!this.$store.state.user.is_teacher) {
+      this.$router.push('/login')
+    }
     const id = this.$route.params.examid
     if (id) {
       this.loading = true
@@ -265,14 +276,16 @@ export default {
     }
   },
   methods: {
-    submit () {
+    submit (draft = false) {
       const id = this.$route.params.examid
 
       // if no exam id is supplied, we're creating an exam; otherwise we're upading one
       const action = id ? axios.put : axios.post
-
       this.loading = true
-      action('/exams/' + (id ? `${id}/` : ''), { ...this.strippedIdExam })
+      action('/exams/' + (id ? `${id}/` : ''), {
+        ...this.strippedIdExam,
+        draft
+      })
         .then(response => {
           console.log(response)
           this.$store.commit('setSmallMessage', {

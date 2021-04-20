@@ -139,6 +139,10 @@
           class="p-3 overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
           v-show="pane == 'question'"
         >
+          <AggregatedQuestionIntroduction
+            v-if="question.introduction"
+            :text="question.introduction"
+          ></AggregatedQuestionIntroduction>
           <Question
             :question="question"
             @answer="selectedAnswer = $event"
@@ -238,6 +242,7 @@ import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
 import DraggablePopup from '../components/DraggablePopup.vue'
+import AggregatedQuestionIntroduction from '../components/AggregatedQuestionIntroduction.vue'
 import {
   highlightCode,
   aceEditorOptions,
@@ -255,7 +260,8 @@ export default {
     Question,
     Skeleton,
     DraggablePopup,
-    Spinner
+    Spinner,
+    AggregatedQuestionIntroduction
   },
   created () {
     if (!this.$store.state.isAuthenticated) {

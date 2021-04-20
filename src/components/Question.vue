@@ -1,6 +1,6 @@
 <template>
-  <div class="text-lg">
-    <div class="mb-10">
+  <div class="text-md">
+    <div class="mb-5">
       <div v-highlight v-html="highlightCode(question.text)"></div>
     </div>
     <div v-if="question.question_type == 'm'">
