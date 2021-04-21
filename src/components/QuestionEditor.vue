@@ -10,9 +10,23 @@
         <i class="fas fa-trash"></i>
       </button>
     </div>
+    <div class="mb-6">
+      <h1 class="text-xl font-medium">
+        Domanda {{ index }}
+        <span :class="{ 'text-red-600': !categoryName }"
+          >{{ categoryName ? '' : 'senza '
+          }}{{
+            categoryName.slice(0, 9).toLowerCase() == 'categoria'
+              ? ''
+              : 'categoria'
+          }}
+          {{ categoryName ? categoryName : '' }}</span
+        >
+      </h1>
+    </div>
     <div class="mb-4">
       <div class="flex">
-        <span class="mr-2">Categoria</span>
+        <span class="my-auto mr-2">Categoria</span>
         <select
           class="p-1 border rounded-md"
           @change="update('category', question.category)"
@@ -28,7 +42,7 @@
             {{ category.name }}
           </option>
         </select>
-        <div class="ml-4">
+        <div class="ml-6">
           <span
             >Domanda
             <strong>
@@ -41,9 +55,9 @@
             @click="
               switchQuestionType(question.question_type == 'm' ? 'o' : 'm')
             "
-            class="px-3 py-1 ml-2 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+            class="px-3 py-1.5 ml-2 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
           >
-            <i class="fas fa-exchange-alt"></i> Cambia in domanda
+            <i class="mr-1 fas fa-exchange-alt"></i> Cambia in domanda
             {{ question.question_type == 'o' ? 'a scelta multipla' : 'aperta' }}
           </button>
         </div>
@@ -68,13 +82,22 @@
         :text="selection"
         @closePreview="selection = ''"
       ></la-tex-preview>
-      <div class="tex2jax_ignore">
+      <div
+        class="tex2jax_ignore"
+        :class="{ 'bg-gray-100 opacity-80 relative': !question.category }"
+      >
+        <div v-if="!question.category" class="absolute top-1/2 left-1/2">
+          <p class="relative text-gray-600 -left-1/2">
+            Per prima cosa, scegli una categoria
+          </p>
+        </div>
         <VueEditor
           class="tall"
           :value="question.text"
           @input="update('text', $event)"
           :id="question.id + '-text-editor'"
           :editor-toolbar="toolbar"
+          :disabled="!question.category"
           @selection-change="setPreview($event)"
           :ref="question.id + '-text-editor'"
         ></VueEditor>
@@ -119,7 +142,7 @@ export default {
     AnswerEditor,
     LaTexPreview
   },
-  props: ['categoryChoices'],
+  props: ['categoryChoices', 'index'],
   created () {
     this.question = this.$attrs.value
   },
@@ -155,8 +178,6 @@ export default {
       console.log(event)
       const editor = this.$refs[this.question.id + '-text-editor']
       const range = editor.quill.getSelection()
-      console.log(editor.quill.getText(range.index, range.length))
-      console.log(editor)
       this.selection = editor.quill.getText(range.index, range.length)
     },
     update (key, value) {
@@ -186,6 +207,14 @@ export default {
         text: '',
         is_right_answer: false
       }
+    }
+  },
+  computed: {
+    categoryName () {
+      return (
+        this.categoryChoices.find(c => c.id === this.question.category)?.name ??
+        ''
+      )
     }
   }
 }

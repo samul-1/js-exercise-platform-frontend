@@ -54,7 +54,14 @@
         <h2 class="mr-4 text-xl">Categorie domande</h2>
         <!--<div class="flex mt-10">-->
         <button
-          @click="exam.questionCategories.unshift(newCategory('q'))"
+          @click="
+            exam.questionCategories.unshift(
+              newCategory(
+                'q',
+                `Categoria ${exam.questionCategories.length + 1}`
+              )
+            )
+          "
           class="px-3 text-white bg-green-700 rounded-md shadow-sm"
         >
           <i class="fas fa-plus-circle"></i> Aggiungi
@@ -62,13 +69,14 @@
         <!--</div>-->
       </legend>
 
-      <div>
+      <div class="inner">
         <transition-group name="bounce">
           <CategoryEditor
             v-for="(category, index) in exam.questionCategories"
             :id="category.id"
             :key="category.id"
             v-model="exam.questionCategories[index]"
+            :class="{ 'bg-gray-70': index % 2 }"
           ></CategoryEditor>
         </transition-group>
       </div>
@@ -96,6 +104,7 @@
           v-model="exam.questions[index]"
           @delete="confirmDeletion(exam.questions, index)"
           :category-choices="exam.questionCategories"
+          :index="getPositionInCategory(exam.questions[index])"
         ></QuestionEditor>
       </transition-group>
     </div>
@@ -110,20 +119,28 @@
       <legend class="flex">
         <h2 class="mr-4 text-xl">Categorie esercizi di programmazione JS</h2>
         <button
-          @click="exam.exerciseCategories.unshift(newCategory('e'))"
+          @click="
+            exam.exerciseCategories.unshift(
+              newCategory(
+                'e',
+                `Categoria ${exam.exerciseCategories.length + 1}`
+              )
+            )
+          "
           class="px-3 text-white bg-green-700 rounded-md shadow-sm"
         >
           <i class="fas fa-plus-circle"></i> Aggiungi
         </button>
       </legend>
 
-      <div>
+      <div class="inner">
         <transition-group name="bounce">
           <CategoryEditor
             v-for="(category, index) in exam.exerciseCategories"
             :id="category.id"
             :key="category.id"
             v-model="exam.exerciseCategories[index]"
+            :class="{ 'bg-gray-70': index % 2 }"
           ></CategoryEditor>
         </transition-group>
       </div>
@@ -302,6 +319,15 @@ export default {
           this.loading = false
         })
     },
+    getPositionInCategory (question) {
+      // todo test with already existing categories
+      return (
+        this.exam.questions
+          .filter(q => q.category === question.category)
+          .reverse()
+          .indexOf(question) + 1
+      )
+    },
     newExercise () {
       // returns a new empty exercise with unique id
 
@@ -362,6 +388,8 @@ export default {
       exercises, and their testcases.
       Merges questionCategories and exerciseCategories into a single array, and renames the
       relevant id fields for locally-generated objects to tell the server they aren't "real" db id's.
+      Reverses both `questions` and `exercises` arrays to have the backend create them in the same order they
+      were added in the frontend.
 
       It's used to send data to the server without sending the local identifiers that
       are only needed by the frontend, and providing the temporary links for questions/exercises
@@ -389,7 +417,7 @@ export default {
       const _processCategories = arr => {
         /*
         Takes in an array of category objects.
-        
+
         For each category, if it has the `is_aggregated_question` property set to true, changes the `amount` property
         to be equal to the number of questions that belong to that category (overwrites whatever value was in place before).
 
@@ -486,18 +514,22 @@ export default {
       const strippedExercises = _stripId(exercises)
 
       return {
-        questions: strippedQuestions.map(({ answers, ...question }) => {
-          return {
-            answers: _stripId(_stripExtraTagsArr(answers)), // remove locally-generated id's from answers
-            ..._remapCategoryIds(_stripExtraTags(question)) // change `category` property name to `category_uuid` if it points to a new category
-          }
-        }),
-        exercises: strippedExercises.map(({ testcases, ...exercise }) => {
-          return {
-            testcases: _stripId(testcases), // remove locally-generated id's from testcases
-            ..._remapCategoryIds(_stripExtraTags(exercise)) // change `category` property name to `category_uuid` if it points to a new category
-          }
-        }),
+        questions: strippedQuestions
+          .map(({ answers, ...question }) => {
+            return {
+              answers: _stripId(_stripExtraTagsArr(answers)), // remove locally-generated id's from answers
+              ..._remapCategoryIds(_stripExtraTags(question)) // change `category` property name to `category_uuid` if it points to a new category
+            }
+          })
+          .reverse(),
+        exercises: strippedExercises
+          .map(({ testcases, ...exercise }) => {
+            return {
+              testcases: _stripId(testcases), // remove locally-generated id's from testcases
+              ..._remapCategoryIds(_stripExtraTags(exercise)) // change `category` property name to `category_uuid` if it points to a new category
+            }
+          })
+          .reverse(),
         categories: [
           // merge question and exercise categories and rename `id` property
           // name to `uuid` for new categories
@@ -535,8 +567,16 @@ export default {
   border: 1px solid rgb(209, 213, 219);
   box-shadow: 1px 1px 3px rgba(209, 213, 219, 0.2);
   border-radius: 0.3rem;
-  padding-left: 1rem;
   margin: 0;
+  padding-left: 1rem;
+}
+
+.bordered-fieldset .inner {
+  margin-left: -1rem !important;
+}
+
+.bg-gray-70 {
+  background-color: rgba(243, 244, 246, 0.9);
 }
 
 /* hide input number arrows */

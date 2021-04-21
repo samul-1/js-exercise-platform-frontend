@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex m-2">
+    <div class="flex px-4 py-2">
       <label class="my-auto mr-2" :for="id + '-cat-name'">Nome categoria</label>
       <input
         class="p-2 my-2 mr-6 border w-60"
@@ -63,12 +63,12 @@
     </div>
     <div
       v-if="category.is_aggregated_question"
-      class="w-full pl-2 mt-2 mb-4 pr-7"
+      class="w-full pb-4 pl-6 mt-2 mb-2 pr-7"
     >
-      <h2 class="mb-2 text-lg">Testo introduttivo</h2>
+      <h2 class="mb-2 ml-1 text-lg">Testo introduttivo</h2>
       <div class="tex2jax_ignore">
         <VueEditor
-          class="tall"
+          class="bg-white tall"
           :value="category.introduction_text"
           @input="update('introduction_text', $event)"
           :id="category.id + '-text-editor'"
