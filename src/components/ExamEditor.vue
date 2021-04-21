@@ -11,7 +11,7 @@
       <div class="mr">
         <h2 class="mb-2 text-xl">Nome esame</h2>
         <input
-          class="w-full p-2 mb-6 mr-6 border"
+          class="w-full p-2 mb-6 mr-6 border border-gray-300 rounded-md"
           type="text"
           v-model="exam.name"
         />
@@ -99,7 +99,7 @@
           v-model="exam.questions[index]"
           @delete="confirmDeletion(exam.questions, index)"
           :category-choices="exam.questionCategories"
-          :index="getPositionInCategory(exam.questions[index])"
+          :index="getPositionInCategory('q', exam.questions[index])"
         ></QuestionEditor>
       </transition-group>
     </div>
@@ -162,6 +162,7 @@
           v-model="exam.exercises[index]"
           @delete="confirmDeletion(exam.exercises, index)"
           :category-choices="exam.exerciseCategories"
+          :index="getPositionInCategory('e', exam.exercises[index])"
         ></ExerciseEditor>
       </transition-group>
     </div>
@@ -313,14 +314,15 @@ export default {
           this.loading = false
         })
     },
-    getPositionInCategory (question) {
+    getPositionInCategory (itemType, item) {
       // returns the index (1-indexed) of `question` in its current category
       // TODO implement for exercises
+      const scope = itemType == 'q' ? this.exam.questions : this.exam.exercises
       return (
-        this.exam.questions
-          .filter(q => q.category === question.category)
+        scope
+          .filter(i => i.category === item.category)
           .reverse()
-          .indexOf(question) + 1
+          .indexOf(item) + 1
       )
     },
     newExercise () {
@@ -340,7 +342,6 @@ export default {
     },
     newQuestion () {
       // returns a new empty question with unique id
-
       const id = uuid.v4()
       return {
         id,
@@ -366,7 +367,8 @@ export default {
         name,
         amount: 1,
         is_aggregated_question: false,
-        introduction_text: ''
+        introduction_text: '',
+        randomize: true
       }
     }
   },
@@ -413,8 +415,8 @@ export default {
         /*
         Takes in an array of category objects.
 
-        For each category, if it has the `is_aggregated_question` property set to true, changes the `amount` property
-        to be equal to the number of questions that belong to that category (overwrites whatever value was in place before).
+        For each category, if it has the `is_aggregated_question` property set to true or `randomize` to false, changes the `amount` property
+        to be equal to the number of items that belong to that category (overwrites whatever value was in place before).
 
         Then, for each category, if it has the `_new` property set to true, renames its `id` field to `tmp_uuid`
         so that the backend knows to use that id for temporary referencing during the concurrent creation of
@@ -424,14 +426,15 @@ export default {
         const _arr = arr['__ob__'].value
 
         const ret = [
-          ..._arr.filter(c => c.item_type != 'q' || !c.is_aggregated_question), // leave exercise categories and categories that aren't aggregated questions alone
+          ..._arr.filter(c => c.randomize && !c.is_aggregated_question), // leave alone randomized and non-aggregated-question categories
           ..._arr
-            .filter(c => c.item_type == 'q' && c.is_aggregated_question) // filter for aggregate questions
+            .filter(c => c.is_aggregated_question || !c.randomize) // filter for aggregate questions and non-randomized categories
             // eslint-disable-next-line no-unused-vars
             .map(({ amount, id, ...rest }) => {
               return {
-                amount: this.exam.questions.filter(q => q.category === id)
-                  .length, // the `amount` must be equal to the number of questions belonging to this category
+                amount:
+                  this.exam.questions.filter(q => q.category === id).length ||
+                  this.exam.exercises.filter(e => e.category === id).length, // the `amount` must be equal to the number of questions belonging to this category
                 id,
                 ...rest
               }
@@ -560,6 +563,9 @@ export default {
             q.answers.some(a => !a.text.length) // answers with empty text
         ) ||
         /* category checks */
+        [...this.exam.exerciseCategories, ...this.exam.questionCategories].some(
+          c => c.amount < 0 || !c.name.length
+        ) || // no unnamed categories or categories with a negative `amount`
         this.exam.exerciseCategories.some(
           c =>
             c.amount >

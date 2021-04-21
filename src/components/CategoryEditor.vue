@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex px-4 py-2">
-      <label class="my-auto mr-2" :for="id + '-cat-name'">Nome categoria</label>
+      <label class="my-auto mr-2" :for="id + '-cat-name'">Nome</label>
       <input
         class="p-2 my-2 mr-6 border w-60"
         @input="update('name', $event.target.value)"
@@ -9,13 +9,16 @@
         v-model="category.name"
         :id="id + '-cat-name'"
       />
-      <p v-if="!category.is_aggregated_question" class="my-auto ml-2 mr-2">
-        Numero di {{ category.item_type == 'e' ? 'esercizi' : 'domande' }} per
-        questa categoria
+      <p
+        v-if="!category.is_aggregated_question && category.randomize"
+        class="my-auto ml-2 mr-2"
+      >
+        N. {{ category.item_type == 'e' ? 'esercizi' : 'domande' }} per questa
+        categoria
       </p>
       <div
-        v-if="!category.is_aggregated_question"
-        class="relative flex flex-row w-32 h-full my-auto mr-6 bg-transparent rounded-lg"
+        v-if="!category.is_aggregated_question && category.randomize"
+        class="relative flex flex-row w-32 h-full my-auto mr-4 bg-transparent rounded-lg"
       >
         <button
           @click="
@@ -58,7 +61,17 @@
         v-if="category.item_type == 'q'"
         :for="id + '-aggr-quest'"
         class="my-auto ml-2"
-        >Utilizza come domanda aggregata</label
+        >Usa come domanda aggregata</label
+      ><input
+        v-model="category.randomize"
+        @input="update('randomize', $event.target.checked)"
+        class="my-auto ml-6"
+        type="checkbox"
+        :id="id + '-randomize'"
+      />
+      <label :for="id + '-randomize'" class="my-auto ml-2"
+        >Randomizza
+        {{ category.item_type == 'q' ? 'domande' : 'esercizi' }}</label
       >
     </div>
     <div
@@ -105,7 +118,8 @@ export default {
         name: '',
         amount: 1,
         is_aggregated_question: false,
-        introduction_text: ''
+        introduction_text: '',
+        randoimze: true
       }
     }
   },
