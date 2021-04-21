@@ -62,10 +62,10 @@ export default {
   },
   methods: {
     async onGoogleSignInSuccess (resp) {
-      console.log('successfully signed in with google:', resp)
+      //console.log('successfully signed in with google:', resp)
 
       // get access token from google
-      const token = resp.tc?.access_token ?? resp.uc?.access_token // ? what's going on here?
+      const token = resp.getAuthResponse(true).access_token
 
       // log in with access token
       await axios
