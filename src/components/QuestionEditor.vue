@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-200 rounded-lg shadow-sm hover:shadow-lg"
+    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-300 rounded-lg shadow-sm hover:shadow-lg"
   >
     <div class="absolute right-10">
       <button
@@ -25,7 +25,7 @@
       </h1>
     </div>
     <div class="mb-4">
-      <div class="flex">
+      <div class="flex mb-1">
         <span class="my-auto mr-2">Categoria</span>
         <select
           class="p-1 border rounded-md"

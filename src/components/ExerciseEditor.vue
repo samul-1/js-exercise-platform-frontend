@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-200 rounded-lg shadow-sm hover:shadow-lg"
+    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-300 rounded-lg shadow-sm hover:shadow-lg"
   >
     <div class="absolute right-10">
       <button
@@ -10,7 +10,7 @@
         <i class="fas fa-trash"></i>
       </button>
     </div>
-    <div class="mb-4">
+    <div class="mb-1">
       <span class="mr-2">Categoria</span>
       <select
         class="p-1 border rounded-md"

@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-8 my-4 ">
+  <div class="mx-8 my-4">
     <Spinner v-if="loading"></Spinner>
 
     <h1 class="text-3xl">
@@ -10,11 +10,6 @@
     <div class="grid grid-cols-2 mt-8">
       <div class="mr">
         <h2 class="mb-2 text-xl">Nome esame</h2>
-        <!--<VueEditor
-          v-model="exam.name"
-          id="exam-name-editor"
-          :editor-toolbar="toolbar"
-        ></VueEditor>-->
         <input
           class="w-full p-2 mb-6 mr-6 border"
           type="text"
@@ -196,17 +191,14 @@ import axios from 'axios'
 import ExerciseEditor from '../components/ExerciseEditor.vue'
 import CategoryEditor from '../components/CategoryEditor.vue'
 import QuestionEditor from './QuestionEditor.vue'
-//import { VueEditor } from 'vue2-editor'
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
 import { uuid } from 'vue-uuid'
-//import { toolbar } from '../constants.js'
 import Spinner from '../components/Spinner.vue'
 
 export default {
   name: 'ExamEditor',
   components: {
-    //VueEditor,
     DatePicker,
     ExerciseEditor,
     QuestionEditor,
@@ -249,12 +241,14 @@ export default {
         .get(`/exams/${id}/`)
         .then(response => {
           console.log(response)
-          const { categories, ...rest } = response.data
+          const { categories, exercises, questions, ...rest } = response.data
           this.exam = {
             // separate categories (which server sees as a single type of resource) into
             // question categories and exercise categories
             questionCategories: categories.filter(c => c.item_type == 'q'),
             exerciseCategories: categories.filter(c => c.item_type == 'e'),
+            exercises: exercises.reverse(), // reverse items as the most recent ones are at the top of the list
+            questions: questions.reverse(),
             ...rest
           }
         })
@@ -320,7 +314,8 @@ export default {
         })
     },
     getPositionInCategory (question) {
-      // todo test with already existing categories
+      // returns the index (1-indexed) of `question` in its current category
+      // TODO implement for exercises
       return (
         this.exam.questions
           .filter(q => q.category === question.category)
@@ -533,29 +528,48 @@ export default {
         categories: [
           // merge question and exercise categories and rename `id` property
           // name to `uuid` for new categories
-          ..._processCategories(questionCategories),
-          ..._processCategories(exerciseCategories)
+          ..._processCategories(questionCategories).reverse(),
+          ..._processCategories(exerciseCategories).reverse()
         ],
         ...exam
       }
     },
     invalidForm () {
-      // todo add checks for timestamps and questions
       return (
+        /* exam fields checks */
         !this.exam.name.length || // no name specified
         !this.exam.begin_timestamp ||
         !this.exam.end_timestamp ||
-        (!this.exam.exercises.length && !this.exam.questions.length) || // no exercises or question
+        (!this.exam.exercises.length && !this.exam.questions.length) || // no exercises and no questions
+        /* exercise checks */
         this.exam.exercises.some(
           e =>
             !e.text.length || // there is at least one exercise with empty text
-            !e.testcases.length || // there is at least one exercise with no test cases
             e.min_passing_testcases < 0 || // there is at least one exercise with an invalid test case threshold
             e.min_passing_testcases > e.testcases.length ||
             e.testcases.some(t => !t.assertion.length) || // there is at least one empty test case
             !e.category
         ) ||
-        this.exam.questions.some(q => !q.category)
+        /* question checks */
+        this.exam.questions.some(
+          q =>
+            !q.category || // no category
+            !q.text.length || // there is at least a question with empty text
+            (q.question_type === 'm' &&
+              !q.answers.filter(a => a.is_right_answer).length) || // multiple choice question with no (correct) answers
+            q.answers.some(a => !a.text.length) // answers with empty text
+        ) ||
+        /* category checks */
+        this.exam.exerciseCategories.some(
+          c =>
+            c.amount >
+            this.exam.exercises.filter(e => e.category == c.id).length
+        ) || // there are categories with a higher `amount` than the number of items actually in that category
+        this.exam.questionCategories.some(
+          c =>
+            c.amount >
+            this.exam.questions.filter(q => q.category == c.id).length
+        )
       )
     }
   }
