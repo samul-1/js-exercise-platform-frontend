@@ -61,6 +61,15 @@
         >
           <i class="fas fa-plus-circle"></i> Aggiungi
         </button>
+        <input
+          class="my-auto ml-6 mr-2"
+          type="checkbox"
+          v-model="exam.randomize_questions"
+          id="randomize-questions"
+        />
+        <label class="my-auto" for="randomize-questions"
+          >Randomizza ordine categorie domande</label
+        >
         <!--</div>-->
       </legend>
 
@@ -71,6 +80,7 @@
             :id="category.id"
             :key="category.id"
             v-model="exam.questionCategories[index]"
+            @delete="exam.questionCategories.splice(index, 1)"
             :class="{ 'bg-gray-70': index % 2 }"
           ></CategoryEditor>
         </transition-group>
@@ -126,6 +136,15 @@
         >
           <i class="fas fa-plus-circle"></i> Aggiungi
         </button>
+        <input
+          class="my-auto ml-6 mr-2"
+          type="checkbox"
+          v-model="exam.randomize_exercises"
+          id="randomize-exercises"
+        />
+        <label class="my-auto" for="randomize-exercises"
+          >Randomizza ordine categorie esercizi</label
+        >
       </legend>
 
       <div class="inner">
@@ -135,6 +154,7 @@
             :id="category.id"
             :key="category.id"
             v-model="exam.exerciseCategories[index]"
+            @delete="exam.exerciseCategories.splice(index, 1)"
             :class="{ 'bg-gray-70': index % 2 }"
           ></CategoryEditor>
         </transition-group>
@@ -181,7 +201,7 @@
       :disabled="loading || invalidForm"
       class="px-4 py-2 mt-10 mb-2 text-white bg-gray-500 rounded-lg shadow-inner disabled:opacity-50"
     >
-      <i class="mr-1 far fa-file"></i>
+      <i class="mr-1.5 far fa-file"></i>
       Salva come bozza
     </button>
   </div>
@@ -283,7 +303,9 @@ export default {
         exercises: [],
         questions: [],
         questionCategories: [],
-        exerciseCategories: []
+        exerciseCategories: [],
+        randomize_questions: true,
+        randomize_exercises: true
       }
     }
   },

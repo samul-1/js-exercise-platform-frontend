@@ -1,9 +1,17 @@
 <template>
   <div>
     <div class="flex px-4 py-2">
+      <div v-if="category._new" class="order-12 my-auto ml-auto">
+        <button
+          @click="$emit('delete')"
+          class="py-1.5 px-2.5 text-xs text-white shadow-inner bg-red-700 rounded-lg disabled:opacity-50"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
       <label class="my-auto mr-2" :for="id + '-cat-name'">Nome</label>
       <input
-        class="p-2 my-2 mr-6 border w-60"
+        class="p-2 my-2 mr-4 border w-60"
         @input="update('name', $event.target.value)"
         type="text"
         v-model="category.name"
@@ -69,14 +77,11 @@
         type="checkbox"
         :id="id + '-randomize'"
       />
-      <label :for="id + '-randomize'" class="my-auto ml-2"
-        >Randomizza
-        {{ category.item_type == 'q' ? 'domande' : 'esercizi' }}</label
-      >
+      <label :for="id + '-randomize'" class="my-auto ml-2">Randomizza</label>
     </div>
     <div
       v-if="category.is_aggregated_question"
-      class="w-full pb-4 pl-6 mt-2 mb-2 pr-7"
+      class="w-full pb-4 pl-6 mt-1 pr-7"
     >
       <h2 class="mb-2 ml-1 text-lg">Testo introduttivo</h2>
       <div class="tex2jax_ignore">
