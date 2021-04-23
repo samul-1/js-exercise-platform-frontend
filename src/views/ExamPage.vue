@@ -440,6 +440,7 @@ export default {
         .catch(error => {
           console.log(JSON.stringify(error))
         })
+      this.selectedAnswers = null
     },
     confirmTurnIn (id) {
       // shows a dialog that prompts the user for confirmation to turn in a submission
