@@ -28,7 +28,7 @@ export default {
     return {
       tooltip: {
         content: this.helpText,
-        classes: `bg-gray-50 p-3 rounded-md shadow-xl border border-gray-300 w-${this.width} tooltip`,
+        classes: `bg-gray-50 p-3 rounded-md shadow-2xl border border-gray-300 w-${this.width} tooltip`,
         delay: { show: 100, hide: 600 }
       }
     }

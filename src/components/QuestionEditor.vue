@@ -60,6 +60,16 @@
             <i class="mr-1 fas fa-exchange-alt"></i> Cambia in domanda
             {{ question.question_type == 'o' ? 'a scelta multipla' : 'aperta' }}
           </button>
+          <input
+            class="ml-6 mr-2"
+            type="checkbox"
+            v-model="question.accepts_multiple_answers"
+            :id="question.id + '-accepts-multiple-answers'"
+            @change="update('accepts_multiple_answers', $event.target.checked)"
+          />
+          <label :for="question.id + '-accepts-multiple-answers'"
+            >Accetta risposte multiple</label
+          >
         </div>
       </div>
       <div class="flex">
@@ -154,7 +164,8 @@ export default {
         text: '',
         answers: [],
         category: null,
-        question_type: 'm'
+        question_type: 'm',
+        accepts_multiple_answers: false
       },
       selection: ''
     }

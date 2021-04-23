@@ -6,7 +6,17 @@
     <div v-if="question.question_type == 'm'">
       <div v-for="answer in question.answers" :key="answer.id" class="my-1">
         <input
+          v-if="!question.accepts_multiple_answers"
           type="radio"
+          :id="'ans-' + answer.id"
+          :value="answer.id"
+          v-model="selected[0]"
+          class="mr-1"
+        />
+
+        <input
+          v-else
+          type="checkbox"
           :id="'ans-' + answer.id"
           :value="answer.id"
           v-model="selected"
@@ -37,8 +47,11 @@ export default {
   name: 'Question',
   props: ['question'],
   watch: {
-    selected (newValue) {
-      this.$emit('answer', newValue)
+    selected: {
+      deep: true,
+      handler (newValue) {
+        this.$emit('answer', newValue)
+      }
     },
     answerText (newValue) {
       this.$emit('text', newValue)
@@ -58,7 +71,7 @@ export default {
 
   data () {
     return {
-      selected: null,
+      selected: [],
       answerText: ''
     }
   },

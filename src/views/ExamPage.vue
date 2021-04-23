@@ -50,7 +50,7 @@
           <button
             v-if="question.id"
             @click="submitAnswer()"
-            :disabled="selectedAnswer == null && !answerText.length"
+            :disabled="selectedAnswers == null && !answerText.length"
             class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
           >
             <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
@@ -145,7 +145,7 @@
           ></AggregatedQuestionIntroduction>
           <Question
             :question="question"
-            @answer="selectedAnswer = $event"
+            @answer="selectedAnswers = $event"
             @text="answerText = $event"
           ></Question>
         </div>
@@ -313,7 +313,7 @@ export default {
       seenQuestionCount: 0,
 
       code: '',
-      selectedAnswer: null,
+      selectedAnswers: null,
       answerText: '',
 
       processingSubmission: false,
@@ -325,7 +325,6 @@ export default {
   methods: {
     highlightCode,
     getExam () {
-      console.log('getting exam')
       const examId = this.$route.params.examId
       this.loading = true
       axios
@@ -412,7 +411,9 @@ export default {
       // a question is skipped, this function is called with `resetAnswer` set to true, to
       // send a null answer even if the user had clicked on an answer before deciding to skip
       if (resetAnswer) {
-        this.selectedAnswer = null
+        this.selectedAnswers = this.question.accepts_multiple_answers
+          ? []
+          : [null]
         this.answerText = ''
       }
 
@@ -420,10 +421,17 @@ export default {
       this.dialog = { shown: false }
 
       axios
-        .post(`/questions/${this.question.id}/given_answers/`, {
-          answer: this.selectedAnswer,
-          text: this.answerText
-        })
+        .post(
+          `/questions/${this.question.id}/given_answers/${
+            this.question.accepts_multiple_answers ? 'multiple/' : ''
+          }`,
+          {
+            answer: this.question.accepts_multiple_answers
+              ? this.selectedAnswers
+              : this.selectedAnswers[0],
+            text: this.answerText
+          }
+        )
         .then(response => {
           console.log(response.data)
           // ask for next exercise or question
