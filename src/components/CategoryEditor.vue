@@ -19,14 +19,18 @@
       />
       <p
         v-if="!category.is_aggregated_question && category.randomize"
-        class="my-auto ml-2 mr-2"
+        class="my-auto ml-2"
       >
         N. {{ category.item_type == 'e' ? 'esercizi' : 'domande' }} per questa
         categoria
       </p>
+      <help-text-button
+        v-if="!category.is_aggregated_question && category.randomize"
+        :helpText="HELP_TXTS.NUM_ITEMS_PER_CAT_TXT"
+      ></help-text-button>
       <div
         v-if="!category.is_aggregated_question && category.randomize"
-        class="relative flex flex-row w-32 h-full my-auto mr-4 bg-transparent rounded-lg"
+        class="relative flex flex-row w-32 h-full my-auto ml-1 mr-4 bg-transparent rounded-lg"
       >
         <button
           @click="
@@ -70,6 +74,11 @@
         :for="id + '-aggr-quest'"
         class="my-auto ml-2"
         >Usa come domanda aggregata</label
+      >
+      <help-text-button
+        v-if="category.item_type == 'q'"
+        :helpText="HELP_TXTS.AGGR_QUEST_TXT"
+      ></help-text-button
       ><input
         v-model="category.randomize"
         @input="update('randomize', $event.target.checked)"
@@ -78,6 +87,10 @@
         :id="id + '-randomize'"
       />
       <label :for="id + '-randomize'" class="my-auto ml-2">Randomizza</label>
+      <help-text-button
+        :helpText="HELP_TXTS.RAND_CAT_TXT"
+        :width="category.item_type == 'q' ? 40 : 80"
+      ></help-text-button>
     </div>
     <div
       v-if="category.is_aggregated_question"
@@ -102,10 +115,13 @@
 <script>
 import { toolbar } from '../constants.js'
 import { VueEditor } from 'vue2-editor'
+import HelpTextButton from '../components/HelpTextButton.vue'
+import { HELP_TXTS } from '../help_txts.js'
 export default {
   name: 'CategoryEditor',
   components: {
-    VueEditor
+    VueEditor,
+    HelpTextButton
   },
   props: {
     id: {
@@ -117,6 +133,7 @@ export default {
   },
   data () {
     return {
+      HELP_TXTS,
       toolbar,
       category: {
         id: null,

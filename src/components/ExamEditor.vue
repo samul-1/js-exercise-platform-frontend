@@ -70,7 +70,9 @@
         <label class="my-auto" for="randomize-questions"
           >Randomizza ordine categorie domande</label
         >
-        <!--</div>-->
+        <help-text-button
+          :helpText="HELP_TXTS.RAND_GLOBAL_TXT"
+        ></help-text-button>
       </legend>
 
       <div class="inner">
@@ -145,6 +147,9 @@
         <label class="my-auto" for="randomize-exercises"
           >Randomizza ordine categorie esercizi</label
         >
+        <help-text-button
+          :helpText="HELP_TXTS.RAND_GLOBAL_TXT"
+        ></help-text-button>
       </legend>
 
       <div class="inner">
@@ -216,6 +221,8 @@ import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
 import { uuid } from 'vue-uuid'
 import Spinner from '../components/Spinner.vue'
+import HelpTextButton from '../components/HelpTextButton.vue'
+import { HELP_TXTS } from '../help_txts.js'
 
 export default {
   name: 'ExamEditor',
@@ -224,7 +231,8 @@ export default {
     ExerciseEditor,
     QuestionEditor,
     CategoryEditor,
-    Spinner
+    Spinner,
+    HelpTextButton
   },
   watch: {
     // automatically add a category when a question/exercise is added for the first
@@ -294,7 +302,7 @@ export default {
   },
   data () {
     return {
-      //toolbar,
+      HELP_TXTS,
       loading: false,
       exam: {
         name: '',
