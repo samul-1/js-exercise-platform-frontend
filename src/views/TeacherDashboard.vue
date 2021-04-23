@@ -36,6 +36,18 @@
 <script>
 export default {
   name: 'TeacherDashboard',
+  created () {
+    if (!this.$store.state.isAuthenticated) {
+      this.$store.commit(
+        'setRedirectToAfterLogin',
+        this.$router.currentRoute.fullPath
+      )
+      this.$router.push('/login/teacher')
+    }
+    if (!this.$store.state.user.is_teacher) {
+      this.$router.push('/login')
+    }
+  },
   data () {
     return {}
   },
