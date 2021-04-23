@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-200 rounded-lg shadow-sm hover:shadow-lg"
+    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-300 rounded-lg shadow-sm hover:shadow-lg"
   >
     <div class="absolute right-10">
       <button
@@ -10,7 +10,21 @@
         <i class="fas fa-trash"></i>
       </button>
     </div>
-    <div class="mb-4">
+    <div class="mb-6">
+      <h1 class="text-xl font-medium">
+        Esercizio {{ index }}
+        <span :class="{ 'text-red-600': !categoryName }"
+          >{{ categoryName ? '' : 'senza '
+          }}{{
+            categoryName.slice(0, 9).toLowerCase() == 'categoria'
+              ? ''
+              : 'categoria'
+          }}
+          {{ categoryName ? categoryName : '' }}</span
+        >
+      </h1>
+    </div>
+    <div class="mb-1">
       <span class="mr-2">Categoria</span>
       <select
         class="p-1 border rounded-md"
@@ -51,7 +65,15 @@
           :text="selection"
           @closePreview="selection = ''"
         ></la-tex-preview>
-        <div class="tex2jax_ignore">
+        <div
+          class="tex2jax_ignore"
+          :class="{ 'bg-gray-100 opacity-80 relative': !exercise.category }"
+        >
+          <div v-if="!exercise.category" class="absolute top-1/2 left-1/2">
+            <p class="relative text-gray-600 -left-1/2">
+              Per prima cosa, scegli una categoria
+            </p>
+          </div>
           <VueEditor
             class="tall"
             :value="exercise.text"
@@ -59,6 +81,7 @@
             :id="exercise.id + '-text-editor'"
             :ref="exercise.id + '-text-editor'"
             :editor-toolbar="toolbar"
+            :disabled="!exercise.category"
             @selection-change="setPreview($event)"
           ></VueEditor>
         </div>
@@ -164,7 +187,7 @@ export default {
     // ? might need to investigate this
     this.exercise = this.$attrs.value
   },
-  props: ['id', 'categoryChoices'],
+  props: ['id', 'categoryChoices', 'index'],
   data () {
     return {
       aceEditorOptions,
@@ -217,6 +240,14 @@ export default {
         assertion: '',
         is_public: true
       }
+    }
+  },
+  computed: {
+    categoryName () {
+      return (
+        this.categoryChoices.find(c => c.id === this.exercise.category)?.name ??
+        ''
+      )
     }
   }
 }

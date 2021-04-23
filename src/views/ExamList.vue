@@ -4,6 +4,7 @@
 
     <h1 class="mb-5 text-3xl font-medium">Lista esami</h1>
     <div
+      :class="{ 'opacity-80 bg-gray-100': exam.draft }"
       class="flex w-full px-4 py-6 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
       v-for="exam in exams"
       :key="exam.id"
@@ -34,7 +35,7 @@
           <span class="text-white align-middle">Terminato</span>
         </div>
         <div
-          class="px-2 mr-6 bg-green-800 rounded-md animate-pulse"
+          class="px-2 mr-6 bg-green-700 rounded-md animate-pulse"
           v-if="
             new Date() >= new Date(exam.begin_timestamp) &&
               new Date() <= new Date(exam.end_timestamp)
@@ -42,9 +43,12 @@
         >
           <span class="text-white align-middle">In corso</span>
         </div>
+        <div class="px-2 mr-6 bg-red-500 rounded-md" v-if="exam.draft">
+          <span class="text-white align-middle">Bozza</span>
+        </div>
         <p>
           <i class="mr-1 text-gray-500 far fa-calendar"></i>
-          {{ formatTimestamp(exam.begin_timestamp) }} -
+          {{ formatTimestamp(exam.begin_timestamp) }} &ndash;
           {{ formatTimestamp(exam.end_timestamp) }}
         </p>
       </div>
@@ -89,8 +93,11 @@ export default {
   methods: {
     //! move to constants.js
     formatTimestamp (timestamp) {
-      // todo implement
-      return timestamp
+      const [year, month, rest] = timestamp.split('-')
+      const [day, time] = rest.split(' ')
+      // eslint-disable-next-line no-unused-vars
+      const [hours, minutes, seconds] = time.split(':')
+      return `${day}/${month}/${year} ${hours}:${minutes}`
     },
     getReport (exam) {
       this.loading = true

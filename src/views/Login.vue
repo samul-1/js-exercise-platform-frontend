@@ -43,6 +43,7 @@ export default {
   components: {},
   mounted () {
     this.$store.commit('removeToken')
+    //? remove axios header
   },
   data () {
     return {
