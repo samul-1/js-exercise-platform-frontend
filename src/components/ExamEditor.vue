@@ -274,8 +274,12 @@ export default {
           this.exam = {
             // separate categories (which server sees as a single type of resource) into
             // question categories and exercise categories
-            questionCategories: categories.filter(c => c.item_type == 'q'),
-            exerciseCategories: categories.filter(c => c.item_type == 'e'),
+            questionCategories: categories
+              .filter(c => c.item_type == 'q')
+              .reverse(),
+            exerciseCategories: categories
+              .filter(c => c.item_type == 'e')
+              .reverse(),
             exercises: exercises.reverse(), // reverse items as the most recent ones are at the top of the list
             questions: questions.reverse(),
             ...rest
