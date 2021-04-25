@@ -14,6 +14,11 @@
       :key="'q-' + question.id"
     >
       <h1 class="text-2xl font-medium">Domanda {{ index + 1 }}</h1>
+      <AggregatedQuestionIntroduction
+        class="my-2"
+        v-if="question.introduction"
+        :text="question.introduction"
+      ></AggregatedQuestionIntroduction>
       <Question :question="question" :preview="true"></Question>
     </div>
     <!-- // todo make an actual exercise preview component -->
@@ -32,12 +37,14 @@
 </template>
 
 <script>
+import AggregatedQuestionIntroduction from '../components/AggregatedQuestionIntroduction.vue'
 import Question from '../components/Question.vue'
 import { highlightCode } from '../constants.js'
 export default {
   name: 'MockExam',
   components: {
-    Question
+    Question,
+    AggregatedQuestionIntroduction
   },
   props: ['data'],
 
