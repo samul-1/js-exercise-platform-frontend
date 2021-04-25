@@ -18,6 +18,13 @@
           Modifica
         </button></router-link
       >
+      <button
+        @click="getMockExam(exam.id)"
+        v-if="true || new Date() < new Date(exam.begin_timestamp)"
+        class="px-3 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      >
+        Simula
+      </button>
       <!--<router-link :to="`/reports/${exam.id}`">-->
       <button
         @click="getReport(exam)"
@@ -53,16 +60,42 @@
         </p>
       </div>
     </div>
+    <!-- // todo use exam name in filename -->
+    <vue-html2pdf
+      :show-layout="false"
+      :float-layout="true"
+      :enable-download="true"
+      :preview-modal="false"
+      :paginate-elements-by-height="1400"
+      filename="Simulazione"
+      :pdf-quality="2"
+      :manual-pagination="false"
+      pdf-format="a4"
+      pdf-orientation="landscape"
+      pdf-content-width="1000px"
+      ref="html2Pdf"
+      @startPagination="loading = true"
+      @hasDownloaded="loading = false"
+    >
+      <section slot="pdf-content">
+        <mock-exam v-if="mockId" :data="mockData"></mock-exam>
+      </section>
+    </vue-html2pdf>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
+import MockExam from '../components/MockExam.vue'
+import VueHtml2pdf from 'vue-html2pdf'
+
 export default {
   name: 'ExamList',
   components: {
-    Spinner
+    Spinner,
+    MockExam,
+    VueHtml2pdf
   },
   created () {
     // !
@@ -87,7 +120,9 @@ export default {
   data () {
     return {
       exams: [],
-      loading: false
+      loading: false,
+      mockId: null,
+      mockData: null
     }
   },
   methods: {
@@ -131,6 +166,47 @@ export default {
       link.setAttribute('download', title)
       document.body.appendChild(link)
       link.click()
+    },
+    getMockExam (examId) {
+      this.loading = true
+      axios
+        .post(`/exams/${examId}/mock/`)
+        .then(resp => {
+          console.log(resp)
+          this.mockId = examId
+          this.mockData = resp.data
+          this.generatePdfMock()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    async beforeDownload ({ html2pdf, options, pdfContent }) {
+      await html2pdf()
+        .set(options)
+        .from(pdfContent)
+        .toPdf()
+        .get('pdf')
+        .then(pdf => {
+          const totalPages = pdf.internal.getNumberOfPages()
+          for (let i = 1; i <= totalPages; i++) {
+            pdf.setPage(i)
+            pdf.setFontSize(10)
+            pdf.setTextColor(150)
+            pdf.text(
+              'Page ' + i + ' of ' + totalPages,
+              pdf.internal.pageSize.getWidth() * 0.88,
+              pdf.internal.pageSize.getHeight() - 0.3
+            )
+          }
+        })
+        .save()
+    },
+    generatePdfMock () {
+      this.$refs.html2Pdf.generatePdf()
     }
   }
 }

@@ -31,7 +31,7 @@
       <textarea
         placeholder="Scrivi qui la tua risposta..."
         class="p-2 mx-auto border border-gray-200 rounded-md shadow-sm "
-        rows="10"
+        :rows="preview ? 2 : 10"
         style="width:98%"
         v-model="answerText"
       ></textarea>
@@ -45,7 +45,15 @@ import { highlightCode } from '../constants.js'
 
 export default {
   name: 'Question',
-  props: ['question'],
+  props: {
+    question: {
+      type: Object
+    },
+    preview: {
+      type: Boolean,
+      default: false
+    }
+  },
   watch: {
     selected: {
       deep: true,
