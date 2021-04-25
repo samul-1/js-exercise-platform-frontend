@@ -50,7 +50,10 @@
           <button
             v-if="question.id"
             @click="submitAnswer()"
-            :disabled="selectedAnswers == null && !answerText.length"
+            :disabled="
+              (selectedAnswers == null || !selectedAnswers.length) &&
+                !answerText.length
+            "
             class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
           >
             <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
