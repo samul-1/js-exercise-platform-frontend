@@ -8,21 +8,33 @@
           <i class="text-xs text-red-500 fas fa-times"></i>
         </button>
 
-        <vue-mathjax :formula="text" :safe="false"></vue-mathjax>
+        <div v-html="text"></div>
       </div>
     </div>
   </transition>
 </template>
 
 <script>
-import { VueMathjax } from 'vue-mathjax'
-
 export default {
   name: 'LaTexPreview',
   props: ['text'],
-  components: {
-    'vue-mathjax': VueMathjax
-  }
+  watch: {
+    $props: {
+      handler () {
+        // render LaTeX code
+        setTimeout(
+          () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+          10
+        )
+        // reset answer selection
+        this.selected = []
+        this.answerText = ''
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+  components: {}
 }
 </script>
 
