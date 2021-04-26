@@ -94,9 +94,14 @@
     </div>
     <div
       v-if="category.is_aggregated_question"
-      class="w-full pb-4 pl-6 mt-1 pr-7"
+      class="relative w-full pb-4 pl-6 mt-1 pr-7"
     >
       <h2 class="mb-2 ml-1 text-lg">Testo introduttivo</h2>
+      <la-tex-preview
+        v-show="selection.length"
+        :text="selection"
+        @closePreview="selection = ''"
+      ></la-tex-preview>
       <div class="tex2jax_ignore">
         <VueEditor
           class="bg-white tall"
@@ -116,12 +121,14 @@
 import { toolbar } from '../constants.js'
 import { VueEditor } from 'vue2-editor'
 import HelpTextButton from '../components/HelpTextButton.vue'
+import LaTexPreview from './LaTexPreview.vue'
 import { HELP_TXTS } from '../help_txts.js'
 export default {
   name: 'CategoryEditor',
   components: {
     VueEditor,
-    HelpTextButton
+    HelpTextButton,
+    LaTexPreview
   },
   props: {
     id: {
@@ -135,6 +142,7 @@ export default {
     return {
       HELP_TXTS,
       toolbar,
+      selection: '',
       category: {
         id: null,
         name: '',
@@ -151,6 +159,12 @@ export default {
       console.log(value)
       this.category[key] = value
       this.$emit('input', { ...this.category, [key]: value })
+    },
+    setPreview (event) {
+      console.log(event)
+      const editor = this.$refs[this.category.id + '-text-editor']
+      const range = editor.quill.getSelection()
+      this.selection = editor.quill.getText(range.index, range.length)
     }
   }
 }

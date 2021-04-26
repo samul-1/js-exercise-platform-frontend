@@ -1,7 +1,6 @@
 <template>
   <div class="mx-8 my-4">
     <Spinner v-if="loading"></Spinner>
-
     <h1 class="text-3xl">
       {{ $route.params.examid ? 'Aggiorna esame' : 'Crea nuovo esame' }}
     </h1>
@@ -322,6 +321,9 @@ export default {
     }
   },
   methods: {
+    debug () {
+      console.log(this.processedExamObject)
+    },
     submit (draft = false) {
       const id = this.$route.params.examid
 
@@ -329,7 +331,7 @@ export default {
       const action = id ? axios.put : axios.post
       this.loading = true
       action('/exams/' + (id ? `${id}/` : ''), {
-        ...this.strippedIdExam,
+        ...this.processedExamObject,
         draft
       })
         .then(response => {
@@ -412,7 +414,7 @@ export default {
     questionsLen () {
       return this.exam.questions.length
     },
-    strippedIdExam () {
+    processedExamObject () {
       /*
       Returns the exam object without all the local id's generated for questions, their answers,
       exercises, and their testcases.
@@ -476,7 +478,7 @@ export default {
 
         const dontStrip = ret.filter(e => !e._new) // no change needed for categories that aren't new
 
-        return [
+        return _fixPresentationTagsArr([
           ...ret
             .filter(e => e._new)
             // eslint-disable-next-line no-unused-vars
@@ -484,7 +486,7 @@ export default {
               return { tmp_uuid: id, ...rest } // rename `id` prop to `tmp_uuid`
             }),
           ...dontStrip
-        ]
+        ])
       }
 
       const _remapCategoryIds = obj => {
@@ -512,24 +514,30 @@ export default {
         return _category._new ? { category_uuid: _category.id, ...rest } : obj
       }
 
-      function _stripExtraTags (obj) {
-        // removes the unwanted <p> tags vue2editor adds to every line, and substitues in <br />
-        // tags to keep consistency with user-typed newlines; also substitutes <pre> tags with ```
-        const { text, ...rest } = obj
+      function _fixPresentationTags (obj) {
+        // adds `inline-block` style to the first paragraph of the text/introduction_text to prevent layout issues
+        // when showing in exam page; also substitutes <pre> tags with ```
+        const { text, introduction_text, ...rest } = obj
+
         return {
-          text: text
-            .replace(/<\/p>/g, '<br />')
-            .replace(/<p>/g, '')
-            .replace(/<br\s*\/?>(<br\s*\/?>)+/g, '<br />')
-            .replace(/<\/?pre[^>]*>/g, '```'),
+          text:
+            text &&
+            text
+              .replace(/<p[^>]*>/, `<p style="display: inline-block">`)
+              .replace(/<\/?pre[^>]*>/g, '```'),
+          introduction_text:
+            introduction_text &&
+            introduction_text
+              .replace(/<p[^>]*>/, `<p style="display: inline-block">`)
+              .replace(/<\/?pre[^>]*>/g, '```'),
           ...rest
         }
       }
 
-      function _stripExtraTagsArr (arr) {
-        // wrapper to apply _stripExtraTags to a vue array
-        const _arr = arr['__ob__'].value
-        return _arr.map(a => _stripExtraTags(a))
+      function _fixPresentationTagsArr (arr) {
+        // wrapper to apply _fixPresentationTags to a vue array
+        const _arr = arr['__ob__']?.value ?? arr
+        return _arr.map(a => _fixPresentationTags(a))
       }
 
       const {
@@ -548,8 +556,8 @@ export default {
         questions: strippedQuestions
           .map(({ answers, ...question }) => {
             return {
-              answers: _stripId(_stripExtraTagsArr(answers)), // remove locally-generated id's from answers
-              ..._remapCategoryIds(_stripExtraTags(question)) // change `category` property name to `category_uuid` if it points to a new category
+              answers: _stripId(_fixPresentationTagsArr(answers)), // remove locally-generated id's from answers
+              ..._remapCategoryIds(_fixPresentationTags(question)) // change `category` property name to `category_uuid` if it points to a new category
             }
           })
           .reverse(),
@@ -557,7 +565,7 @@ export default {
           .map(({ testcases, ...exercise }) => {
             return {
               testcases: _stripId(testcases), // remove locally-generated id's from testcases
-              ..._remapCategoryIds(_stripExtraTags(exercise)) // change `category` property name to `category_uuid` if it points to a new category
+              ..._remapCategoryIds(_fixPresentationTags(exercise)) // change `category` property name to `category_uuid` if it points to a new category
             }
           })
           .reverse(),

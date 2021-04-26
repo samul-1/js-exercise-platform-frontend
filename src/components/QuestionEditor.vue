@@ -159,6 +159,31 @@ export default {
   data () {
     return {
       toolbar,
+      // todo take a closer look at the options
+      options: {
+        theme: 'snow',
+        formats: [
+          'bold',
+          'header',
+          'italic',
+          'link',
+          'list',
+          'blockquote',
+          'image',
+          'indent'
+        ],
+        modules: {
+          toolbar: [
+            [{ header: 1 }, { header: 2 }],
+            ['bold', 'italic', 'link'],
+            ['blockquote', { list: 'ordered' }, { list: 'bullet' }],
+            ['image']
+          ],
+          clipboard: {
+            matchVisual: false // https://quilljs.com/docs/modules/clipboard/#matchvisual
+          }
+        }
+      },
       question: {
         id: null,
         text: '',
