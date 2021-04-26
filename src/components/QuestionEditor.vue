@@ -269,8 +269,10 @@ export default {
     },
     questionTextPreview () {
       return (
-        this.question.text.slice(0, 100) +
-        (this.question.text.length > 100 ? '...' : '')
+        this.question.text.replace(/<\/?[^>]+>/g, '').slice(0, 200) +
+        (this.question.text.replace(/<\/?[^>]+>/g, '').length > 200
+          ? '...'
+          : '')
       )
     }
   }
