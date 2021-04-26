@@ -26,9 +26,6 @@ export default {
           () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
           10
         )
-        // reset answer selection
-        this.selected = []
-        this.answerText = ''
       },
       deep: true,
       immediate: true

@@ -280,11 +280,12 @@ export default {
     },
     exerciseTextPreview () {
       return this.highlightCode(
-        this.exercise.text.replace(/<\/?[^>]+>/g, '') +
+        (
+          this.exercise.text.replace(/<\/?[^>]+>/g, '') +
           (this.exercise.text.replace(/<\/?[^>]+>/g, '').length > 200
             ? '...'
-            : ''
-          ).slice(0, 200)
+            : '')
+        ).slice(0, 200)
       )
     }
   }

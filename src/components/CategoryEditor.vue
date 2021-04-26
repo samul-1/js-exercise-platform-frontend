@@ -11,7 +11,7 @@
       </div>
       <label class="my-auto mr-2" :for="id + '-cat-name'">Nome</label>
       <input
-        class="p-2 my-2 mr-4 border w-60"
+        class="my-2 mr-4 border py-1 px-2 border border-gray-300 rounded-md w-60"
         @input="update('name', $event.target.value)"
         type="text"
         v-model="category.name"
