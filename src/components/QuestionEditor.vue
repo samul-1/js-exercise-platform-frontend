@@ -286,12 +286,10 @@ export default {
     },
     questionTextPreview () {
       return this.highlightCode(
-        (
-          this.question.text.replace(/<\/?[^>]+>/g, '') +
+        this.question.text.replace(/<\/?[^>]+>/g, '').slice(0, 200) +
           (this.question.text.replace(/<\/?[^>]+>/g, '').length > 200
             ? '...'
             : '')
-        ).slice(0, 200)
       )
     }
   }
