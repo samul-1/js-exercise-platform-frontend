@@ -185,7 +185,7 @@ import AceEditor from 'vuejs-ace-editor'
 import TestCaseEditor from '../components/TestCaseEditor.vue'
 import { aceEditorOptions, toolbar, editorInit } from '../constants.js'
 import LaTexPreview from '../components/LaTexPreview.vue'
-
+import { highlightCode } from '../constants.js'
 export default {
   name: 'ExerciseEditor',
   components: {
@@ -201,6 +201,21 @@ export default {
     this.exercise = this.$attrs.value
   },
   props: ['id', 'categoryChoices', 'index', 'expanded'],
+  watch: {
+    $props: {
+      handler () {
+        if (!this.expanded) {
+          // render LaTeX code
+          setTimeout(
+            () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+            10
+          )
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   data () {
     return {
       aceEditorOptions,
@@ -217,6 +232,7 @@ export default {
     }
   },
   methods: {
+    highlightCode,
     editorInit,
     setPreview (event) {
       console.log(event)
@@ -263,9 +279,12 @@ export default {
       )
     },
     exerciseTextPreview () {
-      return (
-        this.exercise.text.slice(0, 100) +
-        (this.exercise.text.length > 100 ? '...' : '')
+      return this.highlightCode(
+        this.exercise.text.replace(/<\/?[^>]+>/g, '') +
+          (this.exercise.text.replace(/<\/?[^>]+>/g, '').length > 200
+            ? '...'
+            : ''
+          ).slice(0, 200)
       )
     }
   }

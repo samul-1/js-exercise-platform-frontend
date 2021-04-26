@@ -15,7 +15,7 @@ export const aceEditorOptions = {
 export const toolbar = [
   ['bold', 'italic', 'underline'],
   [{ list: 'ordered' }, { list: 'bullet' }],
-  ['image', 'code-block']
+  ['image']
 ]
 
 // called upon ace editor component initialization

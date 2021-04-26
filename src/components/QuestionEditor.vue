@@ -31,7 +31,7 @@
       </h1>
     </div>
     <div v-show="!expanded">
-      <div v-html="questionTextPreview"></div>
+      <div v-highlight v-html="questionTextPreview"></div>
     </div>
     <div v-show="expanded">
       <div class="mb-4">
@@ -160,6 +160,7 @@ import { VueEditor } from 'vue2-editor'
 import AnswerEditor from './AnswerEditor.vue'
 import { uuid } from 'vue-uuid'
 import LaTexPreview from './LaTexPreview.vue'
+import { highlightCode } from '../constants.js'
 export default {
   name: 'QuestionEditor',
   components: {
@@ -168,6 +169,21 @@ export default {
     LaTexPreview
   },
   props: ['categoryChoices', 'index', 'expanded'],
+  watch: {
+    $props: {
+      handler () {
+        if (!this.expanded) {
+          // render LaTeX code
+          setTimeout(
+            () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+            10
+          )
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   created () {
     this.question = this.$attrs.value
   },
@@ -211,6 +227,7 @@ export default {
     }
   },
   methods: {
+    highlightCode,
     switchQuestionType (newType) {
       if (newType != 'm' && this.question.answers.length > 0) {
         if (
@@ -268,11 +285,12 @@ export default {
       )
     },
     questionTextPreview () {
-      return (
-        this.question.text.replace(/<\/?[^>]+>/g, '').slice(0, 200) +
-        (this.question.text.replace(/<\/?[^>]+>/g, '').length > 200
-          ? '...'
-          : '')
+      return this.highlightCode(
+        this.question.text.replace(/<\/?[^>]+>/g, '') +
+          (this.question.text.replace(/<\/?[^>]+>/g, '').length > 200
+            ? '...'
+            : ''
+          ).slice(0, 200)
       )
     }
   }
