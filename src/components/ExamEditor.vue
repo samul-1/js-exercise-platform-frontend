@@ -78,8 +78,8 @@
         <transition-group name="bounce">
           <CategoryEditor
             v-for="(category, index) in exam.questionCategories"
-            :id="category.id"
-            :key="category.id"
+            :id="'c-' + category.id"
+            :key="'c-' + category.id"
             v-model="exam.questionCategories[index]"
             @delete="exam.questionCategories.splice(index, 1)"
             :class="{ 'bg-gray-70': index % 2 }"
@@ -105,10 +105,12 @@
       <transition-group name="bounce">
         <QuestionEditor
           v-for="(question, index) in exam.questions"
-          :id="question.id"
-          :key="question.id"
+          :id="'q-' + question.id"
+          :key="'q-' + question.id"
           v-model="exam.questions[index]"
           @delete="confirmDeletion(exam.questions, index)"
+          @toggleExpand="toggleExpand('q-' + question.id)"
+          :expanded="expandedItems.indexOf('q-' + question.id) != -1"
           :category-choices="exam.questionCategories"
           :index="getPositionInCategory('q', exam.questions[index])"
         ></QuestionEditor>
@@ -155,8 +157,8 @@
         <transition-group name="bounce">
           <CategoryEditor
             v-for="(category, index) in exam.exerciseCategories"
-            :id="category.id"
-            :key="category.id"
+            :id="'c-' + category.id"
+            :key="'c-' + category.id"
             v-model="exam.exerciseCategories[index]"
             @delete="exam.exerciseCategories.splice(index, 1)"
             :class="{ 'bg-gray-70': index % 2 }"
@@ -181,10 +183,12 @@
       <transition-group name="bounce">
         <ExerciseEditor
           v-for="(exercise, index) in exam.exercises"
-          :id="exercise.id"
-          :key="exercise.id"
+          :id="'e-' + exercise.id"
+          :key="'e-' + exercise.id"
           v-model="exam.exercises[index]"
           @delete="confirmDeletion(exam.exercises, index)"
+          @toggleExpand="toggleExpand('e-' + exercise.id)"
+          :expanded="expandedItems.indexOf('e-' + exercise.id) != -1"
           :category-choices="exam.exerciseCategories"
           :index="getPositionInCategory('e', exam.exercises[index])"
         ></ExerciseEditor>
@@ -237,16 +241,32 @@ export default {
     // automatically add a category when a question/exercise is added for the first
     // time and no categories exist yet for that type of item
     exerciseLen (newVal, oldVal) {
+      // create new category when first exercise is added
       if (newVal == 1 && !oldVal && !this.exam.exerciseCategories.length) {
         this.exam.exerciseCategories.unshift(
           this.newCategory('e', 'Categoria 1')
         )
       }
+
+      if (newVal - oldVal == 1) {
+        // automatically expand newly added exercise
+        this.toggleExpand(
+          'e-' + this.exam.exercises.slice().reverse()[newVal - 1].id
+        )
+      }
     },
     questionsLen (newVal, oldVal) {
+      // create new category when first question is added
       if (newVal == 1 && !oldVal && !this.exam.questionCategories.length) {
         this.exam.questionCategories.unshift(
           this.newCategory('q', 'Categoria 1')
+        )
+      }
+
+      if (newVal - oldVal == 1) {
+        // automatically expand newly added question
+        this.toggleExpand(
+          'q-' + this.exam.questions.slice().reverse()[newVal - 1].id
         )
       }
     }
@@ -306,6 +326,7 @@ export default {
   data () {
     return {
       HELP_TXTS,
+      expandedItems: [],
       loading: false,
       exam: {
         name: '',
@@ -323,6 +344,16 @@ export default {
   methods: {
     debug () {
       console.log(this.processedExamObject)
+    },
+    toggleExpand (id) {
+      console.log(id)
+      let itemIdx = this.expandedItems.indexOf(id)
+      if (itemIdx != -1) {
+        this.expandedItems.splice(itemIdx, 1)
+      } else {
+        this.expandedItems.push(id)
+      }
+      console.log(this.expandedItems)
     },
     submit (draft = false) {
       const id = this.$route.params.examid

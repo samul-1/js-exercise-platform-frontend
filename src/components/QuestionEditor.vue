@@ -4,6 +4,12 @@
   >
     <div class="absolute right-10">
       <button
+        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-500 rounded-lg disabled:opacity-50"
+        @click="$emit('toggleExpand')"
+      >
+        <i class="fas fa-expand-alt"></i>
+      </button>
+      <button
         @click="$emit('delete')"
         class="py-1.5 px-2.5 text-xs text-white shadow-inner bg-red-700 rounded-lg disabled:opacity-50"
       >
@@ -24,116 +30,125 @@
         >
       </h1>
     </div>
-    <div class="mb-4">
-      <div class="flex mb-1">
-        <span class="my-auto mr-2">Categoria</span>
-        <select
-          class="p-1 border rounded-md"
-          @change="update('category', question.category)"
-          v-model="question.category"
-        >
-          <option :value="null" selected disabled>Seleziona categoria</option>
+    <div v-show="!expanded">
+      <div v-html="questionTextPreview"></div>
+    </div>
+    <div v-show="expanded">
+      <div class="mb-4">
+        <div class="flex mb-1">
+          <span class="my-auto mr-2">Categoria</span>
+          <select
+            class="p-1 border rounded-md"
+            @change="update('category', question.category)"
+            v-model="question.category"
+          >
+            <option :value="null" selected disabled>Seleziona categoria</option>
 
-          <option
-            v-for="category in categoryChoices"
-            :key="category.id"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
-        <div class="ml-6">
-          <span
-            >Domanda
-            <strong>
+            <option
+              v-for="category in categoryChoices"
+              :key="category.id"
+              :value="category.id"
+            >
+              {{ category.name }}
+            </option>
+          </select>
+          <div class="ml-6">
+            <span
+              >Domanda
+              <strong>
+                {{
+                  question.question_type == 'm' ? 'a scelta multipla' : 'aperta'
+                }}</strong
+              ></span
+            >
+            <button
+              @click="
+                switchQuestionType(question.question_type == 'm' ? 'o' : 'm')
+              "
+              class="px-3 py-1.5 ml-2 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+            >
+              <i class="mr-1 fas fa-exchange-alt"></i> Cambia in domanda
               {{
-                question.question_type == 'm' ? 'a scelta multipla' : 'aperta'
-              }}</strong
-            ></span
-          >
-          <button
-            @click="
-              switchQuestionType(question.question_type == 'm' ? 'o' : 'm')
-            "
-            class="px-3 py-1.5 ml-2 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
-          >
-            <i class="mr-1 fas fa-exchange-alt"></i> Cambia in domanda
-            {{ question.question_type == 'o' ? 'a scelta multipla' : 'aperta' }}
-          </button>
-          <input
-            class="ml-6 mr-2"
-            type="checkbox"
-            v-model="question.accepts_multiple_answers"
-            :id="question.id + '-accepts-multiple-answers'"
-            @change="update('accepts_multiple_answers', $event.target.checked)"
-          />
-          <label :for="question.id + '-accepts-multiple-answers'"
-            >Accetta risposte multiple</label
-          >
-        </div>
-      </div>
-      <div class="flex">
-        <h2 class="my-2 text-lg">Testo della domanda</h2>
-        <div class="my-auto ml-auto text-xs">
-          <div
-            class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-500 rounded-full"
-          >
-            <i class="far fa-lightbulb fa-inverse"></i>
+                question.question_type == 'o' ? 'a scelta multipla' : 'aperta'
+              }}
+            </button>
+            <input
+              class="ml-6 mr-2"
+              type="checkbox"
+              v-model="question.accepts_multiple_answers"
+              :id="question.id + '-accepts-multiple-answers'"
+              @change="
+                update('accepts_multiple_answers', $event.target.checked)
+              "
+            />
+            <label :for="question.id + '-accepts-multiple-answers'"
+              >Accetta risposte multiple</label
+            >
           </div>
         </div>
+        <div class="flex">
+          <h2 class="my-2 text-lg">Testo della domanda</h2>
+          <div class="my-auto ml-auto text-xs">
+            <div
+              class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-500 rounded-full"
+            >
+              <i class="far fa-lightbulb fa-inverse"></i>
+            </div>
+          </div>
 
-        <p class="my-auto text-sm text-gray-600">
-          Evidenzia il codice LaTeX per vederne l'anteprima
-        </p>
-        <p></p>
-      </div>
-      <la-tex-preview
-        v-show="selection.length"
-        :text="selection"
-        @closePreview="selection = ''"
-      ></la-tex-preview>
-      <div
-        class="tex2jax_ignore"
-        :class="{ 'bg-gray-100 opacity-80 relative': !question.category }"
-      >
-        <div v-if="!question.category" class="absolute top-1/2 left-1/2">
-          <p class="relative text-gray-600 -left-1/2">
-            Per prima cosa, scegli una categoria
+          <p class="my-auto text-sm text-gray-600">
+            Evidenzia il codice LaTeX per vederne l'anteprima
           </p>
+          <p></p>
         </div>
-        <VueEditor
-          class="tall"
-          :value="question.text"
-          @input="update('text', $event)"
-          :id="question.id + '-text-editor'"
-          :editor-toolbar="toolbar"
-          :disabled="!question.category"
-          @selection-change="setPreview($event)"
-          :ref="question.id + '-text-editor'"
-        ></VueEditor>
-      </div>
-    </div>
-    <div v-show="question.question_type == 'm'">
-      <div class="flex mt-2">
-        <h2 class="mr-4 text-lg">Risposte</h2>
-        <button
-          @click="question.answers.unshift(newAnswer())"
-          class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+        <la-tex-preview
+          v-show="selection.length"
+          :text="selection"
+          @closePreview="selection = ''"
+        ></la-tex-preview>
+        <div
+          class="tex2jax_ignore"
+          :class="{ 'bg-gray-100 opacity-80 relative': !question.category }"
         >
-          <i class="fas fa-plus-circle"></i> Aggiungi
-        </button>
+          <div v-if="!question.category" class="absolute top-1/2 left-1/2">
+            <p class="relative text-gray-600 -left-1/2">
+              Per prima cosa, scegli una categoria
+            </p>
+          </div>
+          <VueEditor
+            class="tall"
+            :value="question.text"
+            @input="update('text', $event)"
+            :id="question.id + '-text-editor'"
+            :editor-toolbar="toolbar"
+            :disabled="!question.category"
+            @selection-change="setPreview($event)"
+            :ref="question.id + '-text-editor'"
+          ></VueEditor>
+        </div>
       </div>
-      <div>
-        <transition-group name="bounce">
-          <AnswerEditor
-            v-for="(answer, index) in question.answers"
-            :key="answer.id"
-            :id="answer.id"
-            v-model="question.answers[index]"
-            @delete="question.answers.splice(index, 1)"
-            @input="updateDeep('answers', index, $event)"
-          ></AnswerEditor>
-        </transition-group>
+      <div v-show="question.question_type == 'm'">
+        <div class="flex mt-2">
+          <h2 class="mr-4 text-lg">Risposte</h2>
+          <button
+            @click="question.answers.unshift(newAnswer())"
+            class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+          >
+            <i class="fas fa-plus-circle"></i> Aggiungi
+          </button>
+        </div>
+        <div>
+          <transition-group name="bounce">
+            <AnswerEditor
+              v-for="(answer, index) in question.answers"
+              :key="answer.id"
+              :id="answer.id"
+              v-model="question.answers[index]"
+              @delete="question.answers.splice(index, 1)"
+              @input="updateDeep('answers', index, $event)"
+            ></AnswerEditor>
+          </transition-group>
+        </div>
       </div>
     </div>
   </div>
@@ -152,7 +167,7 @@ export default {
     AnswerEditor,
     LaTexPreview
   },
-  props: ['categoryChoices', 'index'],
+  props: ['categoryChoices', 'index', 'expanded'],
   created () {
     this.question = this.$attrs.value
   },
@@ -250,6 +265,12 @@ export default {
       return (
         this.categoryChoices.find(c => c.id === this.question.category)?.name ??
         ''
+      )
+    },
+    questionTextPreview () {
+      return (
+        this.question.text.slice(0, 100) +
+        (this.question.text.length > 100 ? '...' : '')
       )
     }
   }

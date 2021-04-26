@@ -4,6 +4,12 @@
   >
     <div class="absolute right-10">
       <button
+        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-500 rounded-lg disabled:opacity-50"
+        @click="$emit('toggleExpand')"
+      >
+        <i class="fas fa-expand-alt"></i>
+      </button>
+      <button
         @click="$emit('delete')"
         class="py-1.5 px-2.5 text-xs text-white shadow-inner bg-red-700 rounded-lg disabled:opacity-50"
       >
@@ -24,143 +30,150 @@
         >
       </h1>
     </div>
-    <div class="mb-1">
-      <span class="mr-2">Categoria</span>
-      <select
-        class="p-1 border rounded-md"
-        @change="update('category', exercise.category)"
-        v-model="exercise.category"
-      >
-        <option :value="null" selected disabled>Seleziona categoria</option>
-
-        <option
-          v-for="category in categoryChoices"
-          :key="category.id"
-          :value="category.id"
-        >
-          {{ category.name }}
-        </option>
-      </select>
+    <div v-show="!expanded">
+      <div v-html="exerciseTextPreview"></div>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2">
-      <div class="mr-4">
-        <div class="flex">
-          <h2 class="my-2 text-lg">Testo dell'esercizio</h2>
-          <div class="my-auto ml-auto text-xs">
-            <div
-              class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-500 rounded-full"
-            >
-              <i class="far fa-lightbulb fa-inverse"></i>
-            </div>
-          </div>
-
-          <p class="my-auto text-xs text-gray-600">
-            Evidenzia il codice LaTeX per vederne l'anteprima
-          </p>
-          <p></p>
-        </div>
-
-        <la-tex-preview
-          v-show="selection.length"
-          :text="selection"
-          @closePreview="selection = ''"
-        ></la-tex-preview>
-        <div
-          class="tex2jax_ignore"
-          :class="{ 'bg-gray-100 opacity-80 relative': !exercise.category }"
+    <div v-show="expanded">
+      <div class="mb-1">
+        <span class="mr-2">Categoria</span>
+        <select
+          class="p-1 border rounded-md"
+          @change="update('category', exercise.category)"
+          v-model="exercise.category"
         >
-          <div v-if="!exercise.category" class="absolute top-1/2 left-1/2">
-            <p class="relative text-gray-600 -left-1/2">
-              Per prima cosa, scegli una categoria
+          <option :value="null" selected disabled>Seleziona categoria</option>
+
+          <option
+            v-for="category in categoryChoices"
+            :key="category.id"
+            :value="category.id"
+          >
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <div class="mr-4">
+          <div class="flex">
+            <h2 class="my-2 text-lg">Testo dell'esercizio</h2>
+            <div class="my-auto ml-auto text-xs">
+              <div
+                class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-500 rounded-full"
+              >
+                <i class="far fa-lightbulb fa-inverse"></i>
+              </div>
+            </div>
+
+            <p class="my-auto text-xs text-gray-600">
+              Evidenzia il codice LaTeX per vederne l'anteprima
             </p>
+            <p></p>
           </div>
-          <VueEditor
-            class="tall"
-            :value="exercise.text"
-            @input="update('text', $event)"
-            :id="exercise.id + '-text-editor'"
-            :ref="exercise.id + '-text-editor'"
-            :editor-toolbar="toolbar"
-            :disabled="!exercise.category"
-            @selection-change="setPreview($event)"
-          ></VueEditor>
+
+          <la-tex-preview
+            v-show="selection.length"
+            :text="selection"
+            @closePreview="selection = ''"
+          ></la-tex-preview>
+          <div
+            class="tex2jax_ignore"
+            :class="{ 'bg-gray-100 opacity-80 relative': !exercise.category }"
+          >
+            <div v-if="!exercise.category" class="absolute top-1/2 left-1/2">
+              <p class="relative text-gray-600 -left-1/2">
+                Per prima cosa, scegli una categoria
+              </p>
+            </div>
+            <VueEditor
+              class="tall"
+              :value="exercise.text"
+              @input="update('text', $event)"
+              :id="exercise.id + '-text-editor'"
+              :ref="exercise.id + '-text-editor'"
+              :editor-toolbar="toolbar"
+              :disabled="!exercise.category"
+              @selection-change="setPreview($event)"
+            ></VueEditor>
+          </div>
         </div>
+        <div>
+          <h2 class="my-2 text-lg">Codice iniziale</h2>
+          <AceEditor
+            class="h-full rounded-md"
+            :value="exercise.starting_code"
+            @input="update('starting_code', $event)"
+            @init="editorInit"
+            lang="javascript"
+            theme="monokai"
+            width="100%"
+            height="150px"
+            :options="aceEditorOptions"
+          />
+        </div>
+      </div>
+      <div class="flex my-4">
+        <p class="my-auto mr-4">
+          Numero minimo di test case superati per poter consegnare
+        </p>
+        <div
+          class="relative flex flex-row w-32 h-full bg-transparent rounded-lg"
+        >
+          <button
+            @click="
+              exercise.min_passing_testcases--
+              update('min_passing_testcases', exercise.min_passing_testcases)
+            "
+            :disabled="exercise.min_passing_testcases <= 0"
+            class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-l-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
+          >
+            <span class="m-auto text-2xl font-thin">−</span>
+          </button>
+          <input
+            type="number"
+            class="flex items-center w-16 font-medium text-center text-gray-900 bg-gray-300 outline-none focus:outline-none text-md hover:text-black focus:text-black md:text-basecursor-default"
+            :class="{
+              'bg-red-400':
+                exercise.min_passing_testcases < 0 ||
+                exercise.min_passing_testcases > exercise.testcases.length
+            }"
+            :value="exercise.min_passing_testcases"
+            @input="update('min_passing_testcases', $event.target.value)"
+          />
+          <button
+            :disabled="
+              exercise.min_passing_testcases >= exercise.testcases.length
+            "
+            @click="
+              exercise.min_passing_testcases++
+              update('min_passing_testcases', exercise.min_passing_testcases)
+            "
+            class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-r-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
+          >
+            <span class="m-auto text-2xl font-thin">+</span>
+          </button>
+        </div>
+      </div>
+      <div class="flex mt-2">
+        <h2 class="mr-4 text-lg">Test case</h2>
+        <button
+          @click="exercise.testcases.unshift(newTestCase())"
+          class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+        >
+          <i class="fas fa-plus-circle"></i> Aggiungi
+        </button>
       </div>
       <div>
-        <h2 class="my-2 text-lg">Codice iniziale</h2>
-        <AceEditor
-          class="h-full rounded-md"
-          :value="exercise.starting_code"
-          @input="update('starting_code', $event)"
-          @init="editorInit"
-          lang="javascript"
-          theme="monokai"
-          width="100%"
-          height="150px"
-          :options="aceEditorOptions"
-        />
+        <transition-group name="bounce">
+          <TestCaseEditor
+            v-for="(testcase, index) in exercise.testcases"
+            :key="testcase.id"
+            :id="testcase.id"
+            v-model="exercise.testcases[index]"
+            @delete="exercise.testcases.splice(index, 1)"
+            @input="updateDeep('testcases', index, $event)"
+          ></TestCaseEditor>
+        </transition-group>
       </div>
-    </div>
-    <div class="flex my-4">
-      <p class="my-auto mr-4">
-        Numero minimo di test case superati per poter consegnare
-      </p>
-      <div class="relative flex flex-row w-32 h-full bg-transparent rounded-lg">
-        <button
-          @click="
-            exercise.min_passing_testcases--
-            update('min_passing_testcases', exercise.min_passing_testcases)
-          "
-          :disabled="exercise.min_passing_testcases <= 0"
-          class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-l-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
-        >
-          <span class="m-auto text-2xl font-thin">−</span>
-        </button>
-        <input
-          type="number"
-          class="flex items-center w-16 font-medium text-center text-gray-900 bg-gray-300 outline-none focus:outline-none text-md hover:text-black focus:text-black md:text-basecursor-default"
-          :class="{
-            'bg-red-400':
-              exercise.min_passing_testcases < 0 ||
-              exercise.min_passing_testcases > exercise.testcases.length
-          }"
-          :value="exercise.min_passing_testcases"
-          @input="update('min_passing_testcases', $event.target.value)"
-        />
-        <button
-          :disabled="
-            exercise.min_passing_testcases >= exercise.testcases.length
-          "
-          @click="
-            exercise.min_passing_testcases++
-            update('min_passing_testcases', exercise.min_passing_testcases)
-          "
-          class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-r-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
-        >
-          <span class="m-auto text-2xl font-thin">+</span>
-        </button>
-      </div>
-    </div>
-    <div class="flex mt-2">
-      <h2 class="mr-4 text-lg">Test case</h2>
-      <button
-        @click="exercise.testcases.unshift(newTestCase())"
-        class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
-      >
-        <i class="fas fa-plus-circle"></i> Aggiungi
-      </button>
-    </div>
-    <div>
-      <transition-group name="bounce">
-        <TestCaseEditor
-          v-for="(testcase, index) in exercise.testcases"
-          :key="testcase.id"
-          :id="testcase.id"
-          v-model="exercise.testcases[index]"
-          @delete="exercise.testcases.splice(index, 1)"
-          @input="updateDeep('testcases', index, $event)"
-        ></TestCaseEditor>
-      </transition-group>
     </div>
   </div>
 </template>
@@ -187,7 +200,7 @@ export default {
     // ? might need to investigate this
     this.exercise = this.$attrs.value
   },
-  props: ['id', 'categoryChoices', 'index'],
+  props: ['id', 'categoryChoices', 'index', 'expanded'],
   data () {
     return {
       aceEditorOptions,
@@ -247,6 +260,12 @@ export default {
       return (
         this.categoryChoices.find(c => c.id === this.exercise.category)?.name ??
         ''
+      )
+    },
+    exerciseTextPreview () {
+      return (
+        this.exercise.text.slice(0, 100) +
+        (this.exercise.text.length > 100 ? '...' : '')
       )
     }
   }
