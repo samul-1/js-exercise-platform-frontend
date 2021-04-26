@@ -250,6 +250,7 @@ export default {
 
       if (newVal - oldVal == 1) {
         // automatically expand newly added exercise
+        // do this for manually added items, not the whole exam retrieved from the db
         this.toggleExpand(
           'e-' + this.exam.exercises.slice().reverse()[newVal - 1].id
         )
@@ -265,6 +266,7 @@ export default {
 
       if (newVal - oldVal == 1) {
         // automatically expand newly added question
+        // do this for manually added items, not the whole exam retrieved from the db
         this.toggleExpand(
           'q-' + this.exam.questions.slice().reverse()[newVal - 1].id
         )
