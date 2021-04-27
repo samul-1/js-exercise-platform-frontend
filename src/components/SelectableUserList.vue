@@ -1,19 +1,47 @@
 <template>
-  <div class="m-2 border border-gray-300 rounded-lg shadow-sm padding-2">
-    <div class="flex">
-      <label for="filter-bar mr-2">Cerca utente:</label>
-      <input type="text" v-model="searchText" />
+  <div class="my-2 border border-gray-300 rounded-lg shadow-sm pt-3">
+    <div class="flex mb-4 px-3">
+      <label class="my-auto" for="filter-bar"
+        ><i class="fas fa-search mr-0.5"></i> Cerca docente:</label
+      >
+      <input
+        class="ml-2 px-1 py-0.5 border border-gray-300 rounded-md"
+        type="text"
+        v-model="searchText"
+        id="filter-bar"
+      />
     </div>
-    <div class="flex" v-for="user in users" :key="user.id">
-      <p class="mr-2">{{ getUserFullName(user) }}</p>
-      <button @click="toggleSelection(user.id)">
+
+    <div
+      class="flex py-1.5 px-3"
+      v-for="(user, index) in filteredUserList"
+      :class="{
+        'bg-gray-100': index % 2,
+        'rounded-b-md': index === filteredUserList.length - 1
+      }"
+      :key="user.id"
+    >
+      <div class="w-1/5 ">
+        <span
+          :class="{
+            'font-semibold': selected.indexOf(user.id) !== -1
+          }"
+        >
+          {{ getUserFullName(user) }}
+        </span>
+        <span v-if="selected.indexOf(user.id) !== -1">
+          <i class="ml-2 text-green-900 fas fa-check"></i>
+        </span>
+      </div>
+      <button v-cloak @click="toggleSelection(user.id)">
         <i
           :class="{
-            'fas fa-circle-plus text-green-800':
+            'fas fa-plus-circle text-green-800':
               selected.indexOf(user.id) === -1,
-            'fas fa-circle-minus text-red-800': selected.indexOf(user.id) !== -1
+            'fas fa-minus-circle text-red-800': selected.indexOf(user.id) !== -1
           }"
         ></i>
+        {{ selected.indexOf(user.id) === -1 ? 'Aggiungi' : 'Rimuovi' }}
       </button>
     </div>
   </div>
@@ -29,13 +57,32 @@ export default {
       type: Array
     }
   },
+
   data () {
     return {
       searchText: '',
       selected: []
     }
   },
+  watch: {
+    $attrs: {
+      handler () {
+        this.selected = this.$attrs.value
+      },
+      deep: true,
+      immediate: true
+    },
+    selected: {
+      deep: true,
+      immediate: true,
+      handler (newValue) {
+        console.log(newValue)
+        this.$emit('input', newValue)
+      }
+    }
+  },
   methods: {
+    getUserFullName,
     toggleSelection (userId) {
       const idx = this.selected.indexOf(userId)
       if (idx === -1) {
@@ -52,16 +99,23 @@ export default {
       }
       return this.users.filter(
         u =>
-          getUserFullName(u).includes(this.searchText) ||
+          getUserFullName(u)
+            .toLowerCase()
+            .includes(this.searchText.toLowerCase()) ||
           getUserFullName(u)
             .split(' ')
             .reverse()
             .join(' ')
-            .includes(this.searchText)
+            .toLowerCase()
+            .includes(this.searchText.toLowerCase())
       )
     }
   }
 }
 </script>
 
-<style></style>
+<style>
+[v-cloak] {
+  display: none;
+}
+</style>

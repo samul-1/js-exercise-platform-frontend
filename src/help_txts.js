@@ -16,9 +16,14 @@ const AGGR_QUEST_TXT =
    relative a esso. Tutte le domande inserite in un aggregato appariranno sempre\
     negli esami: non puoi sceglierne un sottoinsieme random."
 
+const REF_TEACHER =
+  "Possono accedere all'editor dell'esame, modificarlo, chiuderne le consegne una volta che è iniziato e visualizzarne\
+   i risultati una volta che è terminato."
+
 export const HELP_TXTS = {
   RAND_CAT_TXT,
   RAND_GLOBAL_TXT,
   NUM_ITEMS_PER_CAT_TXT,
-  AGGR_QUEST_TXT
+  AGGR_QUEST_TXT,
+  REF_TEACHER
 }

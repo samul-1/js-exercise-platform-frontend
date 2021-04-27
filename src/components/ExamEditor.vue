@@ -38,6 +38,17 @@
       <!-- end exam meta -->
     </div>
 
+    <div class="flex">
+      <h2 class="mb-1 text-xl">
+        Insegnanti referenti
+      </h2>
+      <help-text-button :helpText="HELP_TXTS.REF_TEACHER"></help-text-button>
+    </div>
+    <SelectableUserList
+      :users="teachers"
+      v-model="exam.allowed_teachers"
+    ></SelectableUserList>
+
     <!-- question categories -->
     <fieldset
       v-show="exam.questions.length"
@@ -219,6 +230,7 @@
 import axios from 'axios'
 import ExerciseEditor from '../components/ExerciseEditor.vue'
 import CategoryEditor from '../components/CategoryEditor.vue'
+import SelectableUserList from '../components/SelectableUserList.vue'
 import QuestionEditor from './QuestionEditor.vue'
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
@@ -239,6 +251,7 @@ export default {
     QuestionEditor,
     CategoryEditor,
     Spinner,
+    SelectableUserList,
     HelpTextButton
   },
   watch: {
@@ -294,6 +307,8 @@ export default {
     const id = this.$route.params.examid
     if (id) {
       this.loading = true
+
+      this.getTeachers()
       axios
         .get(`/exams/${id}/`)
         .then(response => {
@@ -336,6 +351,7 @@ export default {
     return {
       HELP_TXTS,
       expandedItems: [],
+      teachers: [],
       loading: false,
       exam: {
         name: '',
@@ -346,13 +362,27 @@ export default {
         questionCategories: [],
         exerciseCategories: [],
         randomize_questions: true,
-        randomize_exercises: true
+        randomize_exercises: true,
+        allowed_teachers: []
       }
     }
   },
   methods: {
     debug () {
       console.log(this.processedExamObject)
+    },
+
+    // ! make api.js and move stuff there
+    getTeachers () {
+      axios
+        .get('/users/teachers/')
+        .then(resp => {
+          console.log(resp)
+          this.teachers = resp.data
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     toggleExpand (id) {
       console.log(id)
