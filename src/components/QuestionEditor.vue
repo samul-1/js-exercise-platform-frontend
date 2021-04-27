@@ -155,12 +155,12 @@
 </template>
 
 <script>
-import { toolbar } from '../constants.js'
+import { toolbar } from '../constants'
 import { VueEditor } from 'vue2-editor'
 import AnswerEditor from './AnswerEditor.vue'
 import { uuid } from 'vue-uuid'
 import LaTexPreview from './LaTexPreview.vue'
-import { highlightCode } from '../constants.js'
+import { highlightCode } from '../constants'
 export default {
   name: 'QuestionEditor',
   components: {

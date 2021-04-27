@@ -11,7 +11,7 @@
       </div>
       <label class="my-auto mr-2" :for="id + '-cat-name'">Nome</label>
       <input
-        class="my-2 mr-4 border py-1 px-2 border border-gray-300 rounded-md w-60"
+        class="px-2 py-1 my-2 mr-4 border border-gray-300 rounded-md w-60"
         @input="update('name', $event.target.value)"
         type="text"
         v-model="category.name"
@@ -118,11 +118,11 @@
 </template>
 
 <script>
-import { toolbar } from '../constants.js'
+import { toolbar } from '../constants'
 import { VueEditor } from 'vue2-editor'
 import HelpTextButton from '../components/HelpTextButton.vue'
 import LaTexPreview from './LaTexPreview.vue'
-import { HELP_TXTS } from '../help_txts.js'
+import { HELP_TXTS } from '../help_txts'
 export default {
   name: 'CategoryEditor',
   components: {

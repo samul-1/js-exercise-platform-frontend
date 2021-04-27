@@ -40,7 +40,7 @@
 
 <script>
 import AceEditor from 'vuejs-ace-editor'
-import { aceEditorOptions, editorInit } from '../constants.js'
+import { aceEditorOptions, editorInit } from '../constants'
 
 export default {
   name: 'TestCaseEditor',

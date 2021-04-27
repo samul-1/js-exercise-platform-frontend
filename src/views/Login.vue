@@ -38,7 +38,7 @@
 
 <script>
 import axios from 'axios'
-import { redirectToMainView } from '../permissions.js'
+import { redirectToMainView } from '../permissions'
 export default {
   name: 'Login',
   components: {},

@@ -114,8 +114,8 @@ import {
   getUserFullName,
   formatTimestamp,
   getExamSummaryText
-} from '../utility.js'
-import { forceFileDownload, beforeDownload } from '../filedownloads.js'
+} from '../utility'
+import { forceFileDownload, beforeDownload } from '../filedownloads'
 
 export default {
   name: 'ExamList',

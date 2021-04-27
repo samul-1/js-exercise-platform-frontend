@@ -26,7 +26,7 @@
 import {
   redirectIfNotAuthenticated,
   redirectIfNotTeacher
-} from '../permissions.js'
+} from '../permissions'
 export default {
   name: 'TeacherDashboard',
   created () {

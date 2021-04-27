@@ -251,7 +251,7 @@ import {
   aceEditorOptions,
   SUBMIT_COOLDOWN,
   editorInit
-} from '../constants.js'
+} from '../constants'
 
 export default {
   name: 'ExamPage',
@@ -267,6 +267,7 @@ export default {
     AggregatedQuestionIntroduction
   },
   created () {
+    // ! use the functions from permissions.js
     if (!this.$store.state.isAuthenticated) {
       this.$store.commit(
         'setRedirectToAfterLogin',

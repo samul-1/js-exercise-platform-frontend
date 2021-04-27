@@ -46,7 +46,7 @@
 
 <script>
 import LaTexPreview from '../components/LaTexPreview.vue'
-import { toolbar } from '../constants.js'
+import { toolbar } from '../constants'
 import { VueEditor } from 'vue2-editor'
 export default {
   name: 'AnswerEditor',

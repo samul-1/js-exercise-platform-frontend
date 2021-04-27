@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { highlightCode } from '../constants.js'
+import { highlightCode } from '../constants'
 
 export default {
   name: 'AggregatedQuestionIntroduction',

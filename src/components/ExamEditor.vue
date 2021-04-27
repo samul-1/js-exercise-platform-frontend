@@ -225,11 +225,11 @@ import 'vue2-datepicker/index.css'
 import { uuid } from 'vue-uuid'
 import Spinner from '../components/Spinner.vue'
 import HelpTextButton from '../components/HelpTextButton.vue'
-import { HELP_TXTS } from '../help_txts.js'
+import { HELP_TXTS } from '../help_txts'
 import {
   redirectIfNotAuthenticated,
   redirectIfNotTeacher
-} from '../permissions.js'
+} from '../permissions'
 
 export default {
   name: 'ExamEditor',
