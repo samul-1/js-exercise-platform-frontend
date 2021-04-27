@@ -14,8 +14,8 @@
           class="z-20 w-3/5 px-10 py-10 bg-white rounded-lg shadow-lg "
         >
           <div class="mb-10 text-black">
-            <p class="mb-4 text-2xl">{{ string }}</p>
-            <p class="mt-4 text-md">{{ subText }}</p>
+            <p v-html="string" class="mb-4 text-2xl"></p>
+            <p v-html="subText" class="mt-4 text-md"></p>
             <slot></slot>
           </div>
           <div class="flex mt-5">
@@ -24,7 +24,7 @@
               class="px-5 py-2 ml-auto mr-2 text-lg text-white transition-all duration-100 rounded-md disabled:opacity-50"
               :class="{
                 'bg-green-600 hover:bg-green-800': severity == 1,
-                'bg-red-600 hover:bg-red-800': severity == 2
+                'bg-red-700 hover:bg-red-800': severity == 2
               }"
               @click="chooseAndHide('yes')"
             >

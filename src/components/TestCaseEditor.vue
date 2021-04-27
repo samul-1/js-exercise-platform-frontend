@@ -49,7 +49,6 @@ export default {
   },
   props: ['id'],
   created () {
-    //this.testcase.uuid = this.id
     this.testcase = this.$attrs.value
   },
   data () {
@@ -61,7 +60,6 @@ export default {
   methods: {
     editorInit,
     update (key, value) {
-      //console.log(value);
       this.testcase[key] = value
       this.$emit('input', { ...this.testcase, [key]: value })
     }

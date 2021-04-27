@@ -226,6 +226,10 @@ import { uuid } from 'vue-uuid'
 import Spinner from '../components/Spinner.vue'
 import HelpTextButton from '../components/HelpTextButton.vue'
 import { HELP_TXTS } from '../help_txts.js'
+import {
+  redirectIfNotAuthenticated,
+  redirectIfNotTeacher
+} from '../permissions.js'
 
 export default {
   name: 'ExamEditor',
@@ -274,7 +278,10 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state.isAuthenticated) {
+    redirectIfNotAuthenticated(this, '/login/teacher')
+    redirectIfNotTeacher(this, '/login')
+    // ! delete below once tested
+    /* if (!this.$store.state.isAuthenticated) {
       this.$store.commit(
         'setRedirectToAfterLogin',
         this.$router.currentRoute.fullPath
@@ -283,7 +290,7 @@ export default {
     }
     if (!this.$store.state.user.is_teacher) {
       this.$router.push('/login')
-    }
+    }*/
     const id = this.$route.params.examid
     if (id) {
       this.loading = true

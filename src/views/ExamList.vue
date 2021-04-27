@@ -10,17 +10,25 @@
       :key="exam.id"
     >
       <h1 class="mr-2 text-lg" v-html="exam.name"></h1>
+      <!-- left buttons -->
       <router-link :to="`/editor/${exam.id}`"
         ><button
           :disabled="new Date() >= new Date(exam.begin_timestamp)"
-          class="px-3 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          class="px-3 py-0.5 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
           Modifica
         </button></router-link
       >
       <button
+        @click="confirmClosure(exam.id)"
+        v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+        class="px-3 ml-2 py-0.5 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
+      >
+        <i class="fas fa-exclamation-triangle"></i> Chiudi consegne
+      </button>
+      <button
         @click="getMockExam(exam.id)"
-        v-if="true || new Date() < new Date(exam.begin_timestamp)"
+        v-if="new Date() < new Date(exam.begin_timestamp)"
         class="px-3 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         Simula
@@ -28,25 +36,27 @@
       <!--<router-link :to="`/reports/${exam.id}`">-->
       <button
         @click="getReport(exam)"
-        v-if="new Date() >= new Date(exam.end_timestamp)"
+        v-if="exam.closed"
         class="px-3 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         Risultati
       </button>
-      <!--</router-link>-->
+      <!-- end left buttons -->
+
+      <!--right buttons -->
       <div class="flex ml-auto">
-        <div
-          class="px-2 mr-6 bg-gray-600 rounded-md "
-          v-if="new Date() >= new Date(exam.end_timestamp)"
-        >
+        <div class="px-2 mr-6 bg-gray-600 rounded-md " v-if="exam.closed">
           <span class="text-white align-middle">Terminato</span>
         </div>
         <div
+          class="px-2 mr-6 bg-red-800 rounded-md "
+          v-if="new Date() >= new Date(exam.end_timestamp) && !exam.closed"
+        >
+          <span class="text-white align-middle">Scadenza passata</span>
+        </div>
+        <div
           class="px-2 mr-6 bg-green-700 rounded-md animate-pulse"
-          v-if="
-            new Date() >= new Date(exam.begin_timestamp) &&
-              new Date() <= new Date(exam.end_timestamp)
-          "
+          v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
         >
           <span class="text-white align-middle">In corso</span>
         </div>
@@ -81,6 +91,16 @@
         <mock-exam v-if="mockId" :data="mockData"></mock-exam>
       </section>
     </vue-html2pdf>
+    <Dialog
+      v-if="dialog.shown"
+      :string="dialog.string"
+      :subText="dialog.subText"
+      :confirmOnly="dialog.confirmOnly"
+      :dismissible="dialog.dismissible"
+      :severity="dialog.severity"
+      @yes="dialog.onYes.callback(dialog.onYes.param)"
+      @no="dialog.onNo.callback(dialog.onNo.param)"
+    ></Dialog>
   </div>
 </template>
 
@@ -89,13 +109,21 @@ import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
 import MockExam from '../components/MockExam.vue'
 import VueHtml2pdf from 'vue-html2pdf'
+import Dialog from '../components/Dialog.vue'
+import {
+  getUserFullName,
+  formatTimestamp,
+  getExamSummaryText
+} from '../utility.js'
+import { forceFileDownload, beforeDownload } from '../filedownloads.js'
 
 export default {
   name: 'ExamList',
   components: {
     Spinner,
     MockExam,
-    VueHtml2pdf
+    VueHtml2pdf,
+    Dialog
   },
   created () {
     // !
@@ -122,17 +150,58 @@ export default {
       exams: [],
       loading: false,
       mockId: null,
-      mockData: null
+      mockData: null,
+      dialog: {
+        shown: false
+      }
     }
   },
   methods: {
-    //! move to constants.js
-    formatTimestamp (timestamp) {
-      const [year, month, rest] = timestamp.split('-')
-      const [day, time] = rest.split(' ')
-      // eslint-disable-next-line no-unused-vars
-      const [hours, minutes, seconds] = time.split(':')
-      return `${day}/${month}/${year} ${hours}:${minutes}`
+    formatTimestamp,
+    getUserFullName,
+    getExamSummaryText,
+    beforeDownload,
+    forceFileDownload,
+    confirmClosure (id) {
+      // shows a dialog that prompts the user for confirmation to close an exam
+      const idx = this.exams.findIndex(e => e.id === id)
+      const exam = this.exams[idx]
+
+      this.dialog = {
+        shown: true,
+        string: 'Sei sicuro di voler chiudere questo esame?',
+        subText: this.getExamSummaryText(exam),
+        confirmOnly: false,
+        severity: 2,
+        dismissible: true,
+        onYes: { callback: this.closeExam, param: id },
+        onNo: {
+          callback: () => (this.dialog = { shown: false })
+        }
+      }
+    },
+    closeExam (id) {
+      this.loading = true
+      this.dialog = {
+        show: false
+      }
+      axios
+        .patch(`/exams/${id}/terminate/`)
+        .then(response => {
+          console.log(response)
+          const idx = this.exams.findIndex(e => e.id === id)
+          this.exams[idx] = response.data
+          this.$store.commit('setSmallMessage', {
+            severity: 1,
+            msg: 'Esame chiuso con successo.'
+          })
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
     getReport (exam) {
       this.loading = true
@@ -158,15 +227,6 @@ export default {
           this.loading = false
         })
     },
-    forceFileDownload (response, title) {
-      console.log(title)
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', title)
-      document.body.appendChild(link)
-      link.click()
-    },
     getMockExam (examId) {
       this.loading = true
       axios
@@ -180,30 +240,6 @@ export default {
         .catch(err => {
           console.log(err)
         })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-    async beforeDownload ({ html2pdf, options, pdfContent }) {
-      await html2pdf()
-        .set(options)
-        .from(pdfContent)
-        .toPdf()
-        .get('pdf')
-        .then(pdf => {
-          const totalPages = pdf.internal.getNumberOfPages()
-          for (let i = 1; i <= totalPages; i++) {
-            pdf.setPage(i)
-            pdf.setFontSize(10)
-            pdf.setTextColor(150)
-            pdf.text(
-              'Page ' + i + ' of ' + totalPages,
-              pdf.internal.pageSize.getWidth() * 0.88,
-              pdf.internal.pageSize.getHeight() - 0.3
-            )
-          }
-        })
-        .save()
     },
     generatePdfMock () {
       this.$refs.html2Pdf.generatePdf()

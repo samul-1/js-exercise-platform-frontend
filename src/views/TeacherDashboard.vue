@@ -17,26 +17,23 @@
             Visualizza e modifica esami
           </button></router-link
         >
-        <!--<router-link to="/results"
-          >
-          -->
-        <!--<button
-          @click="getReport()"
-          class="w-full p-6 my-3 text-xl text-white transition-colors duration-100 bg-indigo-800 shadow-lg hover:bg-indigo-900 rounded-2xl"
-        >
-          Esami conclusi
-        </button>-->
-        <!--</router-link
-        >-->
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import {
+  redirectIfNotAuthenticated,
+  redirectIfNotTeacher
+} from '../permissions.js'
 export default {
   name: 'TeacherDashboard',
   created () {
+    redirectIfNotAuthenticated(this, '/login/teacher')
+    redirectIfNotTeacher(this, '/login')
+    // ! delete below once you test this
+    /*
     if (!this.$store.state.isAuthenticated) {
       this.$store.commit(
         'setRedirectToAfterLogin',
@@ -46,7 +43,7 @@ export default {
     }
     if (!this.$store.state.user.is_teacher) {
       this.$router.push('/login')
-    }
+    }*/
   },
   data () {
     return {}

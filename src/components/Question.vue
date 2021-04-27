@@ -6,19 +6,9 @@
     <div v-if="question.question_type == 'm'">
       <div v-for="answer in question.answers" :key="answer.id" class="my-1">
         <input
-          v-if="!question.accepts_multiple_answers"
-          type="radio"
+          :type="question.accepts_multiple_answers ? 'checkbox' : 'radio'"
           :id="'ans-' + answer.id"
-          :value="answer.id"
-          v-model="selected[0]"
-          class="mr-1"
-        />
-
-        <input
-          v-else
-          type="checkbox"
-          :id="'ans-' + answer.id"
-          :value="answer.id"
+          :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           v-model="selected"
           class="mr-1"
         />
@@ -64,6 +54,7 @@ export default {
     answerText (newValue) {
       this.$emit('text', newValue)
     },
+    //! can this be done in a centralized way?
     $props: {
       handler () {
         // render LaTeX code

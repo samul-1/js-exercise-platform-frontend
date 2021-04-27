@@ -38,6 +38,7 @@
 
 <script>
 import axios from 'axios'
+import { redirectToMainView } from '../permissions.js'
 export default {
   name: 'Login',
   components: {},
@@ -62,6 +63,7 @@ export default {
     }
   },
   methods: {
+    redirectToMainView,
     async onGoogleSignInSuccess (resp) {
       //console.log('successfully signed in with google:', resp)
 
@@ -104,7 +106,7 @@ export default {
           })
 
           // redirect to correct view depending on user type
-          this.redirectToMainView()
+          this.redirectToMainView(this)
         })
         .catch(error => {
           alert(
@@ -118,8 +120,9 @@ export default {
         'I cookie devono essere abilitati per utilizzare questo servizio. Esci dalla modalità incognito se la stai attualmente utilizzando, o abilita i cookie.'
       )
       console.log('google sign in error', error)
-    },
-    redirectToMainView () {
+    }
+    // ! delete below once tested
+    /*redirectToMainView () {
       // If the logged in user is a teacher, redirects the user to the teacher dashboard
       // If the logged in user a student, redirects the student to the exam page
       if (this.$store.state.redirectToAfterLogin) {
@@ -135,7 +138,7 @@ export default {
           )
         }
       }
-    }
+    }*/
   }
 }
 </script>

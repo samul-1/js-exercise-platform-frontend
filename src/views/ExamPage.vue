@@ -173,7 +173,7 @@
             v-show="processingSubmission"
             class="flex p-3 m-2 mb-0 text-black bg-gray-300 rounded-md shadow-md opacity-50 text-shadow-lg"
           >
-            <!-- //! spinner component -->
+            <!-- // ! spinner component -->
             <svg
               class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
               xmlns="http://www.w3.org/2000/svg"
