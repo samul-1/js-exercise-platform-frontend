@@ -1,8 +1,14 @@
 <template>
   <div class="mx-8 my-5 ">
     <Spinner v-if="loading"></Spinner>
-
-    <h1 class="mb-5 text-3xl font-medium">Lista esami</h1>
+    <div class="flex my-4">
+      <h1 class="text-3xl font-medium ">Lista esami</h1>
+      <router-link class="my-auto" to="/editor">
+        <button class="px-3 ml-4 text-white bg-green-700 rounded-md shadow-sm">
+          <i class="fas fa-plus-circle"></i> Crea
+        </button></router-link
+      >
+    </div>
     <div
       :class="{ 'opacity-80 bg-gray-100': exam.draft }"
       class="flex w-full px-4 py-6 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
