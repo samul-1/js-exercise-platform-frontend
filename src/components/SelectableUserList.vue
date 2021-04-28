@@ -29,11 +29,21 @@
         >
           {{ getUserFullName(user) }}
         </span>
-        <span v-if="selected.indexOf(user.id) !== -1">
-          <i class="ml-2 text-green-900 fas fa-check"></i>
+        <span v-if="selected.indexOf(user.id) !== -1 || lockedId == user.id">
+          <i
+            class="ml-2"
+            :class="{
+              'text-green-900 fas fa-check': selected.indexOf(user.id) !== -1,
+              'text-gray-600 fas fa-lock': user.id == lockedId
+            }"
+          ></i>
         </span>
       </div>
-      <button v-cloak @click="toggleSelection(user.id)">
+      <button
+        v-if="lockedId != user.id"
+        v-cloak
+        @click="toggleSelection(user.id)"
+      >
         <i
           :class="{
             'fas fa-plus-circle text-green-800':
@@ -43,6 +53,7 @@
         ></i>
         {{ selected.indexOf(user.id) === -1 ? 'Aggiungi' : 'Rimuovi' }}
       </button>
+      <p v-else class="text-gray-600"><em>Creatore esame</em></p>
     </div>
   </div>
 </template>
@@ -51,10 +62,12 @@
 import { getUserFullName } from '../utility'
 export default {
   name: 'SelectableUserList',
-  // todo emit on change to `selected`
   props: {
     users: {
       type: Array
+    },
+    lockedId: {
+      type: Number
     }
   },
 
@@ -97,6 +110,7 @@ export default {
       if (!this.searchText.length) {
         return this.users
       }
+      // todo improve (can give issues with people with middle names)
       return this.users.filter(
         u =>
           getUserFullName(u)
@@ -109,17 +123,6 @@ export default {
             .toLowerCase()
             .includes(this.searchText.toLowerCase())
       )
-      // return this.users.filter(u =>
-      //   getUserFullName(u)
-      //     .toLowerCase()
-      //     .split(' ')
-      //     .some(s =>
-      //       this.searchText
-      //         .toLowerCase()
-      //         .split(' ')
-      //         .every(q => s.includes(q))
-      //     )
-      // )
     }
   }
 }
