@@ -2,7 +2,10 @@ export function getUserFullName (user) {
   function capitalize (str) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
   }
-  return `${capitalize(user.first_name)} ${capitalize(user.last_name)}`
+  return `${user.first_name
+    .split(' ')
+    .map(s => capitalize(s))
+    .join(' ')} ${capitalize(user.last_name)}`
 }
 
 export function formatTimestamp (timestamp) {
