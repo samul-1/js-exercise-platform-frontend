@@ -46,7 +46,7 @@
     </div>
     <SelectableUserList
       :users="teachers"
-      :lockedId="exam.created_by.id"
+      :lockedId="exam.created_by ? exam.created_by.id : $store.state.user.id"
       v-model="exam.allowed_teachers"
     ></SelectableUserList>
 
