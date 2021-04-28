@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-3 mt-1 mb-4 border border-gray-300 rounded-lg shadow-sm">
+  <div class="pt-3 mt-1 mb-8 border border-gray-300 rounded-lg shadow-sm">
     <div class="flex px-3 mb-4">
       <label class="my-auto" for="filter-bar"
         ><i class="fas fa-search mr-0.5"></i> Cerca docente:</label
@@ -97,7 +97,7 @@ export default {
       if (!this.searchText.length) {
         return this.users
       }
-      /*return this.users.filter(
+      return this.users.filter(
         u =>
           getUserFullName(u)
             .toLowerCase()
@@ -108,13 +108,18 @@ export default {
             .join(' ')
             .toLowerCase()
             .includes(this.searchText.toLowerCase())
-      )*/
-      return this.users.filter(u => {
-        getUserFullName(u)
-          .toLowerCase()
-          .split(' ')
-          .findIndex(s => s.includes(this.searchText.toLowerCase())) !== -1
-      })
+      )
+      // return this.users.filter(u =>
+      //   getUserFullName(u)
+      //     .toLowerCase()
+      //     .split(' ')
+      //     .some(s =>
+      //       this.searchText
+      //         .toLowerCase()
+      //         .split(' ')
+      //         .every(q => s.includes(q))
+      //     )
+      // )
     }
   }
 }
