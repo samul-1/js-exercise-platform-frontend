@@ -11,16 +11,16 @@
     </div>
     <div
       :class="{ 'opacity-80 bg-gray-100': exam.draft }"
-      class="flex w-full px-4 py-6 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
+      class="flex w-full p-4 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
       v-for="exam in exams"
       :key="exam.id"
     >
-      <h1 class="mr-2 text-lg" v-html="exam.name"></h1>
+      <h1 class="my-auto mr-2 text-lg" v-html="exam.name"></h1>
       <!-- left buttons -->
       <router-link :to="`/editor/${exam.id}`"
         ><button
-          :disabled="new Date() >= new Date(exam.begin_timestamp)"
-          class="px-3 py-0.5 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
+          class="px-4 py-1.5  text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
           Modifica
         </button></router-link
@@ -28,14 +28,14 @@
       <button
         @click="confirmClosure(exam.id)"
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        class="px-3 ml-2 py-0.5 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
+        class="px-4 ml-2 py-1.5 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
         <i class="fas fa-exclamation-triangle"></i> Chiudi consegne
       </button>
       <button
         @click="getMockExam(exam.id)"
-        v-if="new Date() < new Date(exam.begin_timestamp)"
-        class="px-3 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
+        class="px-4 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         Simula
       </button>
@@ -43,31 +43,31 @@
       <button
         @click="getReport(exam)"
         v-if="exam.closed"
-        class="px-3 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-4 py-1.5 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         Risultati
       </button>
       <!-- end left buttons -->
 
       <!--right buttons -->
-      <div class="flex ml-auto">
+      <div class="flex my-auto ml-auto">
         <div class="px-2 mr-6 bg-gray-600 rounded-md " v-if="exam.closed">
-          <span class="text-white align-middle">Terminato</span>
+          <span class="text-white ">Terminato</span>
         </div>
         <div
           class="px-2 mr-6 bg-red-800 rounded-md "
           v-if="new Date() >= new Date(exam.end_timestamp) && !exam.closed"
         >
-          <span class="text-white align-middle">Scadenza passata</span>
+          <span class="text-white ">Scadenza passata</span>
         </div>
         <div
           class="px-2 mr-6 bg-green-700 rounded-md animate-pulse"
           v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
         >
-          <span class="text-white align-middle">In corso</span>
+          <span class="text-white ">In corso</span>
         </div>
         <div class="px-2 mr-6 bg-red-500 rounded-md" v-if="exam.draft">
-          <span class="text-white align-middle">Bozza</span>
+          <span class="text-white ">Bozza</span>
         </div>
         <p>
           <i class="mr-1 text-gray-500 far fa-calendar"></i>
