@@ -97,7 +97,7 @@ export default {
       if (!this.searchText.length) {
         return this.users
       }
-      return this.users.filter(
+      /*return this.users.filter(
         u =>
           getUserFullName(u)
             .toLowerCase()
@@ -108,7 +108,13 @@ export default {
             .join(' ')
             .toLowerCase()
             .includes(this.searchText.toLowerCase())
-      )
+      )*/
+      return this.users.filter(u => {
+        getUserFullName(u)
+          .toLowerCase()
+          .split(' ')
+          .findIndex(s => s.includes(this.searchText.toLowerCase())) !== -1
+      })
     }
   }
 }
