@@ -46,7 +46,7 @@ export default {
     Question,
     AggregatedQuestionIntroduction
   },
-  props: ['data'],
+  props: { data: { type: Object } },
 
   data () {
     return {}

@@ -1,6 +1,6 @@
 <template>
-  <div class="my-2 border border-gray-300 rounded-lg shadow-sm pt-3">
-    <div class="flex mb-4 px-3">
+  <div class="pt-3 mt-1 mb-4 border border-gray-300 rounded-lg shadow-sm">
+    <div class="flex px-3 mb-4">
       <label class="my-auto" for="filter-bar"
         ><i class="fas fa-search mr-0.5"></i> Cerca docente:</label
       >

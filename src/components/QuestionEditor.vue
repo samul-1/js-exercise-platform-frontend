@@ -168,7 +168,13 @@ export default {
     AnswerEditor,
     LaTexPreview
   },
-  props: ['categoryChoices', 'index', 'expanded'],
+  props: {
+    categoryChoices: {
+      type: Array
+    },
+    index: { type: Number },
+    expanded: { type: Boolean }
+  },
   watch: {
     $props: {
       handler () {

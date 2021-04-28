@@ -9,7 +9,11 @@ import { highlightCode } from '../constants'
 
 export default {
   name: 'AggregatedQuestionIntroduction',
-  props: ['text'],
+  props: {
+    text: {
+      type: String
+    }
+  },
   methods: {
     highlightCode
   }

@@ -200,7 +200,12 @@ export default {
     // ? might need to investigate this
     this.exercise = this.$attrs.value
   },
-  props: ['id', 'categoryChoices', 'index', 'expanded'],
+  props: {
+    id: { type: [Number, String] },
+    categoryChoices: { type: Array },
+    index: { type: Number },
+    expanded: { type: Boolean }
+  },
   watch: {
     $props: {
       handler () {

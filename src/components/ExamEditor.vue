@@ -304,11 +304,11 @@ export default {
     if (!this.$store.state.user.is_teacher) {
       this.$router.push('/login')
     }*/
+    this.getTeachers()
+
     const id = this.$route.params.examid
     if (id) {
       this.loading = true
-
-      this.getTeachers()
       axios
         .get(`/exams/${id}/`)
         .then(response => {
@@ -422,7 +422,6 @@ export default {
     },
     getPositionInCategory (itemType, item) {
       // returns the index (1-indexed) of `question` in its current category
-      // TODO implement for exercises
       const scope = itemType == 'q' ? this.exam.questions : this.exam.exercises
       return (
         scope
@@ -431,6 +430,7 @@ export default {
           .indexOf(item) + 1
       )
     },
+    // ! move
     newExercise () {
       // returns a new empty exercise with unique id
       const id = uuid.v4()

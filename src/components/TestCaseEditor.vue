@@ -47,7 +47,11 @@ export default {
   components: {
     AceEditor
   },
-  props: ['id'],
+  props: {
+    id: {
+      type: [String, Number]
+    }
+  },
   created () {
     this.testcase = this.$attrs.value
   },

@@ -17,7 +17,7 @@
 <script>
 export default {
   name: 'LaTexPreview',
-  props: ['text'],
+  props: { text: { type: String } },
   watch: {
     $props: {
       handler () {
