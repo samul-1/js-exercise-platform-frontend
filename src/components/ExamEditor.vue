@@ -233,6 +233,12 @@
         Annulla
       </button></router-link
     >
+    <exam-editor-index
+      :questions="exam.questions"
+      :exercises="exam.exercises"
+      :questionCategories="exam.questionCategories"
+      :exerciseCategories="exam.exerciseCategories"
+    ></exam-editor-index>
   </div>
 </template>
 
@@ -246,6 +252,7 @@ import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
 import { uuid } from 'vue-uuid'
 import Spinner from '../components/Spinner.vue'
+import ExamEditorIndex from '../components/ExamEditorIndex.vue'
 import HelpTextButton from '../components/HelpTextButton.vue'
 import { HELP_TXTS } from '../help_txts'
 import {
@@ -262,7 +269,8 @@ export default {
     CategoryEditor,
     Spinner,
     SelectableUserList,
-    HelpTextButton
+    HelpTextButton,
+    ExamEditorIndex
   },
   watch: {
     // automatically add a category when a question/exercise is added for the first
@@ -318,7 +326,11 @@ export default {
 
     const id = this.$route.params.examid
     if (id) {
+      // lock exam
+      this.connectToSocket()
+
       this.loading = true
+      // get exam data
       axios
         .get(`/exams/${id}/`)
         .then(response => {
@@ -357,12 +369,21 @@ export default {
         })
     }
   },
+  beforeRouteLeave (to, from, next) {
+    if (this.socket) {
+      // unlock the exam before leaving
+      this.socket.close()
+    }
+    console.log(to, from)
+    next()
+  },
   data () {
     return {
       HELP_TXTS,
       expandedItems: [],
       teachers: [],
       loading: false,
+      socket: null,
       exam: {
         name: '',
         begin_timestamp: null,
@@ -484,6 +505,34 @@ export default {
         is_aggregated_question: false,
         introduction_text: '',
         randomize: true
+      }
+    },
+    // todo refactor
+    connectToSocket () {
+      const wsScheme = window.location.protocol == 'https:' ? 'wss' : 'ws'
+      this.socket = new WebSocket(
+        wsScheme +
+          '://' +
+          axios.defaults.baseURL.split('://')[1] +
+          '/ws/exam_lock/' +
+          this.$route.params.examid +
+          '/?token=' +
+          this.$store.state.token
+      )
+      console.log(this.socket)
+      this.socket.onmessage = e => {
+        {
+          console.log(e.data)
+        }
+      }
+      // todo include name of the teacher (modify the consumer)
+      this.socket.onerror = () => {
+        this.$store.commit('setSmallMessage', {
+          severity: 2,
+          msg:
+            "È in corso una modifica all'esame da parte di un altro insegnante."
+        })
+        this.$router.push('/exams')
       }
     }
   },

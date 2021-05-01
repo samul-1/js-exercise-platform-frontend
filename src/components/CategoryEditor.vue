@@ -38,15 +38,15 @@
             update('amount', category.amount)
           "
           :disabled="category.amount <= 0"
-          class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-l-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
+          class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-l-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
         >
           <span class="m-auto text-2xl font-thin">−</span>
         </button>
         <input
           type="number"
-          class="flex items-center w-16 font-medium text-center text-gray-900 bg-gray-300 outline-none focus:outline-none text-md hover:text-black focus:text-black md:text-basecursor-default"
+          class="flex items-center w-16 font-medium text-center text-gray-900 bg-gray-200 outline-none focus:outline-none text-md hover:text-black focus:text-black md:text-basecursor-default"
           :class="{
-            'bg-red-400': category.amount < 0
+            'bg-red-300': category.amount < 0
           }"
           :value="category.amount"
           @input="update('amount', $event.target.value)"
@@ -56,7 +56,7 @@
             category.amount++
             update('amount', category.amount)
           "
-          class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-r-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
+          class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-r-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
         >
           <span class="m-auto text-2xl font-thin">+</span>
         </button>

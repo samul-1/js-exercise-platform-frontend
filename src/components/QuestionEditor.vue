@@ -4,7 +4,7 @@
   >
     <div class="absolute right-10">
       <button
-        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-500 rounded-lg disabled:opacity-50"
+        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-600 rounded-lg disabled:opacity-50"
         @click="$emit('toggleExpand')"
       >
         <i class="fas fa-expand-alt"></i>
@@ -65,7 +65,7 @@
               @click="
                 switchQuestionType(question.question_type == 'm' ? 'o' : 'm')
               "
-              class="px-3 py-1.5 ml-2 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+              class="px-3 py-1.5 ml-2 text-sm transition-colors duration-75 text-white bg-gray-600 hover:bg-gray-700 rounded-md shadow-sm"
             >
               <i class="mr-1 fas fa-exchange-alt"></i> Cambia in domanda
               {{
@@ -89,11 +89,11 @@
         <div class="flex">
           <h2 class="my-2 text-lg">Testo della domanda</h2>
           <div class="my-auto ml-auto text-xs">
-            <div
-              class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-500 rounded-full"
+            <!-- <div
+              class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-400 rounded-full"
             >
               <i class="far fa-lightbulb fa-inverse"></i>
-            </div>
+            </div>-->
           </div>
 
           <p class="my-auto text-sm text-gray-600">
@@ -132,7 +132,7 @@
           <h2 class="mr-4 text-lg">Risposte</h2>
           <button
             @click="question.answers.unshift(newAnswer())"
-            class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+            class="px-3 text-sm text-white bg-green-700 rounded-md shadow-sm"
           >
             <i class="fas fa-plus-circle"></i> Aggiungi
           </button>

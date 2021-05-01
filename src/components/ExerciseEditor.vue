@@ -4,7 +4,7 @@
   >
     <div class="absolute right-10">
       <button
-        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-500 rounded-lg disabled:opacity-50"
+        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-600 rounded-lg disabled:opacity-50"
         @click="$emit('toggleExpand')"
       >
         <i class="fas fa-expand-alt"></i>
@@ -57,11 +57,11 @@
           <div class="flex">
             <h2 class="my-2 text-lg">Testo dell'esercizio</h2>
             <div class="my-auto ml-auto text-xs">
-              <div
+              <!--<div
                 class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-500 rounded-full"
               >
                 <i class="far fa-lightbulb fa-inverse"></i>
-              </div>
+              </div>-->
             </div>
 
             <p class="my-auto text-xs text-gray-600">
@@ -124,15 +124,15 @@
               update('min_passing_testcases', exercise.min_passing_testcases)
             "
             :disabled="exercise.min_passing_testcases <= 0"
-            class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-l-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
+            class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-l-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
           >
             <span class="m-auto text-2xl font-thin">−</span>
           </button>
           <input
             type="number"
-            class="flex items-center w-16 font-medium text-center text-gray-900 bg-gray-300 outline-none focus:outline-none text-md hover:text-black focus:text-black md:text-basecursor-default"
+            class="flex items-center w-16 font-medium text-center text-gray-900 bg-gray-200 outline-none focus:outline-none text-md hover:text-black focus:text-black md:text-basecursor-default"
             :class="{
-              'bg-red-400':
+              'bg-red-300':
                 exercise.min_passing_testcases < 0 ||
                 exercise.min_passing_testcases > exercise.testcases.length
             }"
@@ -147,7 +147,7 @@
               exercise.min_passing_testcases++
               update('min_passing_testcases', exercise.min_passing_testcases)
             "
-            class="w-20 h-full text-white transition-colors duration-75 bg-gray-800 rounded-r-lg outline-none cursor-pointer disabled:opacity-80 focus:outline-none hover:bg-gray-900"
+            class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-r-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
           >
             <span class="m-auto text-2xl font-thin">+</span>
           </button>
@@ -157,7 +157,7 @@
         <h2 class="mr-4 text-lg">Test case</h2>
         <button
           @click="exercise.testcases.unshift(newTestCase())"
-          class="px-3 text-sm text-white bg-indigo-700 rounded-md shadow-sm"
+          class="px-3 text-sm text-white bg-green-700 rounded-md shadow-sm"
         >
           <i class="fas fa-plus-circle"></i> Aggiungi
         </button>
