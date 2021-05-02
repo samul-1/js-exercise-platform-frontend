@@ -19,20 +19,20 @@
       <div class="grid grid-cols-2">
         <div class="ml-auto">
           <h2 class="mb-3 text-xl">Data e ora inizio</h2>
-          <date-picker
+          <DatePicker
             v-model="exam.begin_timestamp"
             :value-type="'format'"
             type="datetime"
-          ></date-picker>
+          ></DatePicker>
         </div>
 
         <div class="ml-auto">
           <h2 class="mb-3 text-xl">Data e ora fine</h2>
-          <date-picker
+          <DatePicker
             v-model="exam.end_timestamp"
             :value-type="'format'"
             type="datetime"
-          ></date-picker>
+          ></DatePicker>
         </div>
       </div>
       <!-- end exam meta -->
@@ -233,12 +233,12 @@
         Annulla
       </button></router-link
     >
-    <exam-editor-index
+    <ExamEditorIndex
       :questions="exam.questions"
       :exercises="exam.exercises"
       :questionCategories="exam.questionCategories"
       :exerciseCategories="exam.exerciseCategories"
-    ></exam-editor-index>
+    ></ExamEditorIndex>
   </div>
 </template>
 
@@ -259,6 +259,7 @@ import {
   redirectIfNotAuthenticated,
   redirectIfNotTeacher
 } from '../permissions'
+import { redirectAndSetMessage } from '../utility'
 
 export default {
   name: 'ExamEditor',
@@ -311,17 +312,7 @@ export default {
   created () {
     redirectIfNotAuthenticated(this, '/login/teacher')
     redirectIfNotTeacher(this, '/login')
-    // ! delete below once tested
-    /* if (!this.$store.state.isAuthenticated) {
-      this.$store.commit(
-        'setRedirectToAfterLogin',
-        this.$router.currentRoute.fullPath
-      )
-      this.$router.push('/login/teacher')
-    }
-    if (!this.$store.state.user.is_teacher) {
-      this.$router.push('/login')
-    }*/
+
     this.getTeachers()
 
     const id = this.$route.params.examid
@@ -374,7 +365,6 @@ export default {
       // unlock the exam before leaving
       this.socket.close()
     }
-    console.log(to, from)
     next()
   },
   data () {
@@ -399,11 +389,6 @@ export default {
     }
   },
   methods: {
-    debug () {
-      console.log(this.processedExamObject)
-    },
-
-    // ! make api.js and move stuff there
     getTeachers () {
       axios
         .get('/users/teachers/')
@@ -416,7 +401,6 @@ export default {
         })
     },
     toggleExpand (id) {
-      console.log(id)
       let itemIdx = this.expandedItems.indexOf(id)
       if (itemIdx != -1) {
         this.expandedItems.splice(itemIdx, 1)
@@ -437,15 +421,15 @@ export default {
       })
         .then(response => {
           console.log(response)
-          this.$store.commit('setSmallMessage', {
-            severity: 1,
-            msg: 'Operazione avvenuta con successo.'
-          })
-          this.$router.push('/exams')
+          redirectAndSetMessage(
+            this,
+            '/exams',
+            'Operazione avvenuta con successo.',
+            1
+          )
         })
         .catch(error => {
           console.log(error)
-          console.log(error.data)
         })
         .finally(() => {
           this.loading = false
@@ -475,6 +459,7 @@ export default {
         category: null
       }
     },
+    // ! move
     newQuestion () {
       // returns a new empty question with unique id
       const id = uuid.v4()
@@ -488,11 +473,7 @@ export default {
         question_type: 'm'
       }
     },
-    confirmDeletion (arr, index) {
-      if (confirm("Confermi l'eliminazione?")) {
-        arr.splice(index, 1)
-      }
-    },
+    // ! move
     newCategory (item_type, name = '') {
       // returns a new category with given type and an unique id
       const id = uuid.v4()
@@ -507,6 +488,11 @@ export default {
         randomize: true
       }
     },
+    confirmDeletion (arr, index) {
+      if (confirm("Confermi l'eliminazione?")) {
+        arr.splice(index, 1)
+      }
+    },
     // todo refactor
     connectToSocket () {
       const wsScheme = window.location.protocol == 'https:' ? 'wss' : 'ws'
@@ -519,20 +505,22 @@ export default {
           '/?token=' +
           this.$store.state.token
       )
-      console.log(this.socket)
       this.socket.onmessage = e => {
         {
-          console.log(e.data)
+          const jsonData = JSON.parse(e.data)
+          console.log(jsonData)
+          if (jsonData.msg_type === 'exit') {
+            redirectAndSetMessage(this, '/exams', 'Sessione terminata.', 2)
+          }
         }
       }
-      // todo include name of the teacher (modify the consumer)
       this.socket.onerror = () => {
-        this.$store.commit('setSmallMessage', {
-          severity: 2,
-          msg:
-            "È in corso una modifica all'esame da parte di un altro insegnante."
-        })
-        this.$router.push('/exams')
+        redirectAndSetMessage(
+          this,
+          '/exams',
+          "È in corso una modifica all'esame da parte di un altro insegnante.",
+          2
+        )
       }
     }
   },
@@ -543,6 +531,7 @@ export default {
     questionsLen () {
       return this.exam.questions.length
     },
+    // ! move out
     processedExamObject () {
       /*
       Returns the exam object without all the local id's generated for questions, their answers,
@@ -707,6 +696,7 @@ export default {
         ...exam
       }
     },
+    // todo add error reporting
     invalidForm () {
       return (
         /* exam fields checks */

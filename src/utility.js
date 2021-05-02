@@ -8,6 +8,14 @@ export function getUserFullName (user) {
     .join(' ')} ${capitalize(user.last_name)}`
 }
 
+export function redirectAndSetMessage (app, redirectTo, msg, severity) {
+  app.$store.commit('setSmallMessage', {
+    severity,
+    msg
+  })
+  app.$router.push(redirectTo)
+}
+
 export function formatTimestamp (timestamp) {
   const [year, month, rest] = timestamp.split('-')
   const [day, time] = rest.split(' ')

@@ -4,7 +4,9 @@
     <div class="flex my-4">
       <h1 class="text-3xl font-medium ">Lista esami</h1>
       <router-link class="my-auto" to="/editor">
-        <button class="px-3 ml-4 text-white bg-green-700 rounded-md shadow-sm">
+        <button
+          class="px-3 py-0.5 ml-4 text-white bg-green-700 rounded-md shadow-sm"
+        >
           <i class="fas fa-plus-circle"></i> Crea
         </button></router-link
       >
@@ -20,6 +22,7 @@
       <router-link :to="`/editor/${exam.id}`"
         ><button
           v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
+          :disabled="exam.locked_by"
           class="px-4 py-1.5  text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
           Modifica
@@ -30,7 +33,7 @@
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
         class="px-4 ml-2 py-1.5 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
-        <i class="fas fa-exclamation-triangle"></i> Chiudi consegne
+        <i class="mr-1 fas fa-exclamation-triangle"></i> Chiudi consegne
       </button>
       <button
         @click="getMockExam(exam.id)"
@@ -68,6 +71,14 @@
         </div>
         <div class="px-2 mr-6 bg-red-500 rounded-md" v-if="exam.draft">
           <span class="text-white ">Bozza</span>
+        </div>
+        <div
+          class="px-2 mr-6 bg-gray-700 rounded-md animate-pulse"
+          v-if="exam.locked_by"
+        >
+          <span class="text-white "
+            >Modifica in corso da {{ exam.locked_by }}
+          </span>
         </div>
         <p>
           <i class="mr-1 text-gray-500 far fa-calendar"></i>
@@ -132,11 +143,7 @@ export default {
     Dialog
   },
   created () {
-    // !
-    console.log('node env', process.env.NODE_ENV)
-    console.log('env base url', process.env.VUE_APP_AXIOS_BASE)
-    console.log('axios base url', axios.defaults.baseURL)
-    console.log('all envs', process.env)
+    this.connectToSocket()
     this.loading = true
     axios
       .get('/exams/')
@@ -150,6 +157,14 @@ export default {
       .finally(() => {
         this.loading = false
       })
+  },
+  beforeRouteLeave (to, from, next) {
+    if (this.socket) {
+      // unlock the exam before leaving
+      this.socket.close()
+    }
+    console.log(to, from)
+    next()
   },
   data () {
     return {
@@ -249,6 +264,35 @@ export default {
     },
     generatePdfMock () {
       this.$refs.html2Pdf.generatePdf()
+    },
+    connectToSocket () {
+      const wsScheme = window.location.protocol == 'https:' ? 'wss' : 'ws'
+      this.socket = new WebSocket(
+        wsScheme +
+          '://' +
+          axios.defaults.baseURL.split('://')[1] +
+          '/ws/exam_list/?token=' +
+          this.$store.state.token
+      )
+      console.log(this.socket)
+      this.socket.onmessage = e => {
+        {
+          const jsonData = JSON.parse(e.data)
+          const idx = this.exams.findIndex(e => e.id == jsonData.exam_id)
+          console.log(e.data)
+          this.exams[idx].locked_by =
+            jsonData.msg_type === 'lock' ? jsonData.by : null
+        }
+      }
+      // todo include name of the teacher (modify the consumer)
+      this.socket.onerror = () => {
+        this.$store.commit('setSmallMessage', {
+          severity: 2,
+          msg:
+            "È in corso una modifica all'esame da parte di un altro insegnante."
+        })
+        //this.$router.push('/exams')
+      }
     }
   }
 }
