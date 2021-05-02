@@ -172,6 +172,7 @@ export default {
       loading: false,
       mockId: null,
       mockData: null,
+      socket: null,
       dialog: {
         shown: false
       }
@@ -238,7 +239,6 @@ export default {
           }
         )
         .then(response => {
-          console.log(response)
           this.forceFileDownload(response, `${exam.name}.csv`)
         })
         .catch(error => {
@@ -253,7 +253,6 @@ export default {
       axios
         .post(`/exams/${examId}/mock/`)
         .then(resp => {
-          console.log(resp)
           this.mockId = examId
           this.mockData = resp.data
           this.generatePdfMock()
@@ -274,24 +273,22 @@ export default {
           '/ws/exam_list/?token=' +
           this.$store.state.token
       )
-      console.log(this.socket)
       this.socket.onmessage = e => {
         {
           const jsonData = JSON.parse(e.data)
           const idx = this.exams.findIndex(e => e.id == jsonData.exam_id)
           console.log(e.data)
+
           this.exams[idx].locked_by =
             jsonData.msg_type === 'lock' ? jsonData.by : null
         }
       }
-      // todo include name of the teacher (modify the consumer)
       this.socket.onerror = () => {
         this.$store.commit('setSmallMessage', {
           severity: 2,
           msg:
             "È in corso una modifica all'esame da parte di un altro insegnante."
         })
-        //this.$router.push('/exams')
       }
     }
   }

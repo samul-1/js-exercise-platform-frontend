@@ -263,6 +263,7 @@ export default {
       arr[index] = value
       this.$emit('input', { ...this.exercise, [key]: arr })
     },
+    // ! move
     newTestCase () {
       // returns a new empty test case with unique id
 

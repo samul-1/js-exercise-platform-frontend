@@ -277,6 +277,7 @@ export default {
     // automatically add a category when a question/exercise is added for the first
     // time and no categories exist yet for that type of item
     exerciseLen (newVal, oldVal) {
+      // todo see if you can factor these out
       // create new category when first exercise is added
       if (newVal == 1 && !oldVal && !this.exam.exerciseCategories.length) {
         this.exam.exerciseCategories.unshift(
@@ -325,7 +326,6 @@ export default {
       axios
         .get(`/exams/${id}/`)
         .then(response => {
-          console.log(response)
           const { categories, exercises, questions, ...rest } = response.data
           this.exam = {
             // separate categories (which server sees as a single type of resource) into
@@ -342,6 +342,7 @@ export default {
           }
         })
         .catch(error => {
+          // todo see if you can factor this out
           if (error.response.status == 401 || error.response.status == 403) {
             this.$store.commit(
               'setRedirectToAfterLogin',
@@ -393,7 +394,6 @@ export default {
       axios
         .get('/users/teachers/')
         .then(resp => {
-          console.log(resp)
           this.teachers = resp.data
         })
         .catch(err => {
@@ -407,12 +407,11 @@ export default {
       } else {
         this.expandedItems.push(id)
       }
-      console.log(this.expandedItems)
     },
     submit (draft = false) {
       const id = this.$route.params.examid
 
-      // if no exam id is supplied, we're creating an exam; otherwise we're upading one
+      // if no exam id is supplied, we're creating an exam; otherwise we're updating one
       const action = id ? axios.put : axios.post
       this.loading = true
       action('/exams/' + (id ? `${id}/` : ''), {
@@ -436,7 +435,7 @@ export default {
         })
     },
     getPositionInCategory (itemType, item) {
-      // returns the index (1-indexed) of `question` in its current category
+      // returns the index *1-indexed* of `question` in its current category
       const scope = itemType == 'q' ? this.exam.questions : this.exam.exercises
       return (
         scope

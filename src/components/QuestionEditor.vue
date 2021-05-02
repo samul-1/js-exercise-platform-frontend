@@ -269,6 +269,7 @@ export default {
       arr[index] = value
       this.$emit('input', { ...this.question, [key]: arr })
     },
+    // ! move
     newAnswer () {
       // returns a new empty answer with unique id
 
