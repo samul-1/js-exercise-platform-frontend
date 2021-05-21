@@ -18,19 +18,18 @@
     </div>
     <div class="mb-6">
       <h1 class="text-xl font-medium">
-        Domanda {{ index }}
         <span :class="{ 'text-red-600': !categoryName }"
-          >{{ categoryName ? '' : 'senza '
+          >{{ categoryName ? '' : 'Senza '
           }}{{
             categoryName.slice(0, 9).toLowerCase() == 'categoria'
               ? ''
               : 'categoria'
           }}
           {{ categoryName ? categoryName : '' }}</span
-        >
+        ><span v-if="categoryName"> domanda {{ index }}</span>
       </h1>
     </div>
-    <div v-show="!expanded">
+    <div class="transition-all duration-100" v-show="!expanded">
       <div v-highlight v-html="questionTextPreview"></div>
     </div>
     <div v-show="expanded">
@@ -96,8 +95,10 @@
             </div>-->
           </div>
 
-          <p class="my-auto text-sm text-gray-600">
-            Evidenzia il codice LaTeX per vederne l'anteprima
+          <p class="my-auto text-xs text-gray-600">
+            Per inserire codice, racchiudilo tra ```
+            <span class="mx-1">&mdash;</span> Evidenzia il codice LaTeX per
+            vederne l'anteprima
           </p>
           <p></p>
         </div>
@@ -292,18 +293,26 @@ export default {
       )
     },
     questionTextPreview () {
-      return this.highlightCode(
-        this.question.text.replace(/<\/?[^>]+>/g, '').slice(0, 200) +
-          (this.question.text.replace(/<\/?[^>]+>/g, '').length > 200
-            ? '...'
-            : '')
-      )
+      return this.highlightCode(this.question.text)
     }
   }
 }
 </script>
 
 <style>
+.container:hover {
+  -webkit-mask-image: none;
+  mask-image: none;
+  max-height: 1000px;
+  transition: max-height 1.5s ease;
+  transition-delay: 200ms;
+}
+.container {
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  max-height: 50px;
+  overflow-y: hidden;
+}
 .fade-enter,
 .fade-leave-to {
   opacity: 0;

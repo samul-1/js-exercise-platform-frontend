@@ -98,12 +98,14 @@ export default {
   },
   computed: {
     questionIndex () {
-      return this.questionCategories.map(c => {
-        return {
-          category: c,
-          questions: this.questions.filter(q => q.category === c.id)
-        }
-      })
+      return this.questionCategories
+        .map(c => {
+          return {
+            category: c,
+            questions: this.questions.filter(q => q.category === c.id)
+          }
+        })
+        .sort((a, b) => (a.category.name > b.category.name ? 1 : -1))
     }
   }
 }

@@ -18,9 +18,8 @@
     </div>
     <div class="mb-6">
       <h1 class="text-xl font-medium">
-        Esercizio {{ index }}
         <span :class="{ 'text-red-600': !categoryName }"
-          >{{ categoryName ? '' : 'senza '
+          >{{ categoryName ? '' : 'Senza '
           }}{{
             categoryName.slice(0, 9).toLowerCase() == 'categoria'
               ? ''
@@ -28,6 +27,7 @@
           }}
           {{ categoryName ? categoryName : '' }}</span
         >
+        <span v-if="categoryName"> esercizio {{ index }}</span>
       </h1>
     </div>
     <div v-show="!expanded">

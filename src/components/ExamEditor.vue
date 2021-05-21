@@ -727,13 +727,16 @@ export default {
         ) || // no unnamed categories or categories with a negative `amount`
         this.exam.exerciseCategories.some(
           c =>
+            c.randomize &&
             c.amount >
-            this.exam.exercises.filter(e => e.category == c.id).length
+              this.exam.exercises.filter(e => e.category == c.id).length
         ) || // there are categories with a higher `amount` than the number of items actually in that category
         this.exam.questionCategories.some(
           c =>
+            !c.is_aggregated_question &&
+            c.randomize &&
             c.amount >
-            this.exam.questions.filter(q => q.category == c.id).length
+              this.exam.questions.filter(q => q.category == c.id).length
         )
       )
     }
