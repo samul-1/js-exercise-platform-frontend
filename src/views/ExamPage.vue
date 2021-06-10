@@ -373,6 +373,13 @@ export default {
               this.$router.currentRoute.fullPath
             )
             this.$router.push('/login')
+          } else if (error.response.status == 404) {
+            this.$store.commit('setSmallMessage', {
+              severity: 2,
+              // todo better message for exam that hasn't started yet or is closed
+              msg: 'Esame non trovato.'
+            })
+            this.$router.push('/exam')
           } else {
             this.$store.commit(
               'setMessage',

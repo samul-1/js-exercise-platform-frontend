@@ -24,6 +24,33 @@ export function formatTimestamp (timestamp) {
   return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
+export function formatTimestampShort (timestamps) {
+  // todo refactor
+  // if the two timestamps are the same day, omits the second timestamp's date and only adds the time
+  const [year1, month1, rest1] = timestamps[0].split('-')
+  const [day1, time1] = rest1.split(' ')
+  // eslint-disable-next-line no-unused-vars
+  const [hours1, minutes1, seconds1] = time1.split(':')
+  let ret = `${day1}/${month1}/${year1} ${hours1}:${minutes1} &ndash; `
+
+  const [year2, month2, rest2] = timestamps[1].split('-')
+  const [day2, time2] = rest2.split(' ')
+  // eslint-disable-next-line no-unused-vars
+  const [hours2, minutes2, seconds2] = time2.split(':')
+  if (year1 === year2 && month1 === month2 && day1 === day2) {
+    ret += `${hours2}:${minutes2}`
+  } else {
+    ret += `${day2}/${month2}/${year2} ${hours2}:${minutes2}`
+  }
+  return ret
+}
+
+export function getExamInstructions (exam) {
+  return `Gli studenti dovranno effettuare il login al seguente link: <a class="text-blue-700" href="${window.location.protocol}//${window.location.host}/login">${window.location.protocol}//${window.location.host}/login</a>. <br />
+  Dopodiché, verrà chiesto loro di inserire un codice. Il codice per questo esame è:<br />
+  <h1 class="p-2 my-2 text-center text-4xl">${exam.id}</h1><p>Comunicalo agli studenti che sosterranno l'esame.</p>`
+}
+
 export function getExamSummaryText (exam) {
   // Returns a string detailing an exam, used to present it to teacher when they close the exam
 

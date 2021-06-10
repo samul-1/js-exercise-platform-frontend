@@ -121,24 +121,6 @@ export default {
       )
       console.log('google sign in error', error)
     }
-    // ! delete below once tested
-    /*redirectToMainView () {
-      // If the logged in user is a teacher, redirects the user to the teacher dashboard
-      // If the logged in user a student, redirects the student to the exam page
-      if (this.$store.state.redirectToAfterLogin) {
-        this.$router.push(this.$store.state.redirectToAfterLogin)
-        this.$store.commit('resetRedirectToAfterLogin')
-      } else {
-        if (this.$store.state.user.is_teacher) {
-          this.$router.push('/dashboard')
-        } else {
-          this.$store.commit(
-            'setMessage',
-            "Ottieni il link per l'esame dal tuo docente."
-          )
-        }
-      }
-    }*/
   }
 }
 </script>

@@ -4,6 +4,7 @@ import ExamPage from '../views/ExamPage.vue'
 import Login from '../views/Login.vue'
 import ExamEditor from '../components/ExamEditor.vue'
 import TeacherDashboard from '../views/TeacherDashboard.vue'
+import ExamSelection from '../views/ExamSelection.vue'
 import ExamList from '../views/ExamList.vue'
 import { store } from '../store'
 
@@ -15,7 +16,12 @@ const routes = [
     redirect: '/login'
   },
   {
-    path: '/exam/:examId?',
+    path: '/exam',
+    name: 'ExamSelection',
+    component: ExamSelection
+  },
+  {
+    path: '/exam/:examId',
     name: 'ExamPage',
     component: ExamPage
   },

@@ -33,16 +33,14 @@
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
         class="px-4 ml-2 py-1.5 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
-        <i class="mr-1 fas fa-exclamation-triangle"></i> Chiudi consegne
+        <i class="mr-1 fas fa-exclamation-triangle"></i> Chiudi
       </button>
       <button
         @click="getMockExam(exam.id)"
-        v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
         class="px-4 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        Simula
+        <i class="mr-2 fas fa-file-pdf"></i> PDF
       </button>
-      <!--<router-link :to="`/reports/${exam.id}`">-->
       <button
         @click="getReport(exam)"
         v-if="exam.closed"
@@ -50,6 +48,15 @@
       >
         Risultati
       </button>
+      <button
+        @click="showExamInstructions(exam)"
+        v-if="!exam.closed"
+        class="px-4 py-1.5 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      >
+        <i class="mr-1 fas fa-link"></i>
+        Codice
+      </button>
+
       <!-- end left buttons -->
 
       <!--right buttons -->
@@ -80,10 +87,13 @@
             >Modifica in corso da {{ exam.locked_by }}
           </span>
         </div>
-        <p>
+        <p class="text-sm text-gray-700">
           <i class="mr-1 text-gray-500 far fa-calendar"></i>
-          {{ formatTimestamp(exam.begin_timestamp) }} &ndash;
-          {{ formatTimestamp(exam.end_timestamp) }}
+          <span
+            v-html="
+              formatTimestampShort([exam.begin_timestamp, exam.end_timestamp])
+            "
+          ></span>
         </p>
       </div>
     </div>
@@ -129,8 +139,9 @@ import VueHtml2pdf from 'vue-html2pdf'
 import Dialog from '../components/Dialog.vue'
 import {
   getUserFullName,
-  formatTimestamp,
-  getExamSummaryText
+  formatTimestampShort,
+  getExamSummaryText,
+  getExamInstructions
 } from '../utility'
 import { forceFileDownload, beforeDownload } from '../filedownloads'
 
@@ -179,11 +190,27 @@ export default {
     }
   },
   methods: {
-    formatTimestamp,
+    formatTimestampShort,
     getUserFullName,
     getExamSummaryText,
+    getExamInstructions,
     beforeDownload,
     forceFileDownload,
+    showExamInstructions (exam) {
+      // shows a dialog that prompts the user for confirmation to close an exam
+
+      this.dialog = {
+        shown: true,
+        string: "Istruzioni per l'accesso all'esame",
+        subText: this.getExamInstructions(exam),
+        confirmOnly: true,
+        severity: 1,
+        dismissible: true,
+        onYes: {
+          callback: () => (this.dialog = { shown: false })
+        }
+      }
+    },
     confirmClosure (id) {
       // shows a dialog that prompts the user for confirmation to close an exam
       const idx = this.exams.findIndex(e => e.id === id)
@@ -290,6 +317,11 @@ export default {
             "È in corso una modifica all'esame da parte di un altro insegnante."
         })
       }
+    }
+  },
+  computed: {
+    loginLink () {
+      return window.location.host + '/login'
     }
   }
 }

@@ -24,10 +24,11 @@ export function redirectToMainView (app) {
     if (app.$store.state.user.is_teacher) {
       app.$router.push('/dashboard')
     } else {
-      app.$store.commit(
-        'setMessage',
-        "Ottieni il link per l'esame dal tuo docente."
-      )
+      app.$router.push('/exam')
+      // app.$store.commit(
+      //   'setMessage',
+      //   "Ottieni il link per l'esame dal tuo docente."
+      // )
     }
   }
 }
