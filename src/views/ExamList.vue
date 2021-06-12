@@ -21,7 +21,10 @@
       <!-- left buttons -->
       <router-link :to="`/editor/${exam.id}`"
         ><button
-          v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
+          v-if="
+            true ||
+              (new Date() < new Date(exam.begin_timestamp) && !exam.closed)
+          "
           :disabled="exam.locked_by"
           class="px-4 py-1.5  text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >

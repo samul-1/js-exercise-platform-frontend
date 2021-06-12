@@ -1,14 +1,19 @@
 <template>
   <div class="mx-8">
-    <h1 class="text-2xl">Esame NOME ESAME in corso</h1>
+    <h1 class="text-2xl">Esame {{ examName }} in corso</h1>
     <div class="flex my-10 space-x-12 text-xl">
       <h3>
-        <i class="mr-1 text-gray-900 fas fa-user"></i>Numero partecipanti: 22
+        <i class="mr-2 text-gray-900 fas fa-user"></i>Numero partecipanti:
+        <span class="ml-1">{{ numParticipants }}</span>
       </h3>
       <h3>
         <i class="mr-1 text-gray-900 fas fa-percentage"></i> Progresso medio:
-        <progress class="mt-auto " max="100" value="22"></progress>
-        <span class="-ml-2 text-md">22%</span>
+        <progress
+          class="mt-auto -ml-2"
+          max="100"
+          :value="averageProgress * 100"
+        ></progress>
+        <span class="-ml-2 text-md">{{ averageProgress * 100 }}%</span>
       </h3>
     </div>
     <div class="mb-1">
@@ -50,6 +55,15 @@
           ></progress>
           <span> {{ props.row[props.column.field] * 100 }}% </span>
         </span>
+        <span v-else-if="props.column.field == 'course'">
+          <span>
+            {{
+              props.row[props.column.field]
+                ? props.row[props.column.field].toUpperCase()
+                : '?'
+            }}</span
+          >
+        </span>
         <span v-else>
           {{ props.formattedRow[props.column.field] }}
         </span>
@@ -59,12 +73,17 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 import 'vue-good-table/dist/vue-good-table.css'
 import { VueGoodTable } from 'vue-good-table'
 export default {
   name: 'ExamProgressDashboard',
   components: {
     VueGoodTable
+  },
+  created () {
+    setInterval(this.getData, 2000)
   },
   data () {
     return {
@@ -80,7 +99,7 @@ export default {
         },
         {
           label: 'Nome e cognome',
-          field: 'fullName'
+          field: 'full_name'
         },
         {
           label: 'Progresso',
@@ -88,39 +107,27 @@ export default {
           type: 'percentage'
         }
       ],
-      rows: [
-        {
-          id: 1,
-          course: 'B',
-          email: 'abcdef1@gmail.com',
-          fullName: 'abcdef',
-          progress: '0.5'
-        },
-        {
-          id: 2,
-          course: 'B',
-          email: 'abcdef2@gmail.com',
-          fullName: 'abcdef',
-          progress: '0.12'
-        },
-        {
-          id: 3,
-          course: 'B',
-          email: 'abcdef3@gmail.com',
-          fullName: 'Samuele',
-          progress: '0.12'
-        },
-        {
-          id: 4,
-          course: 'B',
-          email: 'abcdef4@gmail.com',
-          fullName: 'Andrea',
-          progress: '0.12'
-        }
-      ]
+      rows: [],
+      averageProgress: 0,
+      numParticipants: 0,
+      examName: ''
     }
   },
   methods: {
+    getData () {
+      axios
+        .get(`/exams/${this.$route.params.examid}/progress_info`)
+        .then(response => {
+          console.log(response)
+          this.examName = response.data.exam_name
+          this.numParticipants = response.data.participants_count
+          this.averageProgress = response.data.average_progress
+          this.rows = response.data.participants_progress
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
     searchFn (row, col, cellValue, searchTerm) {
       console.log({
         row,
@@ -129,8 +136,9 @@ export default {
         searchTerm
       })
       return (
-        col.field == this.selectedSearchCol &&
-        cellValue.toLowerCase().includes(searchTerm.toLowerCase())
+        !this.selectedSearchCol ||
+        (col.field == this.selectedSearchCol &&
+          cellValue.toLowerCase().includes(searchTerm.toLowerCase()))
       )
     }
   },
@@ -195,6 +203,7 @@ progress {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 0.8em;
 }
+
 progress::-webkit-progress-bar {
   height: 15px;
   width: 150px;
@@ -202,6 +211,28 @@ progress::-webkit-progress-bar {
   background-color: #ccc;
   border-radius: 5px;
   box-shadow: 0px 0px 5px rgb(199, 199, 199) inset;
+}
+
+@-moz-document url-prefix() {
+  progress {
+    display: inline-block;
+    width: 150px;
+    height: 15px;
+    padding: 0;
+    margin: 0 20px;
+    background: #ccc;
+    border: 0;
+    border-radius: 5px;
+    text-align: left;
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.8em;
+  }
+}
+
+::-moz-progress-bar {
+  background: rgb(67, 56, 202);
+  border-radius: 5px;
 }
 progress::-webkit-progress-value {
   /*display: inline-block;*/
@@ -211,12 +242,6 @@ progress::-webkit-progress-value {
   background: rgb(67, 56, 202);
   border-radius: 5px;
   box-shadow: 0px 0px 6px rgb(55, 45, 165) inset;
+  transition: width 0.5s;
 }
-/* progress:after {
-  margin: -26px 0 0 -7px;
-  padding: 0;
-  display: inline-block;
-  float: left;
-  content: attr(value) '%';
-} */
 </style>
