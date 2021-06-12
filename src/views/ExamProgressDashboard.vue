@@ -1,5 +1,6 @@
 <template>
   <div class="mx-8">
+    <Spinner v-if="loading"></Spinner>
     <h1 class="text-2xl">Esame {{ examName }} in corso</h1>
     <div class="flex my-10 space-x-12 text-xl">
       <h3>
@@ -74,15 +75,18 @@
 
 <script>
 import axios from 'axios'
+import Spinner from '../components/Spinner.vue'
 
 import 'vue-good-table/dist/vue-good-table.css'
 import { VueGoodTable } from 'vue-good-table'
 export default {
   name: 'ExamProgressDashboard',
   components: {
-    VueGoodTable
+    VueGoodTable,
+    Spinner
   },
   created () {
+    this.getData(true)
     setInterval(this.getData, 2000)
   },
   data () {
@@ -110,11 +114,15 @@ export default {
       rows: [],
       averageProgress: 0,
       numParticipants: 0,
-      examName: ''
+      examName: '',
+      loading: false
     }
   },
   methods: {
-    getData () {
+    getData (showLoading = false) {
+      if (showLoading) {
+        this.loading = true
+      }
       axios
         .get(`/exams/${this.$route.params.examid}/progress_info`)
         .then(response => {
@@ -126,6 +134,9 @@ export default {
         })
         .catch(error => {
           console.log(error)
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     searchFn (row, col, cellValue, searchTerm) {

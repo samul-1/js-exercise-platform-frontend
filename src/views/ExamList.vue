@@ -7,7 +7,7 @@
         <button
           class="px-3 py-0.5 ml-4 text-white bg-green-700 rounded-md shadow-sm"
         >
-          <i class="fas fa-plus-circle"></i> Crea
+          <i class="text-sm fas fa-plus-circle"></i> Crea
         </button></router-link
       >
     </div>
@@ -21,42 +21,55 @@
       <!-- left buttons -->
       <router-link :to="`/editor/${exam.id}`"
         ><button
-          v-if="
-            true ||
-              (new Date() < new Date(exam.begin_timestamp) && !exam.closed)
-          "
+          v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
           :disabled="exam.locked_by"
-          class="px-4 py-1.5  text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          class="px-3 py-1  text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
+          <i
+            class="mr-1 fas fa-edit
+          "
+          ></i>
+
           Modifica
+        </button></router-link
+      >
+      <router-link :to="`/exams/${exam.id}/progress`"
+        ><button
+          v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+          class="px-3 py-1  text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        >
+          <i class="text-sm mr-1 fas fa-eye"></i>
+          Monitora
         </button></router-link
       >
       <button
         @click="confirmClosure(exam.id)"
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        class="px-4 ml-2 py-1.5 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
+        class="px-3 ml-2 py-1 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
-        <i class="mr-1 fas fa-exclamation-triangle"></i> Chiudi
+        <i class="text-sm mr-1 fas fa-exclamation-triangle"></i> Chiudi
       </button>
       <button
         @click="getMockExam(exam.id)"
-        class="px-4 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-3 ml-2 text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-2 fas fa-file-pdf"></i> PDF
+        <i class="text-sm mr-1 fas fa-file-pdf"></i> PDF
       </button>
       <button
         @click="getReport(exam)"
         v-if="exam.closed"
-        class="px-4 py-1.5 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-3 py-1 ml-2 text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
+        <i class="text-sm mr-1 fas fa-download"></i>
+
         Risultati
       </button>
       <button
         @click="showExamInstructions(exam)"
         v-if="!exam.closed"
-        class="px-4 py-1.5 ml-2 text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-3 py-1 ml-2 text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-1 fas fa-link"></i>
+        <i class="text-sm mr-1 fas fa-link"></i>
         Codice
       </button>
 
@@ -91,7 +104,7 @@
           </span>
         </div>
         <p class="text-sm text-gray-700">
-          <i class="mr-1 text-gray-500 far fa-calendar"></i>
+          <i class="text-sm mr-1 text-gray-500 far fa-calendar"></i>
           <span
             v-html="
               formatTimestampShort([exam.begin_timestamp, exam.end_timestamp])
