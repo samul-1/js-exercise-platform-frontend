@@ -28,7 +28,9 @@
           max="100"
           :value="averageProgress * 100"
         ></progress>
-        <span class="-ml-3 text-md">{{ averageProgress * 100 }}%</span>
+        <span class="-ml-3 text-md"
+          >{{ Math.round(+averageProgress * 100 * 100) / 100 }}%</span
+        >
       </h3>
     </div>
     <div class="mb-1">
@@ -65,16 +67,22 @@
     >
       >
       <template slot="table-row" slot-scope="props">
-        <span v-if="props.column.field == 'progress'">
-          <progress
-            class="rounded-2xl"
-            max="100"
-            :value="+props.row[props.column.field] * 100"
-          ></progress>
-          <span>
-            {{ Math.round(+props.row[props.column.field] * 100 * 100) / 100 }}%
-          </span>
-        </span>
+        <div class="flex justify-end" v-if="props.column.field == 'progress'">
+          <div class="">
+            <progress
+              class="rounded-2xl"
+              max="100"
+              :value="+props.row[props.column.field] * 100"
+            ></progress>
+          </div>
+          <div class="w-10">
+            <span>
+              {{
+                Math.round(+props.row[props.column.field] * 100 * 100) / 100
+              }}%
+            </span>
+          </div>
+        </div>
         <span v-else-if="props.column.field == 'course'">
           <span>
             {{
@@ -129,7 +137,8 @@ export default {
         this.loading = false
       })
     this.getData(true)
-    setInterval(this.getData, 2000)
+    // todo update more frequently around beginning and end of exam
+    setInterval(this.getData, 5000)
   },
   data () {
     return {
