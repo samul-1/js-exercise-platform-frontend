@@ -32,6 +32,13 @@
           >{{ Math.round(+averageProgress * 100 * 100) / 100 }}%</span
         >
       </h3>
+      <h3>
+        <i class="mr-1 fas fa-clipboard-check"></i> Esami terminati:
+        <span class="ml-1">{{ numCompleted }}</span
+        ><span class="font-light text-gray-400">
+          (su {{ numParticipants }})</span
+        >
+      </h3>
     </div>
     <div class="mb-1">
       <div class="flex">
@@ -165,6 +172,7 @@ export default {
       rows: [],
       averageProgress: 0,
       numParticipants: 0,
+      numCompleted: 0,
       exam: {},
       loading: false,
       paginationOptions: {
@@ -197,6 +205,7 @@ export default {
           this.examName = response.data.exam_name
           this.numParticipants = response.data.participants_count
           this.averageProgress = response.data.average_progress
+          this.numCompleted = response.data.completed_count
           this.rows = response.data.participants_progress
         })
         .catch(error => {
