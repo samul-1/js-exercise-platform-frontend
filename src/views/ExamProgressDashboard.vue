@@ -1,20 +1,34 @@
 <template>
   <div class="mx-8">
     <Spinner v-if="loading"></Spinner>
-    <h1 class="text-2xl">Esame {{ examName }} in corso</h1>
+    <header class="flex">
+      <router-link class="my-auto mr-2 " to="/exams"
+        ><button
+          class="pl-1.5 pr-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-700 py"
+        >
+          <i class="fas fa-chevron-left"></i></button
+      ></router-link>
+      <h1 class="text-2xl">Esame {{ exam.name }} in corso</h1>
+      <span class="my-auto pt-0.5 ml-4 text-sm text-gray-600"
+        ><i class="far fa-clock"></i> Termine previsto:
+        <strong class="font-medium">{{
+          formatTimestamp(exam.end_timestamp)
+        }}</strong></span
+      >
+    </header>
     <div class="flex my-10 space-x-12 text-xl">
       <h3>
         <i class="mr-2 text-gray-900 fas fa-user"></i>Numero partecipanti:
         <span class="ml-1">{{ numParticipants }}</span>
       </h3>
       <h3>
-        <i class="mr-1 text-gray-900 fas fa-percentage"></i> Progresso medio:
+        <i class="mr-1 text-gray-900 fas fa-tasks"></i> Progresso medio:
         <progress
           class="mt-auto -ml-2"
           max="100"
           :value="averageProgress * 100"
         ></progress>
-        <span class="-ml-2 text-md">{{ averageProgress * 100 }}%</span>
+        <span class="-ml-3 text-md">{{ averageProgress * 100 }}%</span>
       </h3>
     </div>
     <div class="mb-1">
@@ -81,7 +95,7 @@
 <script>
 import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
-
+import { formatTimestamp } from '../utility'
 import 'vue-good-table/dist/vue-good-table.css'
 import { VueGoodTable } from 'vue-good-table'
 export default {
@@ -91,6 +105,29 @@ export default {
     Spinner
   },
   created () {
+    axios
+      .get(`/exams/${this.$route.params.examid}/`)
+      .then(response => {
+        this.exam = response.data
+      })
+      .catch(error => {
+        // todo see if you can factor this out
+        if (error.response.status == 401 || error.response.status == 403) {
+          this.$store.commit(
+            'setRedirectToAfterLogin',
+            this.$router.currentRoute.fullPath
+          )
+          this.$router.push('/login/teacher')
+        } else {
+          this.$store.commit(
+            'setMessage',
+            error.response.data.message ?? error.message
+          )
+        }
+      })
+      .finally(() => {
+        this.loading = false
+      })
     this.getData(true)
     setInterval(this.getData, 2000)
   },
@@ -119,7 +156,7 @@ export default {
       rows: [],
       averageProgress: 0,
       numParticipants: 0,
-      examName: '',
+      exam: {},
       loading: false,
       paginationOptions: {
         enabled: true,
@@ -139,6 +176,7 @@ export default {
     }
   },
   methods: {
+    formatTimestamp,
     getData (showLoading = false) {
       if (showLoading) {
         this.loading = true
@@ -175,7 +213,7 @@ export default {
         // one empty token before and after each condition
         conditions = conditions.filter((el, idx) => idx % 2 && idx < 4)
         const conditionStr = conditions
-          .map(s => 'parseFloat(cellValue.slice(0,-1)) ' + s)
+          .map(s => 'parseFloat(cellValue.slice(0,-1)) ' + s) // todo pass already parsed value
           .join(' && ')
         if (!conditionStr.length) {
           return true
