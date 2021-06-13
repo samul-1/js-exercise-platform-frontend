@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-8">
+  <div class="mx-8 my-5">
     <Spinner v-if="loading"></Spinner>
     <header class="flex">
       <router-link class="my-auto mr-2 " to="/exams"
