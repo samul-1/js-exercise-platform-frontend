@@ -38,15 +38,18 @@
       </div>
     </div>
     <vue-good-table
-      class="shadow-md"
+      class="mt-2 mb-10 shadow-md"
       :columns="columns"
       :rows="rows"
       :search-options="{
         enabled: true,
         skipDiacritics: true,
+        placeholder: 'Cerca...',
         searchFn
       }"
+      :pagination-options="paginationOptions"
     >
+      >
       <template slot="table-row" slot-scope="props">
         <span v-if="props.column.field == 'progress'">
           <progress
@@ -54,7 +57,9 @@
             max="100"
             :value="+props.row[props.column.field] * 100"
           ></progress>
-          <span> {{ props.row[props.column.field] * 100 }}% </span>
+          <span>
+            {{ Math.round(+props.row[props.column.field] * 100 * 100) / 100 }}%
+          </span>
         </span>
         <span v-else-if="props.column.field == 'course'">
           <span>
@@ -115,7 +120,22 @@ export default {
       averageProgress: 0,
       numParticipants: 0,
       examName: '',
-      loading: false
+      loading: false,
+      paginationOptions: {
+        enabled: true,
+        mode: 'pages',
+        perPage: 10,
+        position: 'top',
+        perPageDropdown: [10, 20, 50],
+        dropdownAllowAll: true,
+        setCurrentPage: 1,
+        nextLabel: 'prossima',
+        prevLabel: 'precedente',
+        rowsPerPageLabel: 'Righe per pagina',
+        ofLabel: 'di',
+        pageLabel: 'pagina', // for 'pages' mode
+        allLabel: 'Tutte'
+      }
     }
   },
   methods: {
@@ -126,7 +146,7 @@ export default {
       axios
         .get(`/exams/${this.$route.params.examid}/progress_info`)
         .then(response => {
-          console.log(response)
+          //console.log(response)
           this.examName = response.data.exam_name
           this.numParticipants = response.data.participants_count
           this.averageProgress = response.data.average_progress
@@ -146,6 +166,22 @@ export default {
         cellValue,
         searchTerm
       })
+      if (this.selectedSearchCol == 'progress') {
+        if (col.field != 'progress') {
+          return false
+        }
+        let conditions = searchTerm.split(/([<>]=?\s*\d+),?\s*/)
+        // we only want the first two odd tokens as we're taking in two conditions and there's
+        // one empty token before and after each condition
+        conditions = conditions.filter((el, idx) => idx % 2 && idx < 4)
+        const conditionStr = conditions
+          .map(s => 'parseFloat(cellValue.slice(0,-1)) ' + s)
+          .join(' && ')
+        if (!conditionStr.length) {
+          return true
+        }
+        return eval(conditionStr)
+      }
       return (
         !this.selectedSearchCol ||
         (col.field == this.selectedSearchCol &&
@@ -178,15 +214,22 @@ export default {
 .vgt-table.bordered th {
   border: none /*1px solid rgba(209, 213, 219, 0)*/;
 }
-
+.vgt-wrap__footer {
+  padding: 10px;
+  border: 1px solid #dcdfe6;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background: linear-gradient(#fdfeff, #ffffff);
+  border-bottom: 0;
+}
 .vgt-global-search {
   padding: 10px 0;
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
   border: 1px solid #dcdfe6;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
+  /* border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem; */
 
   border-bottom: 0;
   background: linear-gradient(#fdfeff, #ffffff);
