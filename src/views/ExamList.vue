@@ -23,12 +23,9 @@
         ><button
           v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
           :disabled="exam.locked_by"
-          class="px-3 py-1  text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          class="px-3 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
-          <i
-            class="mr-1 fas fa-edit
-          "
-          ></i>
+          <i class="mr-1 fas fa-edit "></i>
 
           Modifica
         </button></router-link
@@ -36,40 +33,63 @@
       <router-link :to="`/exams/${exam.id}/progress`"
         ><button
           v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-          class="px-3 py-1  text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          class="px-3 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
-          <i class="text-sm mr-1 fas fa-eye"></i>
+          <i class="mr-1 text-sm fas fa-eye"></i>
           Monitora
         </button></router-link
       >
       <button
         @click="confirmClosure(exam.id)"
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        class="px-3 ml-2 py-1 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
+        class="px-3 py-1 ml-2 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
-        <i class="text-sm mr-1 fas fa-exclamation-triangle"></i> Chiudi
+        <i class="mr-1 text-sm fas fa-exclamation-triangle"></i> Chiudi
       </button>
       <button
         @click="getMockExam(exam.id)"
-        class="px-3 ml-2 text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-3 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="text-sm mr-1 fas fa-file-pdf"></i> PDF
+        <i class="mr-1 text-sm fas fa-file-pdf"></i> PDF
       </button>
-      <button
-        @click="getReport(exam)"
-        v-if="exam.closed"
-        class="px-3 py-1 ml-2 text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
-      >
-        <i class="text-sm mr-1 fas fa-download"></i>
+      <div class="relative inline-block text-left">
+        <div class="relative inline-block dropdown">
+          <button
+            v-if="exam.closed"
+            class="px-3 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          >
+            <i class="mr-1 text-sm fas fa-download"></i>
 
-        Risultati
-      </button>
+            Risultati
+          </button>
+          <ul
+            class="absolute z-20 hidden pt-1 pl-2 text-white w-max dropdown-menu"
+          >
+            <li class="">
+              <a
+                @click="getCSVReport(exam)"
+                class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
+                href="#"
+                >Scarica come CSV</a
+              >
+            </li>
+            <li class="">
+              <a
+                @click="getZipArchive(exam)"
+                class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
+                href="#"
+                >Scarica come PDF</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
       <button
         @click="showExamInstructions(exam)"
         v-if="!exam.closed"
-        class="px-3 py-1 ml-2 text-white align-middle bg-indigo-700 font-light rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-3 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="text-sm mr-1 fas fa-link"></i>
+        <i class="mr-1 text-sm fas fa-link"></i>
         Codice
       </button>
 
@@ -104,7 +124,7 @@
           </span>
         </div>
         <p class="text-sm text-gray-700">
-          <i class="text-sm mr-1 text-gray-500 far fa-calendar"></i>
+          <i class="mr-1 text-sm text-gray-500 far fa-calendar"></i>
           <span
             v-html="
               formatTimestampShort([exam.begin_timestamp, exam.end_timestamp])
@@ -268,7 +288,7 @@ export default {
           this.loading = false
         })
     },
-    getReport (exam) {
+    getCSVReport (exam) {
       this.loading = true
       axios
         .post(
@@ -283,6 +303,26 @@ export default {
         )
         .then(response => {
           this.forceFileDownload(response, `${exam.name}.csv`)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    getZipArchive (exam) {
+      this.loading = true
+      axios
+        .post(
+          `exams/${exam.id}/zip_archive/`,
+          {},
+          {
+            responseType: 'blob'
+          }
+        )
+        .then(response => {
+          this.forceFileDownload(response, `${exam.name}.zip`)
         })
         .catch(error => {
           console.log(error)
@@ -343,4 +383,8 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+</style>
