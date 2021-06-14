@@ -63,7 +63,7 @@
             Risultati
           </button>
           <ul
-            class="absolute z-20 hidden pt-1 pl-2 text-white w-max dropdown-menu"
+            class="absolute z-20 hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
           >
             <li class="">
               <a
@@ -386,5 +386,8 @@ export default {
 <style>
 .dropdown:hover .dropdown-menu {
   display: block;
+}
+.shadow-big {
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
 }
 </style>
