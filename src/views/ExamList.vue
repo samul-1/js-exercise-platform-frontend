@@ -47,15 +47,16 @@
         <i class="mr-1 text-sm fas fa-exclamation-triangle"></i> Chiudi
       </button>
       <button
+        v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
         @click="getMockExam(exam.id)"
         class="px-3 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-1 text-sm fas fa-file-pdf"></i> PDF
+        <i class="mr-1 text-sm fas fa-file-pdf"></i> Simulazione
       </button>
-      <div class="relative inline-block text-left">
+      <div v-if="exam.closed" class="relative inline-block text-left">
         <div class="relative inline-block dropdown">
+          <div class="absolute h-10 left-2 w-28"></div>
           <button
-            v-if="exam.closed"
             class="px-3 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
           >
             <i class="mr-1 text-sm fas fa-download"></i>
@@ -90,7 +91,7 @@
         class="px-3 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 text-sm fas fa-link"></i>
-        Codice
+        Istruzioni accesso
       </button>
 
       <!-- end left buttons -->
