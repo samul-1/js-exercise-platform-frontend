@@ -186,7 +186,7 @@ export default {
       totalItemsCount: 0,
       numParticipants: 0,
       numCompleted: 0,
-      exam: {},
+      exam: { end_timestamp: '0' }, // default value to prevent it from complaining about calling `formatTimestamp' on undefined initially
       loading: false,
       paginationOptions: {
         enabled: true,
@@ -230,22 +230,27 @@ export default {
         })
     },
     searchFn (row, col, cellValue, searchTerm) {
-      console.log({
-        row,
-        col,
-        cellValue,
-        searchTerm
-      })
+      // console.log({
+      //   row,
+      //   col,
+      //   cellValue,
+      //   searchTerm
+      // })
       if (this.selectedSearchCol == 'progress') {
         if (col.field != 'progress') {
           return false
         }
-        let conditions = searchTerm.split(/([<>]=?\s*\d+),?\s*/)
+        //console.log(Math.round(+cellValue.slice(0, -4) / this.totalItemsCount))
+
+        let conditions = searchTerm?.split(/([<>]=?\s*\d+),?\s*/)
         // we only want the first two odd tokens as we're taking in two conditions and there's
         // one empty token before and after each condition
         conditions = conditions.filter((el, idx) => idx % 2 && idx < 4)
         const conditionStr = conditions
-          .map(s => 'parseFloat(cellValue.slice(0,-1)) ' + s) // todo pass already parsed value
+          .map(
+            s =>
+              'Math.round(+cellValue.slice(0, -4) / this.totalItemsCount) ' + s
+          ) // todo pass already parsed value
           .join(' && ')
         if (!conditionStr.length) {
           return true
