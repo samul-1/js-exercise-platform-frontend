@@ -26,6 +26,7 @@ export default {
   },
   data () {
     return {
+      widths: 'w-40, w-80', // need to explicitly mention them to avoid Tailwind CSS purging them in production
       tooltip: {
         content: this.helpText,
         classes: `bg-gray-50 p-3 rounded-md shadow-2xl border border-gray-300 w-${this.width} tooltip`,

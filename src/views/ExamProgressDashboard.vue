@@ -26,10 +26,15 @@
         <progress
           class="mt-auto -ml-2"
           max="100"
-          :value="averageProgress * 100"
+          :value="(averageProgress * 100) / totalItemsCount"
         ></progress>
         <span class="-ml-3 text-md"
-          >{{ Math.round(+averageProgress * 100 * 100) / 100 }}%</span
+          >{{ Math.round(+averageProgress * 100) / totalItemsCount }}%</span
+        ><span class="font-light text-gray-400">
+          ({{ averageProgress }} esercizi{{
+            averageProgress == 1 ? 'o' : ''
+          }}
+          su {{ totalItemsCount }})</span
         >
       </h3>
       <h3>
@@ -79,14 +84,20 @@
             <progress
               class="rounded-2xl"
               max="100"
-              :value="+props.row[props.column.field] * 100"
+              :value="(+props.row[props.column.field] * 100) / totalItemsCount"
             ></progress>
           </div>
-          <div class="w-10">
+          <div class="w-36">
             <span>
               {{
-                Math.round(+props.row[props.column.field] * 100 * 100) / 100
+                Math.round(+props.row[props.column.field] * 100) /
+                  totalItemsCount
               }}%
+              <span class="font-light text-gray-400">
+                ({{ props.row[props.column.field] }} esercizi{{
+                  props.row[props.column.field] == 1 ? 'o' : ''
+                }})</span
+              >
             </span>
           </div>
         </div>
@@ -171,6 +182,7 @@ export default {
       ],
       rows: [],
       averageProgress: 0,
+      totalItemsCount: 0,
       numParticipants: 0,
       numCompleted: 0,
       exam: {},
@@ -206,6 +218,7 @@ export default {
           this.numParticipants = response.data.participants_count
           this.averageProgress = response.data.average_progress
           this.numCompleted = response.data.completed_count
+          this.totalItemsCount = response.data.total_items_count
           this.rows = response.data.participants_progress
         })
         .catch(error => {
@@ -301,7 +314,7 @@ export default {
 
 progress {
   display: inline-block;
-  width: 190px;
+  width: 160px;
   height: 20px;
   padding: 6px 0 0 0;
   margin: 0;
@@ -316,17 +329,17 @@ progress {
 
 progress::-webkit-progress-bar {
   height: 15px;
-  width: 150px;
+  width: 120px;
   margin: 0 auto;
-  background-color: #ccc;
+  background-color: rgb(221, 221, 221);
   border-radius: 5px;
-  box-shadow: 0px 0px 5px rgb(199, 199, 199) inset;
+  box-shadow: 0px 0px 5px rgba(199, 199, 199, 0.7) inset;
 }
 
 @-moz-document url-prefix() {
   progress {
     display: inline-block;
-    width: 150px;
+    width: 120px;
     height: 15px;
     padding: 0;
     margin: 0 20px;
@@ -342,7 +355,7 @@ progress::-webkit-progress-bar {
 
 ::-moz-progress-bar {
   background: rgb(67, 56, 202);
-  border-radius: 5px;
+  border-radius: 25px;
 }
 progress::-webkit-progress-value {
   /*display: inline-block;*/
