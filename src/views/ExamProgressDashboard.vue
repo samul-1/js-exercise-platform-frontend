@@ -31,7 +31,7 @@
         <span class="-ml-3 text-md"
           >{{ Math.round((+averageProgress * 100) / totalItemsCount) }}%</span
         ><span class="font-light text-gray-400">
-          ({{ averageProgress }} esercizi{{
+          ({{ Math.round(averageProgress) }} esercizi{{
             averageProgress == 1 ? 'o' : ''
           }}
           su {{ totalItemsCount }})</span
