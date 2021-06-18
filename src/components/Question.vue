@@ -11,8 +11,14 @@
           :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           v-model="selected"
           class="mr-1"
+          :checked="answer.is_right_answer"
         />
-        <label :for="'ans-' + answer.id"
+        <label
+          :class="{
+            'text-green-700': answer.is_right_answer,
+            'text-red-600': answer.is_right_answer === false
+          }"
+          :for="'ans-' + answer.id"
           ><span v-highlight v-html="highlightCode(answer.text)"></span>
         </label>
       </div>

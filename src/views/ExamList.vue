@@ -139,7 +139,7 @@
       :show-layout="false"
       :float-layout="true"
       :enable-download="true"
-      :preview-modal="false"
+      :preview-modal="true"
       :paginate-elements-by-height="1400"
       filename="Simulazione"
       :pdf-quality="2"
@@ -155,6 +155,7 @@
         <mock-exam v-if="mockId" :data="mockData"></mock-exam>
       </section>
     </vue-html2pdf>
+
     <Dialog
       v-if="dialog.shown"
       :string="dialog.string"
