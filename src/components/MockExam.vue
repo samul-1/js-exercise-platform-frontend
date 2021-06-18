@@ -9,7 +9,7 @@
       allo studente verranno mostrate sequenzialmente, una alla volta.
     </p>
     <div
-      class="py-8 my-8 border-b border-gray-300 html2pdf__page-break last:border-b-0"
+      class="py-8 my-8 border-b border-gray-300 last:border-b-0"
       v-for="(question, index) in data.questions"
       :key="'q-' + question.id"
     >
@@ -20,18 +20,20 @@
         :text="question.introduction"
       ></AggregatedQuestionIntroduction>
       <Question :question="question" :preview="true"></Question>
+      <div class="html2pdf__page-break"></div>
     </div>
     <!-- // todo make an actual exercise preview component -->
     <h1 v-if="data.exercises.length" class="text-3xl font-semibold">
       Simulazione esercizi
     </h1>
     <div
-      class="py-8 my-8 border-b border-gray-300 html2pdf__page-break last:border-b-0"
+      class="py-2 my-2 border-b border-gray-300 last:border-b-0"
       v-for="(exercise, index) in data.exercises"
       :key="'e-' + exercise.id"
     >
       <h1 class="text-2xl font-medium">Esercizio {{ index + 1 }}</h1>
       <p v-html="highlightCode(exercise.text)"></p>
+      <div class="html2pdf__page-break"></div>
     </div>
   </div>
 </template>
