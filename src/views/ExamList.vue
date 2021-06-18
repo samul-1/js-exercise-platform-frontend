@@ -5,7 +5,7 @@
       <h1 class="text-3xl font-medium ">Lista esami</h1>
       <router-link class="my-auto" to="/editor">
         <button
-          class="px-3 py-0.5 ml-4 text-white bg-green-700 rounded-md shadow-sm"
+          class="px-2.5 py-0.5 ml-4 text-white bg-green-700 rounded-md shadow-sm"
         >
           <i class="text-sm fas fa-plus-circle"></i> Crea
         </button></router-link
@@ -16,14 +16,15 @@
       class="flex w-full p-4 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
       v-for="exam in exams"
       :key="exam.id"
+      :title="exam.name"
     >
-      <h1 class="my-auto mr-2 text-lg" v-html="exam.name"></h1>
+      <h1 class="my-auto mr-2 " v-html="truncateString(exam.name, 50)"></h1>
       <!-- left buttons -->
       <router-link :to="`/editor/${exam.id}`"
         ><button
           v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
           :disabled="exam.locked_by"
-          class="px-3 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          class="px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
           <i class="mr-1 fas fa-edit "></i>
 
@@ -33,7 +34,7 @@
       <router-link :to="`/exams/${exam.id}/progress`"
         ><button
           v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-          class="px-3 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          class="px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
           <i class="mr-1 text-sm fas fa-eye"></i>
           Monitora
@@ -42,14 +43,14 @@
       <button
         @click="confirmClosure(exam.id)"
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        class="px-3 py-1 ml-2 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
+        class="px-2.5 py-1 ml-2 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
         <i class="mr-1 text-sm fas fa-exclamation-triangle"></i> Chiudi
       </button>
       <button
         v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
         @click="getMockExam(exam.id)"
-        class="px-3 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-2.5 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 text-sm fas fa-file-pdf"></i> Simulazione
       </button>
@@ -57,7 +58,7 @@
         <div class="relative inline-block dropdown">
           <div class="absolute h-10 left-2 w-28"></div>
           <button
-            class="px-3 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+            class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
           >
             <i class="mr-1 text-sm fas fa-download"></i>
 
@@ -88,10 +89,10 @@
       <button
         @click="showExamInstructions(exam)"
         v-if="!exam.closed"
-        class="px-3 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 text-sm fas fa-link"></i>
-        Istruzioni accesso
+        Codice accesso
       </button>
 
       <!-- end left buttons -->
@@ -179,7 +180,8 @@ import {
   getUserFullName,
   formatTimestampShort,
   getExamSummaryText,
-  getExamInstructions
+  getExamInstructions,
+  truncateString
 } from '../utility'
 import { forceFileDownload, beforeDownload } from '../filedownloads'
 
@@ -228,6 +230,7 @@ export default {
     }
   },
   methods: {
+    truncateString,
     formatTimestampShort,
     getUserFullName,
     getExamSummaryText,

@@ -63,3 +63,11 @@ export function getExamSummaryText (exam) {
     Una volta chiuso, l'esame non accetterà più consegne. Sei sicuro di voler procedere?
     `
 }
+
+export function truncateString (str, upToChar) {
+  if (str.length <= upToChar) {
+    return str
+  }
+
+  return str.slice(0, upToChar) + '&#8230;'
+}
