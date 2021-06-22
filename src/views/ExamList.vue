@@ -49,7 +49,7 @@
       </button>
       <button
         v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
-        @click="getMockExam(exam.id)"
+        @click="getMockExam(exam)"
         class="px-2.5 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 text-sm fas fa-file-pdf"></i> Simulazione
@@ -336,17 +336,27 @@ export default {
           this.loading = false
         })
     },
-    getMockExam (examId) {
+    getMockExam (exam) {
       this.loading = true
       axios
-        .post(`/exams/${examId}/mock/`)
-        .then(resp => {
-          this.mockId = examId
-          this.mockData = resp.data
-          this.generatePdfMock()
+        .post(
+          `/exams/${exam.id}/mock/`,
+          {},
+          {
+            responseType: 'blob'
+          }
+        )
+        .then(response => {
+          this.forceFileDownload(response, `Simulazione_${exam.name}.pdf`)
+          // this.mockId = examId
+          // this.mockData = resp.data
+          // this.generatePdfMock()
         })
         .catch(err => {
           console.log(err)
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     generatePdfMock () {

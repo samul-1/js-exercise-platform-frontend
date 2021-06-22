@@ -340,6 +340,24 @@ export default {
             questions: questions.reverse(),
             ...rest
           }
+
+          // todo is there a better way to do this?
+          // strip off the "inline-block" style attribute from <p> tags to prevent issues with text editor
+          ;[...this.exam.questions, ...this.exam.exercises].forEach(item => {
+            item.text = item.text.replace(
+              /<p\s+style="display:\s*inline-block">/g,
+              '<p>'
+            )
+          })
+          ;[
+            ...this.exam.questionCategories,
+            ...this.exam.exerciseCategories
+          ].forEach(item => {
+            item.introduction_text = item.introduction_text.replace(
+              /<p\s+style="display:\s*inline-block">/g,
+              '<p>'
+            )
+          })
         })
         .catch(error => {
           // todo see if you can factor this out
