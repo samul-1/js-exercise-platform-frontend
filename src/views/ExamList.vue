@@ -1,6 +1,6 @@
 <template>
   <div class="mx-8 my-5 ">
-    <Spinner v-if="loading"></Spinner>
+    <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <div class="flex my-4">
       <h1 class="text-3xl font-medium ">Lista esami</h1>
       <router-link class="my-auto" to="/editor">
@@ -221,6 +221,7 @@ export default {
     return {
       exams: [],
       loading: false,
+      loadingMessage: '',
       mockId: null,
       mockData: null,
       socket: null,
@@ -338,6 +339,8 @@ export default {
     },
     getMockExam (exam) {
       this.loading = true
+      this.loadingMessage =
+        "La generazione del PDF potrebbe richiedere un po' di tempo se sono presenti tante formule LaTeX. Attendi..."
       axios
         .post(
           `/exams/${exam.id}/mock/`,
@@ -357,6 +360,7 @@ export default {
         })
         .finally(() => {
           this.loading = false
+          this.loadingMessage = ''
         })
     },
     generatePdfMock () {
