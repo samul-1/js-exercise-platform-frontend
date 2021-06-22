@@ -1,0 +1,148 @@
+<template>
+  <div>
+    <h1 class="my-auto mr-2 " v-html="truncateString(exam.name, 50)"></h1>
+    <!-- left buttons -->
+    <router-link :to="`/editor/${exam.id}`"
+      ><button
+        v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
+        :disabled="exam.locked_by"
+        class="px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      >
+        <i class="mr-1 fas fa-edit "></i>
+
+        Modifica
+      </button></router-link
+    >
+    <router-link :to="`/exams/${exam.id}/progress`"
+      ><button
+        v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+        class="px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      >
+        <i class="mr-1 text-sm fas fa-eye"></i>
+        Monitora
+      </button></router-link
+    >
+    <button
+      @click="confirmClosure(exam.id)"
+      v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+      class="px-2.5 py-1 ml-2 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
+    >
+      <i class="mr-1 text-sm fas fa-exclamation-triangle"></i> Chiudi
+    </button>
+    <button
+      v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
+      @click="getMockExam(exam)"
+      class="px-2.5 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+    >
+      <i class="mr-1 text-sm fas fa-file-pdf"></i> Simulazione
+    </button>
+    <div v-if="exam.closed" class="relative inline-block text-left">
+      <div class="relative inline-block dropdown">
+        <div class="absolute h-10 left-2 w-28"></div>
+        <button
+          class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        >
+          <i class="mr-1 text-sm fas fa-download"></i>
+
+          Risultati
+        </button>
+        <ul
+          class="absolute z-20 hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+        >
+          <li class="">
+            <a
+              @click="getCSVReport(exam)"
+              class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
+              href="#"
+              >Scarica come CSV</a
+            >
+          </li>
+          <li class="">
+            <a
+              @click="getZipArchive(exam)"
+              class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
+              href="#"
+              >Scarica come PDF</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+    <button
+      @click="showExamInstructions(exam)"
+      v-if="!exam.closed"
+      class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+    >
+      <i class="mr-1 text-sm fas fa-link"></i>
+      Codice accesso
+    </button>
+
+    <!-- end left buttons -->
+
+    <!--right buttons -->
+    <div class="flex my-auto ml-auto">
+      <div class="px-2 mr-6 bg-gray-600 rounded-md " v-if="exam.closed">
+        <span class="text-white ">Terminato</span>
+      </div>
+      <div
+        class="px-2 mr-6 bg-red-800 rounded-md "
+        v-if="new Date() >= new Date(exam.end_timestamp) && !exam.closed"
+      >
+        <span class="text-white ">Scadenza passata</span>
+      </div>
+      <div
+        class="px-2 mr-6 bg-green-700 rounded-md animate-pulse"
+        v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+      >
+        <span class="text-white ">In corso</span>
+      </div>
+      <div class="px-2 mr-6 bg-red-500 rounded-md" v-if="exam.draft">
+        <span class="text-white ">Bozza</span>
+      </div>
+      <div
+        class="px-2 mr-6 bg-gray-700 rounded-md animate-pulse"
+        v-if="exam.locked_by"
+      >
+        <span class="text-white "
+          >Modifica in corso da {{ exam.locked_by }}
+        </span>
+      </div>
+      <div class="text-sm text-gray-700">
+        <i class="mr-1 text-sm text-gray-500 far fa-calendar"></i>
+        <span
+          v-html="
+            formatTimestampShort([exam.begin_timestamp, exam.end_timestamp])
+          "
+        ></span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import Spinner from './Spinner.vue'
+import Dialog from './Dialog.vue'
+import {
+  getUserFullName,
+  formatTimestampShort,
+  getExamSummaryText,
+  getExamInstructions,
+  truncateString
+} from '../utility'
+import { forceFileDownload, beforeDownload } from '../filedownloads'
+export default {
+  name: 'ExamListItem',
+  components: {
+    Spinner,
+    Dialog
+  },
+  props: {
+    exam: {
+      type: Object
+    }
+  }
+}
+</script>
+
+<style></style>

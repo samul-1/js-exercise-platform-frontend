@@ -125,37 +125,16 @@
             >Modifica in corso da {{ exam.locked_by }}
           </span>
         </div>
-        <p class="text-sm text-gray-700">
+        <div class="text-sm text-gray-700">
           <i class="mr-1 text-sm text-gray-500 far fa-calendar"></i>
           <span
             v-html="
               formatTimestampShort([exam.begin_timestamp, exam.end_timestamp])
             "
           ></span>
-        </p>
+        </div>
       </div>
     </div>
-    <!-- // todo use exam name in filename -->
-    <vue-html2pdf
-      :show-layout="false"
-      :float-layout="true"
-      :enable-download="true"
-      :preview-modal="false"
-      filename="Simulazione"
-      :pdf-quality="2"
-      :paginate-elements-by-height="500"
-      :manual-pagination="false"
-      pdf-format="a4"
-      pdf-orientation="landscape"
-      pdf-content-width="1000px"
-      ref="html2Pdf"
-      @startPagination="loading = true"
-      @hasDownloaded="loading = false"
-    >
-      <section slot="pdf-content">
-        <mock-exam v-if="mockId" :data="mockData"></mock-exam>
-      </section>
-    </vue-html2pdf>
 
     <Dialog
       v-if="dialog.shown"
@@ -173,8 +152,6 @@
 <script>
 import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
-import MockExam from '../components/MockExam.vue'
-import VueHtml2pdf from 'vue-html2pdf'
 import Dialog from '../components/Dialog.vue'
 import {
   getUserFullName,
@@ -189,8 +166,6 @@ export default {
   name: 'ExamList',
   components: {
     Spinner,
-    MockExam,
-    VueHtml2pdf,
     Dialog
   },
   created () {
@@ -397,6 +372,15 @@ export default {
   computed: {
     loginLink () {
       return window.location.host + '/login'
+    },
+    oldExams () {
+      return this.exams.filter(exam => {
+        return (
+          exam.closed &&
+          new Date(exam.closed_at) <=
+            new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        )
+      })
     }
   }
 }
