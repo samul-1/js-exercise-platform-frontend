@@ -1,6 +1,6 @@
 <template>
   <div class="mx-8 my-4">
-    <Spinner v-if="loading"></Spinner>
+    <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <h1 class="text-3xl">
       {{ $route.params.examid ? 'Aggiorna esame' : 'Crea nuovo esame' }}
     </h1>
@@ -432,6 +432,8 @@ export default {
       // if no exam id is supplied, we're creating an exam; otherwise we're updating one
       const action = id ? axios.put : axios.post
       this.loading = true
+      this.loadingMessage =
+        "Il salvataggio potrebbe richiedere un po' di tempo se sono presenti tante formule LaTeX nelle domande o risposte.<br />Attendi..."
       action('/exams/' + (id ? `${id}/` : ''), {
         ...this.processedExamObject,
         draft
@@ -450,6 +452,7 @@ export default {
         })
         .finally(() => {
           this.loading = false
+          this.loadingMessage = ''
         })
     },
     getPositionInCategory (itemType, item) {

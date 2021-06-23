@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <div
+    :class="{ 'bg-gray-100': exam.draft || old }"
+    class="flex w-full p-4 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
+  >
+    <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <h1 class="my-auto mr-2 " v-html="truncateString(exam.name, 50)"></h1>
     <!-- left buttons -->
     <router-link :to="`/editor/${exam.id}`"
@@ -47,7 +51,7 @@
           Risultati
         </button>
         <ul
-          class="absolute z-20 hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+          class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
         >
           <li class="">
             <a
@@ -116,6 +120,16 @@
         ></span>
       </div>
     </div>
+    <Dialog
+      v-if="dialog.shown"
+      :string="dialog.string"
+      :subText="dialog.subText"
+      :confirmOnly="dialog.confirmOnly"
+      :dismissible="dialog.dismissible"
+      :severity="dialog.severity"
+      @yes="dialog.onYes.callback(dialog.onYes.param)"
+      @no="dialog.onNo.callback(dialog.onNo.param)"
+    ></Dialog>
   </div>
 </template>
 
@@ -137,12 +151,140 @@ export default {
     Spinner,
     Dialog
   },
+  data () {
+    return {
+      loading: false,
+      loadingMessage: '',
+      dialog: {
+        shown: false
+      }
+    }
+  },
   props: {
     exam: {
       type: Object
+    },
+    old: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    truncateString,
+    formatTimestampShort,
+    getUserFullName,
+    getExamSummaryText,
+    getExamInstructions,
+    beforeDownload,
+    forceFileDownload,
+    confirmClosure (id) {
+      // shows a dialog that prompts the user for confirmation to close an exam
+      const idx = this.exams.findIndex(e => e.id === id)
+      const exam = this.exams[idx]
+
+      this.dialog = {
+        shown: true,
+        string: 'Sei sicuro di voler chiudere questo esame?',
+        subText: this.getExamSummaryText(exam),
+        confirmOnly: false,
+        severity: 2,
+        dismissible: true,
+        onYes: { callback: this.closeExam, param: id },
+        onNo: {
+          callback: () => (this.dialog = { shown: false })
+        }
+      }
+    },
+    getMockExam (exam) {
+      this.loading = true
+      axios
+        .post(
+          `/exams/${exam.id}/mock/`,
+          {},
+          {
+            responseType: 'blob'
+          }
+        )
+        .then(response => {
+          this.forceFileDownload(response, `Simulazione_${exam.name}.pdf`)
+          // this.mockId = examId
+          // this.mockData = resp.data
+          // this.generatePdfMock()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    getCSVReport (exam) {
+      this.loading = true
+      axios
+        .post(
+          `exams/${exam.id}/report/`,
+          {},
+          {
+            headers: {
+              Accept: 'text/csv'
+            },
+            responseType: 'blob'
+          }
+        )
+        .then(response => {
+          this.forceFileDownload(response, `${exam.name}.csv`)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    getZipArchive (exam) {
+      this.loading = true
+      axios
+        .post(
+          `exams/${exam.id}/zip_archive/`,
+          {},
+          {
+            responseType: 'blob'
+          }
+        )
+        .then(response => {
+          this.forceFileDownload(response, `${exam.name}.zip`)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    showExamInstructions (exam) {
+      // shows a dialog that prompts the user for confirmation to close an exam
+
+      this.dialog = {
+        shown: true,
+        string: "Istruzioni per l'accesso all'esame",
+        subText: this.getExamInstructions(exam),
+        confirmOnly: true,
+        severity: 1,
+        dismissible: true,
+        onYes: {
+          callback: () => (this.dialog = { shown: false })
+        }
+      }
     }
   }
 }
 </script>
 
-<style></style>
+<style>
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+.shadow-big {
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+}
+</style>
