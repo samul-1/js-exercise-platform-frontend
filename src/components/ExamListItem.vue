@@ -8,7 +8,9 @@
     <!-- left buttons -->
     <router-link :to="`/editor/${exam.id}`"
       ><button
-        v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
+        v-if="
+          true || (new Date() < new Date(exam.begin_timestamp) && !exam.closed)
+        "
         :disabled="exam.locked_by"
         class="px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
@@ -33,13 +35,35 @@
     >
       <i class="mr-1 text-sm fas fa-exclamation-triangle"></i> Chiudi
     </button>
-    <button
-      v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
-      @click="getMockExam(exam)"
-      class="px-2.5 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
-    >
-      <i class="mr-1 text-sm fas fa-file-pdf"></i> Simulazione
-    </button>
+    <div class="relative inline-block dropdown">
+      <div class="absolute h-10 left-2 w-28"></div>
+      <button
+        v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
+        class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      >
+        <i class="mr-1 text-sm fas fa-file-pdf"></i> Simulazione
+      </button>
+      <ul
+        class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+      >
+        <li class="">
+          <a
+            @click="getExamPreview(exam, true)"
+            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
+            href="#"
+            >Scarica esame completo</a
+          >
+        </li>
+        <li class="">
+          <a
+            @click="getExamPreview(exam, false)"
+            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
+            href="#"
+            >Scarica una possibile simulazione</a
+          >
+        </li>
+      </ul>
+    </div>
     <div v-if="exam.closed" class="relative inline-block text-left">
       <div class="relative inline-block dropdown">
         <div class="absolute h-10 left-2 w-28"></div>
@@ -195,11 +219,11 @@ export default {
         }
       }
     },
-    getMockExam (exam) {
+    getExamPreview (exam, allItems) {
       this.loading = true
       axios
         .post(
-          `/exams/${exam.id}/mock/`,
+          `/exams/${exam.id}/${allItems ? 'all_items' : 'mock'}/`,
           {},
           {
             responseType: 'blob'
@@ -207,9 +231,6 @@ export default {
         )
         .then(response => {
           this.forceFileDownload(response, `Simulazione_${exam.name}.pdf`)
-          // this.mockId = examId
-          // this.mockData = resp.data
-          // this.generatePdfMock()
         })
         .catch(err => {
           console.log(err)
@@ -283,6 +304,7 @@ export default {
 <style>
 .dropdown:hover .dropdown-menu {
   display: block;
+  z-index: 100;
 }
 .shadow-big {
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
