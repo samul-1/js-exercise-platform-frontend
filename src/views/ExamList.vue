@@ -12,16 +12,17 @@
       >
     </div>
     <exam-list-item
-      v-for="exam in recentOrOpenExams"
+      v-for="exam in recentExams"
       :key="exam.id"
       :exam="exam"
     ></exam-list-item>
     <div
+      v-if="!loading && oldExams.length"
       class="my-8 text-sm text-center text-gray-500 cursor-pointer"
       @click="showOldExams = !showOldExams"
     >
       <i
-        class="mr-1 far fa"
+        class="mr-1 far"
         :class="{ 'fa-eye': !showOldExams, 'fa-eye-slash': showOldExams }"
       ></i>
       <span class="underline"
@@ -42,22 +43,13 @@
 <script>
 import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
-//import Dialog from '../components/Dialog.vue'
 import ExamListItem from '../components/ExamListItem.vue'
-import {
-  getUserFullName,
-  formatTimestampShort,
-  getExamSummaryText,
-  getExamInstructions,
-  truncateString
-} from '../utility'
-import { forceFileDownload, beforeDownload } from '../filedownloads'
+import { forceFileDownload } from '../filedownloads'
 
 export default {
   name: 'ExamList',
   components: {
     Spinner,
-    //Dialog,
     ExamListItem
   },
   created () {
@@ -91,75 +83,11 @@ export default {
       loadingMessage: '',
       socket: null,
       showOldExams: false
-      // dialog: {
-      //   shown: false
-      // }
     }
   },
   methods: {
-    truncateString,
-    formatTimestampShort,
-    getUserFullName,
-    getExamSummaryText,
-    getExamInstructions,
-    beforeDownload,
     forceFileDownload,
-    showExamInstructions (exam) {
-      // shows a dialog that prompts the user for confirmation to close an exam
 
-      this.dialog = {
-        shown: true,
-        string: "Istruzioni per l'accesso all'esame",
-        subText: this.getExamInstructions(exam),
-        confirmOnly: true,
-        severity: 1,
-        dismissible: true,
-        onYes: {
-          callback: () => (this.dialog = { shown: false })
-        }
-      }
-    },
-    confirmClosure (id) {
-      // shows a dialog that prompts the user for confirmation to close an exam
-      const idx = this.exams.findIndex(e => e.id === id)
-      const exam = this.exams[idx]
-
-      this.dialog = {
-        shown: true,
-        string: 'Sei sicuro di voler chiudere questo esame?',
-        subText: this.getExamSummaryText(exam),
-        confirmOnly: false,
-        severity: 2,
-        dismissible: true,
-        onYes: { callback: this.closeExam, param: id },
-        onNo: {
-          callback: () => (this.dialog = { shown: false })
-        }
-      }
-    },
-    closeExam (id) {
-      this.loading = true
-      this.dialog = {
-        show: false
-      }
-      axios
-        .patch(`/exams/${id}/terminate/`)
-        .then(response => {
-          console.log(response)
-          const idx = this.exams.findIndex(e => e.id === id)
-          this.exams[idx] = response.data
-          this.$store.commit('setSmallMessage', {
-            severity: 1,
-            msg: 'Esame chiuso con successo.'
-          })
-        })
-        .catch(error => {
-          console.log(error)
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
     getCSVReport (exam) {
       this.loading = true
       axios
@@ -203,32 +131,6 @@ export default {
           this.loading = false
         })
     },
-    getMockExam (exam) {
-      this.loading = true
-      axios
-        .post(
-          `/exams/${exam.id}/mock/`,
-          {},
-          {
-            responseType: 'blob'
-          }
-        )
-        .then(response => {
-          this.forceFileDownload(response, `Simulazione_${exam.name}.pdf`)
-          // this.mockId = examId
-          // this.mockData = resp.data
-          // this.generatePdfMock()
-        })
-        .catch(err => {
-          console.log(err)
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-    generatePdfMock () {
-      this.$refs.html2Pdf.generatePdf()
-    },
     connectToSocket () {
       const wsScheme = window.location.protocol == 'https:' ? 'wss' : 'ws'
       this.socket = new WebSocket(
@@ -270,7 +172,7 @@ export default {
         )
       })
     },
-    recentOrOpenExams () {
+    recentExams () {
       return this.exams.filter(exam => {
         return (
           !exam.closed ||

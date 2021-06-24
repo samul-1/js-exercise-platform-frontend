@@ -226,6 +226,7 @@
     </button>
     <router-link to="/exams">
       <button
+        :disabled="loading"
         class="px-4 py-2 mt-10 mb-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-800"
       >
         <i class="mr-1.5 fas fa-chevron-left"></i>
