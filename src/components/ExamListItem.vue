@@ -4,7 +4,11 @@
     class="flex w-full p-4 my-3 mt-auto transition-shadow duration-75 border rounded-lg hover:shadow-md"
   >
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
-    <h1 class="my-auto mr-2 " v-html="truncateString(exam.name, 50)"></h1>
+    <h1
+      class="my-auto mr-2"
+      :title="exam.name"
+      v-html="truncateString(exam.name, 50)"
+    ></h1>
     <!-- left buttons -->
     <router-link :to="`/editor/${exam.id}`"
       ><button
@@ -219,6 +223,29 @@ export default {
           callback: () => (this.dialog = { shown: false })
         }
       }
+    },
+    closeExam (id) {
+      this.loading = true
+      this.dialog = {
+        show: false
+      }
+      axios
+        .patch(`/exams/${id}/terminate/`)
+        .then(response => {
+          console.log(response)
+          // todo refactor this (this changes the prop)
+          this.exam = response.data
+          this.$store.commit('setSmallMessage', {
+            severity: 1,
+            msg: 'Esame chiuso con successo.'
+          })
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
     getExamPreview (exam, allItems) {
       this.loading = true
