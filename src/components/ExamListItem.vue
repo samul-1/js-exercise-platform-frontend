@@ -27,7 +27,7 @@
       </button></router-link
     >
     <button
-      @click="confirmClosure(exam.id)"
+      @click="confirmClosure(exam)"
       v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
       class="px-2.5 py-1 ml-2 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
     >
@@ -199,11 +199,8 @@ export default {
     getExamInstructions,
     beforeDownload,
     forceFileDownload,
-    confirmClosure (id) {
+    confirmClosure (exam) {
       // shows a dialog that prompts the user for confirmation to close an exam
-      const idx = this.exams.findIndex(e => e.id === id)
-      const exam = this.exams[idx]
-
       this.dialog = {
         shown: true,
         string: 'Sei sicuro di voler chiudere questo esame?',
@@ -211,7 +208,7 @@ export default {
         confirmOnly: false,
         severity: 2,
         dismissible: true,
-        onYes: { callback: this.closeExam, param: id },
+        onYes: { callback: this.closeExam, param: exam.id },
         onNo: {
           callback: () => (this.dialog = { shown: false })
         }
