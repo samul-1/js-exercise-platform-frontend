@@ -157,6 +157,7 @@ export default {
       })
     this.getData(true)
     // todo update more frequently around beginning and end of exam
+    // todo clear this interval when exiting the page
     setInterval(this.getData, 5000)
   },
   data () {

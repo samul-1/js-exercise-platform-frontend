@@ -33,7 +33,7 @@
     >
       <i class="mr-1 text-sm fas fa-exclamation-triangle"></i> Chiudi
     </button>
-    <div class="relative inline-block dropdown">
+    <div class="inline-block dropdown">
       <div class="absolute h-10 left-2 w-28"></div>
       <button
         v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
@@ -62,8 +62,8 @@
         </li>
       </ul>
     </div>
-    <div v-if="exam.closed" class="relative inline-block text-left">
-      <div class="relative inline-block dropdown">
+    <div v-if="exam.closed" class="inline-block text-left">
+      <div class="inline-block dropdown">
         <div class="absolute h-10 left-2 w-28"></div>
         <button
           class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
