@@ -52,6 +52,7 @@ function pushOrCreate (object, property, value) {
 }
 
 export function getEditorErrors (exam) {
+  console.log('running getEditorErrors')
   let ret = {
     globalErrors: [],
     questionErrors: {},
@@ -108,59 +109,61 @@ export function getEditorErrors (exam) {
     if (!question.category) {
       pushOrCreate(ret.questionErrors, question.id, QUESTION_NO_CATEGORY)
     }
-    for (let category of [
-      ...exam.exerciseCategories,
-      ...exam.questionCategories
-    ]) {
-      if (category.amount < 0) {
-        pushOrCreate(
-          category.item_type == 'q'
-            ? ret.questionCategoryErrors
-            : ret.exerciseCategoryErrors,
-          category.id,
-          CATEGORY_NEGATIVE_AMOUNT
-        )
-      }
-      if (!category.name.length) {
-        pushOrCreate(
-          category.item_type == 'q'
-            ? ret.questionCategoryErrors
-            : ret.exerciseCategoryErrors,
-          category.id,
-          CATEGORY_NO_NAME
-        )
-      }
+  }
+  for (let category of [
+    ...exam.exerciseCategories,
+    ...exam.questionCategories
+  ]) {
+    console.log('curr cat', category.id)
+    if (category.amount < 0) {
+      pushOrCreate(
+        category.item_type == 'q'
+          ? ret.questionCategoryErrors
+          : ret.exerciseCategoryErrors,
+        category.id,
+        CATEGORY_NEGATIVE_AMOUNT
+      )
     }
-
-    for (let category of exam.questionCategories) {
-      if (
-        !category.is_aggregated_question &&
-        category.randomize &&
-        category.amount >
-          exam.questions.filter(q => q.category == category.id).length
-      ) {
-        pushOrCreate(
-          ret.questionCategoryErrors,
-          category.id,
-          QUESTION_CATEGORY_AMOUNT_TOO_HIGH
-        )
-      }
-    }
-
-    for (let category of exam.exerciseCategories) {
-      if (
-        category.randomize &&
-        category.amount >
-          exam.exercises.filter(e => e.category == category.id).length
-      ) {
-        pushOrCreate(
-          ret.exerciseCategoryErrors,
-          category.id,
-          EXERCISE_CATEGORY_AMOUNT_TOO_HIGH
-        )
-      }
+    if (!category.name.length) {
+      pushOrCreate(
+        category.item_type == 'q'
+          ? ret.questionCategoryErrors
+          : ret.exerciseCategoryErrors,
+        category.id,
+        CATEGORY_NO_NAME
+      )
     }
   }
+
+  for (let category of exam.questionCategories) {
+    if (
+      !category.is_aggregated_question &&
+      category.randomize &&
+      category.amount >
+        exam.questions.filter(q => q.category == category.id).length
+    ) {
+      pushOrCreate(
+        ret.questionCategoryErrors,
+        category.id,
+        QUESTION_CATEGORY_AMOUNT_TOO_HIGH
+      )
+    }
+  }
+
+  for (let category of exam.exerciseCategories) {
+    if (
+      category.randomize &&
+      category.amount >
+        exam.exercises.filter(e => e.category == category.id).length
+    ) {
+      pushOrCreate(
+        ret.exerciseCategoryErrors,
+        category.id,
+        EXERCISE_CATEGORY_AMOUNT_TOO_HIGH
+      )
+    }
+  }
+
   console.log(ret)
   return ret
 }

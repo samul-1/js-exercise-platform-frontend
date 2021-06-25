@@ -421,6 +421,7 @@ export default {
       expandedItems: [],
       teachers: [],
       loading: false,
+      loadingMessage: '',
       socket: null,
       exam: {
         default: true,
@@ -750,7 +751,6 @@ export default {
       }
     },
     editorErrors () {
-      console.log(getEditorErrors(this.exam))
       return getEditorErrors(this.exam)
     },
     // todo add error reporting
