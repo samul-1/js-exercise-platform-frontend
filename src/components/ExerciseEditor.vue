@@ -30,6 +30,11 @@
         <span v-if="categoryName"> esercizio {{ index }}</span>
       </h1>
     </div>
+    <ul v-if="errors" class="mb-4 -mt-2 flex space-x-4">
+      <li v-for="(error, index) in errors" :key="exercise.id + '-err-' + index">
+        <p class="text-sm text-red-500"><strong>&#183;</strong> {{ error }}</p>
+      </li>
+    </ul>
     <div v-show="!expanded">
       <div v-html="exerciseTextPreview"></div>
     </div>
@@ -204,7 +209,10 @@ export default {
     id: { type: [Number, String] },
     categoryChoices: { type: Array },
     index: { type: Number },
-    expanded: { type: Boolean }
+    expanded: { type: Boolean },
+    errors: {
+      type: Array
+    }
   },
   watch: {
     $props: {

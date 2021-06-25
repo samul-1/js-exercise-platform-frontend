@@ -95,6 +95,7 @@
             v-model="exam.questionCategories[index]"
             @delete="exam.questionCategories.splice(index, 1)"
             :class="{ 'bg-gray-70': index % 2 }"
+            :errors="editorErrors.questionCategoryErrors[category.id]"
           ></CategoryEditor>
         </transition-group>
       </div>
@@ -125,6 +126,7 @@
           :expanded="expandedItems.indexOf('q-' + question.id) != -1"
           :category-choices="exam.questionCategories"
           :index="getPositionInCategory('q', exam.questions[index])"
+          :errors="editorErrors.questionErrors[question.id]"
         ></QuestionEditor>
       </transition-group>
     </div>
@@ -174,6 +176,7 @@
             v-model="exam.exerciseCategories[index]"
             @delete="exam.exerciseCategories.splice(index, 1)"
             :class="{ 'bg-gray-70': index % 2 }"
+            :errors="editorErrors.exerciseCategoryErrors[category.id]"
           ></CategoryEditor>
         </transition-group>
       </div>
@@ -203,37 +206,49 @@
           :expanded="expandedItems.indexOf('e-' + exercise.id) != -1"
           :category-choices="exam.exerciseCategories"
           :index="getPositionInCategory('e', exam.exercises[index])"
+          :errors="editorErrors.exerciseErrors[exercise.id]"
         ></ExerciseEditor>
       </transition-group>
     </div>
     <!-- end exercises -->
-
-    <button
-      @click="submit()"
-      :disabled="loading || invalidForm"
-      class="px-4 py-2 mt-10 mb-2 mr-2 text-white bg-green-700 rounded-lg shadow-inner disabled:opacity-50"
-    >
-      <i class="mr-1 fas fa-check"></i>
-      {{ $route.params.examid ? 'Aggiorna' : 'Conferma e crea' }}
-    </button>
-    <button
-      @click="submit(true)"
-      :disabled="loading || invalidForm"
-      class="px-4 py-2 mt-10 mb-2 mr-2 text-white bg-gray-500 rounded-lg shadow-inner disabled:opacity-50"
-    >
-      <i class="mr-1.5 far fa-file"></i>
-      Salva come bozza
-    </button>
-    <router-link to="/exams">
+    <div class="flex">
       <button
-        :disabled="loading"
-        class="px-4 py-2 mt-10 mb-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-800"
+        @click="submit()"
+        :disabled="loading || invalidForm"
+        class="px-4 py-2 mt-10 mb-2 mr-2 text-white bg-green-700 rounded-lg shadow-inner disabled:opacity-50"
       >
-        <i class="mr-1.5 fas fa-chevron-left"></i>
+        <i class="mr-1 fas fa-check"></i>
+        {{ $route.params.examid ? 'Aggiorna' : 'Conferma e crea' }}
+      </button>
+      <button
+        @click="submit(true)"
+        :disabled="loading || invalidForm"
+        class="px-4 py-2 mt-10 mb-2 mr-2 text-white bg-gray-500 rounded-lg shadow-inner disabled:opacity-50"
+      >
+        <i class="mr-1.5 far fa-file"></i>
+        Salva come bozza
+      </button>
+      <router-link to="/exams">
+        <button
+          :disabled="loading"
+          class="px-4 py-2 mt-10 mb-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-800"
+        >
+          <i class="mr-1.5 fas fa-chevron-left"></i>
 
-        Annulla
-      </button></router-link
-    >
+          Annulla
+        </button></router-link
+      >
+      <ul v-if="editorErrors.globalErrors" class="my-auto ml-10">
+        <li
+          v-for="(error, index) in editorErrors.globalErrors"
+          :key="'global-err-' + index"
+        >
+          <p class="text-sm text-red-500">
+            <strong>&#183;</strong> {{ error }}
+          </p>
+        </li>
+      </ul>
+    </div>
     <ExamEditorIndex
       :questions="exam.questions"
       :exercises="exam.exercises"
@@ -261,6 +276,7 @@ import {
   redirectIfNotTeacher
 } from '../permissions'
 import { redirectAndSetMessage } from '../utility'
+import { getEditorErrors } from '../examEditorErrors.js'
 
 export default {
   name: 'ExamEditor',
@@ -309,6 +325,17 @@ export default {
           'q-' + this.exam.questions.slice().reverse()[newVal - 1].id
         )
       }
+    },
+    exam: {
+      handler: function (_newVal, oldVal) {
+        console.log('CHANGED')
+        console.log(oldVal)
+        console.log(_newVal)
+        if (!oldVal.default) {
+          this.dirty = true
+        }
+      },
+      deep: true
     }
   },
   created () {
@@ -380,7 +407,7 @@ export default {
         })
     }
   },
-  beforeRouteLeave (to, from, next) {
+  beforeRouteLeave (_to, _from, next) {
     if (this.socket) {
       // unlock the exam before leaving
       this.socket.close()
@@ -390,11 +417,13 @@ export default {
   data () {
     return {
       HELP_TXTS,
+      dirty: false,
       expandedItems: [],
       teachers: [],
       loading: false,
       socket: null,
       exam: {
+        default: true,
         name: '',
         begin_timestamp: null,
         end_timestamp: null,
@@ -543,6 +572,9 @@ export default {
           2
         )
       }
+    },
+    printEditorErrors () {
+      console.log(getEditorErrors(this.exam))
     }
   },
   computed: {
@@ -716,6 +748,10 @@ export default {
         ],
         ...exam
       }
+    },
+    editorErrors () {
+      console.log(getEditorErrors(this.exam))
+      return getEditorErrors(this.exam)
     },
     // todo add error reporting
     invalidForm () {

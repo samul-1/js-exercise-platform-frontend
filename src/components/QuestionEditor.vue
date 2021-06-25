@@ -28,6 +28,16 @@
           {{ categoryName ? categoryName : '' }}</span
         ><span v-if="categoryName"> domanda {{ index }}</span>
       </h1>
+      <ul v-if="errors" class="mt-2 flex space-x-4">
+        <li
+          v-for="(error, index) in errors"
+          :key="question.id + '-err-' + index"
+        >
+          <p class="text-sm text-red-500">
+            <strong>&#183;</strong> {{ error }}
+          </p>
+        </li>
+      </ul>
     </div>
     <div class="transition-all duration-100" v-show="!expanded">
       <div v-highlight v-html="questionTextPreview"></div>
@@ -64,25 +74,27 @@
               @click="
                 switchQuestionType(question.question_type == 'm' ? 'o' : 'm')
               "
-              class="px-3 py-1.5 ml-2 text-sm transition-colors duration-75 text-white bg-gray-600 hover:bg-gray-700 rounded-md shadow-sm"
+              class="px-3 py-1.5 ml-2 text-sm transition-colors duration-75 text-white bg-gray-500 hover:bg-gray-600 rounded-md shadow-sm"
             >
               <i class="mr-1 fas fa-exchange-alt"></i> Cambia in domanda
               {{
                 question.question_type == 'o' ? 'a scelta multipla' : 'aperta'
               }}
             </button>
-            <input
-              class="ml-6 mr-2"
-              type="checkbox"
-              v-model="question.accepts_multiple_answers"
-              :id="question.id + '-accepts-multiple-answers'"
-              @change="
-                update('accepts_multiple_answers', $event.target.checked)
-              "
-            />
-            <label :for="question.id + '-accepts-multiple-answers'"
-              >Accetta risposte multiple</label
-            >
+            <span v-if="question.question_type == 'm'">
+              <input
+                class="ml-6 mr-2"
+                type="checkbox"
+                v-model="question.accepts_multiple_answers"
+                :id="question.id + '-accepts-multiple-answers'"
+                @change="
+                  update('accepts_multiple_answers', $event.target.checked)
+                "
+              />
+              <label :for="question.id + '-accepts-multiple-answers'"
+                >Accetta risposte multiple</label
+              >
+            </span>
           </div>
         </div>
         <div class="flex">
@@ -171,6 +183,9 @@ export default {
   },
   props: {
     categoryChoices: {
+      type: Array
+    },
+    errors: {
       type: Array
     },
     index: { type: Number },

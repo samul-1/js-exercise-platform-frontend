@@ -1,5 +1,10 @@
 <template>
   <div>
+    <ul v-if="errors" class="px-4 mt-2 pt-2 flex space-x-4">
+      <li v-for="(error, index) in errors" :key="category.id + '-err-' + index">
+        <p class="text-sm text-red-500"><strong>&#183;</strong> {{ error }}</p>
+      </li>
+    </ul>
     <div class="flex px-4 py-2">
       <div v-if="category._new" class="order-12 my-auto ml-auto">
         <button
@@ -133,6 +138,9 @@ export default {
   props: {
     id: {
       type: [String, Number]
+    },
+    errors: {
+      type: Array
     }
   },
   created () {

@@ -67,7 +67,7 @@ export default {
       type: Array
     },
     lockedId: {
-      type: Number
+      type: [Number, String]
     }
   },
 
