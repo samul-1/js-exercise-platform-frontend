@@ -44,7 +44,7 @@ export default {
   components: {},
   mounted () {
     this.$store.commit('removeToken')
-    //? remove axios header
+    axios.defaults.headers.common['Authorization'] = ''
   },
   data () {
     return {
@@ -80,8 +80,7 @@ export default {
           token: token
         })
         .then(resp => {
-          console.log('successfully logged in to service:', resp)
-          console.log(resp.data)
+          console.log('Success converting token:', resp)
 
           // save login key to store and set it to axios headers
           this.$store.commit('setToken', resp.data.access_token)
@@ -89,6 +88,7 @@ export default {
             'Bearer ' + resp.data.access_token
         })
         .catch(err => {
+          console.log('Error converting token:')
           console.log(err)
         })
 
