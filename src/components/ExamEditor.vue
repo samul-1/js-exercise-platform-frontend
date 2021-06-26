@@ -326,21 +326,30 @@ export default {
         )
       }
     },
-    exam: {
-      handler: function (_newVal, oldVal) {
-        console.log('CHANGED')
-        console.log(oldVal)
-        console.log(_newVal)
-        if (!oldVal.default) {
+    examComputed: {
+      handler: function (newVal, oldVal) {
+        if (this.dirty) {
+          // avoid doing all the expensive computation if `dirty` is
+          // already set (it's not going to change)
+          return
+        }
+        if (
+          (JSON.parse(oldVal).id || !JSON.parse(newVal).id) && // don't set `dirty` if the change in exam was due to fetching the exam from API
+          newVal !== oldVal // ignore spurious calls
+        ) {
           this.dirty = true
         }
       },
-      deep: true
+      deep: true // todo delete this
     }
+  },
+  beforeDestroy () {
+    window.removeEventListener('beforeunload', this.beforeWindowUnload)
   },
   created () {
     redirectIfNotAuthenticated(this, '/login/teacher')
     redirectIfNotTeacher(this, '/login')
+    window.addEventListener('beforeunload', this.beforeWindowUnload)
 
     this.getTeachers()
 
@@ -408,11 +417,15 @@ export default {
     }
   },
   beforeRouteLeave (_to, _from, next) {
-    if (this.socket) {
-      // unlock the exam before leaving
-      this.socket.close()
+    if (this.confirmStayInDirtyForm()) {
+      next(false)
+    } else {
+      if (this.socket) {
+        // unlock the exam before leaving
+        this.socket.close()
+      }
+      next()
     }
-    next()
   },
   data () {
     return {
@@ -424,7 +437,6 @@ export default {
       loadingMessage: '',
       socket: null,
       exam: {
-        default: true,
         name: '',
         begin_timestamp: null,
         end_timestamp: null,
@@ -439,6 +451,24 @@ export default {
     }
   },
   methods: {
+    confirmLeave () {
+      return window.confirm(
+        'Hai effettuato dei cambiamenti che non hai salvato. Sei sicuro di voler uscire dalla pagina?'
+      )
+    },
+
+    confirmStayInDirtyForm () {
+      return this.dirty && !this.confirmLeave()
+    },
+
+    beforeWindowUnload (e) {
+      if (this.confirmStayInDirtyForm()) {
+        // Cancel the event
+        e.preventDefault()
+        // Chrome requires returnValue to be set
+        e.returnValue = ''
+      }
+    },
     getTeachers () {
       axios
         .get('/users/teachers/')
@@ -471,6 +501,7 @@ export default {
       })
         .then(response => {
           console.log(response)
+          this.dirty = false
           redirectAndSetMessage(
             this,
             '/exams',
@@ -579,6 +610,10 @@ export default {
     }
   },
   computed: {
+    examComputed () {
+      // used to get a copy of `this.exam` in order to be able to deep-watch it
+      return JSON.stringify(this.exam)
+    },
     exerciseLen () {
       return this.exam.exercises.length
     },
