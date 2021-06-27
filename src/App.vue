@@ -7,10 +7,7 @@
       crossorigin="anonymous"
     />
     <nav class="flex w-full px-6 py-2 text-white bg-gray-900">
-      <img
-        class="w-32"
-        src="https://di.unipi.it/wp-content/themes/unipi/images/cherubino-white.svg"
-      />
+      <img class="w-32" src="./assets/unipi-logo.svg" />
       <div class="my-auto ml-auto">
         <template v-if="$store.state.isAuthenticated">
           <span
