@@ -19,7 +19,24 @@ axios.defaults.baseURL = dev
   : process.env.VUE_APP_AXIOS_BASE
 
 Vue.use(GSignInButton)
-
+Vue.config.errorHandler = function (err, vm, info) {
+  // handle error
+  // `info` is a Vue-specific error info, e.g. which lifecycle hook
+  // the error was found in. Only available in 2.2.0+
+  axios
+    .post('/frontend_errors/', {
+      error_details: JSON.stringify(err, Object.getOwnPropertyNames(err)),
+      component_data: vm._data,
+      additional_info: info
+    })
+    .then(response => {
+      console.log(response)
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  throw err // could remove this once development is over with
+}
 new Vue({
   store,
   router,

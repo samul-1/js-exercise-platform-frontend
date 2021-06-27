@@ -51,6 +51,14 @@ function pushOrCreate (object, property, value) {
   }
 }
 
+export const emptyEditorErrorObject = {
+  globalErrors: [],
+  questionErrors: {},
+  exerciseErrors: {},
+  questionCategoryErrors: {},
+  exerciseCategoryErrors: {}
+}
+
 export function getEditorErrors (exam) {
   console.log('running getEditorErrors')
   let ret = {

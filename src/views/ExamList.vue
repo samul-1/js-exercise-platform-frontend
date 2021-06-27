@@ -1,5 +1,6 @@
 <template>
   <div class="mx-8 my-5 ">
+    <button @click="test()">a</button>
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <div class="flex my-4">
       <h1 class="text-3xl font-medium ">Lista esami</h1>
@@ -157,6 +158,9 @@ export default {
             "È in corso una modifica all'esame da parte di un altro insegnante."
         })
       }
+    },
+    test () {
+      throw new Error('abc')
     }
   },
   computed: {

@@ -456,11 +456,9 @@ export default {
         'Hai effettuato dei cambiamenti che non hai salvato. Sei sicuro di voler uscire dalla pagina?'
       )
     },
-
     confirmStayInDirtyForm () {
       return this.dirty && !this.confirmLeave()
     },
-
     beforeWindowUnload (e) {
       if (this.confirmStayInDirtyForm()) {
         // Cancel the event
@@ -604,9 +602,6 @@ export default {
           2
         )
       }
-    },
-    printEditorErrors () {
-      console.log(getEditorErrors(this.exam))
     }
   },
   computed: {
