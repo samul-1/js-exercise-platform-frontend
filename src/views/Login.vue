@@ -20,6 +20,14 @@
         devono essere abilitati per effettuare il login, e non si deve essere in
         modalità incognito.
       </p>
+      <div class="mt-4 ">
+        <span class="mr-3 ">Browser supportati:</span>
+        <img
+          class="inline-block w-5 h-5 my-auto mr-2"
+          src="../assets/chrome.png"
+        />
+        <img class="inline-block w-5 h-5 my-auto" src="../assets/firefox.png" />
+      </div>
       <g-signin-button
         class=""
         :params="googleSignInParams"
@@ -124,10 +132,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.login-box {
-  margin-bottom: 0;
-  /*transform: translate(-50%, -50%);*/
-}
-</style>
