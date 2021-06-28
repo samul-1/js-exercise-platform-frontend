@@ -28,7 +28,7 @@
           {{ categoryName ? categoryName : '' }}</span
         ><span v-if="categoryName"> domanda {{ index }}</span>
       </h1>
-      <ul v-if="errors" class="mt-2 flex space-x-4">
+      <ul v-if="errors" class="flex mt-2 space-x-4">
         <li
           v-for="(error, index) in errors"
           :key="question.id + '-err-' + index"

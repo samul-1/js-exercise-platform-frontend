@@ -7,6 +7,10 @@ import { store } from './store'
 import VueCodeHighlight from 'vue-code-highlight'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import GSignInButton from 'vue-google-signin-button'
+import VueApexCharts from 'vue-apexcharts'
+Vue.use(VueApexCharts)
+
+Vue.component('apexchart', VueApexCharts)
 
 Vue.use(VueCodeHighlight) //registers the v-highlight directive
 

@@ -117,6 +117,7 @@
 
       <transition-group name="bounce">
         <QuestionEditor
+          v-on-clickaway="updateEditorErrors"
           v-for="(question, index) in exam.questions"
           :id="'q-' + question.id"
           :key="'q-' + question.id"
@@ -260,6 +261,7 @@
 
 <script>
 import axios from 'axios'
+import { directive as onClickaway } from 'vue-clickaway'
 import ExerciseEditor from '../components/ExerciseEditor.vue'
 import CategoryEditor from '../components/CategoryEditor.vue'
 import SelectableUserList from '../components/SelectableUserList.vue'
@@ -289,6 +291,9 @@ export default {
     SelectableUserList,
     HelpTextButton,
     ExamEditorIndex
+  },
+  directives: {
+    onClickaway
   },
   watch: {
     // automatically add a category when a question/exercise is added for the first
@@ -447,10 +452,14 @@ export default {
         randomize_questions: true,
         randomize_exercises: true,
         allowed_teachers: []
-      }
+      } // todo define emptyExamObject somewhere
+      //editorErrors: emptyEditorErrorObject
     }
   },
   methods: {
+    // updateEditorErrors () {
+    //   this.editorErrors = getEditorErrors(this.exam)
+    // },
     confirmLeave () {
       return window.confirm(
         'Hai effettuato dei cambiamenti che non hai salvato. Sei sicuro di voler uscire dalla pagina?'

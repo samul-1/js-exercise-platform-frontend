@@ -7,6 +7,7 @@ import TeacherDashboard from '../views/TeacherDashboard.vue'
 import ExamSelection from '../views/ExamSelection.vue'
 import ExamList from '../views/ExamList.vue'
 import ExamProgressDashboard from '../views/ExamProgressDashboard.vue'
+import ExamStats from '../views/ExamStats.vue'
 import { store } from '../store'
 
 Vue.use(VueRouter)
@@ -50,6 +51,11 @@ const routes = [
     path: '/exams/:examid/progress',
     name: 'ExamProgressDashboard',
     component: ExamProgressDashboard
+  },
+  {
+    path: '/exams/:examid/stats',
+    name: 'ExamStats',
+    component: ExamStats
   }
 ]
 
