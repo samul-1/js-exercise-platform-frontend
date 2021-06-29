@@ -8,6 +8,7 @@ import ExamSelection from '../views/ExamSelection.vue'
 import ExamList from '../views/ExamList.vue'
 import ExamProgressDashboard from '../views/ExamProgressDashboard.vue'
 import ExamStats from '../views/ExamStats.vue'
+import PageNotFound from '../views/PageNotFound.vue'
 import { store } from '../store'
 
 Vue.use(VueRouter)
@@ -56,7 +57,8 @@ const routes = [
     path: '/exams/:examid/stats',
     name: 'ExamStats',
     component: ExamStats
-  }
+  },
+  { path: '*', component: PageNotFound }
 ]
 
 const router = new VueRouter({

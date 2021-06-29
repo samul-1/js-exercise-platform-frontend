@@ -5,16 +5,16 @@
   >
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <h1
-      class="my-auto mr-2"
+      class="max-w-xs my-auto mr-2"
       :title="exam.name"
-      v-html="truncateString(exam.name, 50)"
+      v-html="truncateString(exam.name, 60)"
     ></h1>
     <!-- left buttons -->
     <router-link :to="`/editor/${exam.id}`"
       ><button
         v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
         :disabled="exam.locked_by"
-        class="px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 fas fa-edit "></i>
 
@@ -24,7 +24,7 @@
     <router-link :to="`/exams/${exam.id}/progress`"
       ><button
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        class="px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="ml-2 px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 text-sm fas fa-eye"></i>
         Monitora
@@ -116,30 +116,30 @@
     <!-- end left buttons -->
 
     <!--right buttons -->
-    <div class="flex my-auto ml-auto">
-      <div class="px-2 mr-6 bg-gray-600 rounded-md " v-if="exam.closed">
+    <div class="flex items-center my-auto ml-auto">
+      <div class="px-2 mr-4 bg-gray-600 rounded-md " v-if="exam.closed">
         <span class="text-white ">Terminato</span>
       </div>
       <div
-        class="px-2 mr-6 bg-red-800 rounded-md "
+        class="px-2 mr-4 bg-red-800 rounded-md "
         v-if="new Date() >= new Date(exam.end_timestamp) && !exam.closed"
       >
         <span class="text-white ">Scadenza passata</span>
       </div>
       <div
-        class="px-2 mr-6 bg-green-700 rounded-md animate-pulse"
+        class="px-2 mr-4 bg-green-700 rounded-md animate-pulse"
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
       >
         <span class="text-white ">In corso</span>
       </div>
-      <div class="px-2 mr-6 bg-red-500 rounded-md" v-if="exam.draft">
+      <div class="px-2 mr-4 bg-red-500 rounded-md" v-if="exam.draft">
         <span class="text-white ">Bozza</span>
       </div>
       <div
-        class="px-2 mr-6 bg-gray-700 rounded-md animate-pulse"
+        class="px-2 mr-3 bg-gray-700 rounded-md animate-pulse"
         v-if="exam.locked_by"
       >
-        <span class="text-white "
+        <span style="letter-spacing: -0.7px " class="text-white"
           >Modifica in corso da {{ exam.locked_by }}
         </span>
       </div>

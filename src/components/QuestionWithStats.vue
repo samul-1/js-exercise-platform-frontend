@@ -17,11 +17,14 @@
       </p>
     </div>
     <div v-highlight v-html="highlightCode(question.text)"></div>
-    <h1 v-if="question.answers.length" class="my-2 text-xl font-medium">
-      Risposte
-    </h1>
     <div class="flex">
       <div class="my-auto">
+        <h1
+          v-if="question.answers.length"
+          class="mb-4 text-xl font-medium w-min"
+        >
+          Risposte
+        </h1>
         <div
           v-for="(answer, index) in question.answers"
           :key="'q-' + question.id + '-a-' + answer.id"
@@ -43,8 +46,8 @@
       </div>
       <div v-if="question.answers.length" class="ml-auto">
         <apexchart
-          width="350"
-          height="300"
+          width="300"
+          height="250"
           type="bar"
           :options="chartOptions"
           :series="barChartData"
@@ -117,12 +120,6 @@ export default {
           data: [a.selections]
         }
       })
-      // {
-      //   data: this.question.answers.map(a => a.selections)
-      // },
-      // {
-      //   data: this.question.answers.map(a => a.selections)
-      // }
     },
     chartOptions () {
       return {
@@ -133,9 +130,9 @@ export default {
           // eslint-disable-next-line no-unused-vars
           ({ value, seriesIndex, w }) => {
             if (this.question.answers[seriesIndex].is_right_answer) {
-              return '#047857'
+              return '#10B981'
             } else {
-              return '#B91C1C'
+              return '#EF4444'
             }
           }
         ],

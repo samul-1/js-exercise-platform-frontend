@@ -1,6 +1,5 @@
 <template>
   <div class="mx-8 my-5 ">
-    <button @click="test()">a</button>
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <div class="flex my-4">
       <h1 class="text-3xl font-medium ">Lista esami</h1>
@@ -54,16 +53,28 @@ export default {
     ExamListItem
   },
   created () {
-    this.connectToSocket()
     this.loading = true
     axios
       .get('/exams/')
       .then(response => {
         console.log(response)
         this.exams = response.data
+        this.connectToSocket()
       })
       .catch(error => {
         console.log(error)
+        if (error.response.status == 401 || error.response.status == 403) {
+          this.$store.commit(
+            'setRedirectToAfterLogin',
+            this.$router.currentRoute.fullPath
+          )
+          this.$router.push('/login/teacher')
+        } else {
+          this.$store.commit(
+            'setMessage',
+            error.response.data.message ?? error.message
+          )
+        }
       })
       .finally(() => {
         this.loading = false
@@ -158,9 +169,6 @@ export default {
             "È in corso una modifica all'esame da parte di un altro insegnante."
         })
       }
-    },
-    test () {
-      throw new Error('abc')
     }
   },
   computed: {
