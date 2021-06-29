@@ -42,7 +42,7 @@
     <h2 class="mb-2 text-2xl">Domande più sbagliate</h2>
     <div class="w-full">
       <question-with-stats
-        v-for="question in sortedNonQuestions"
+        v-for="question in sortedNonOpenQuestions"
         :key="'q-stats-' + question.id"
         :question="question"
       ></question-with-stats>
@@ -164,10 +164,10 @@ export default {
     }
   },
   computed: {
-    sortedNonQuestions () {
+    sortedNonOpenQuestions () {
       return [...this.exam.questions.filter(q => q.answers.length)].sort(
         (a, b) => {
-          getCorrectPercent(a) - getCorrectPercent(b)
+          return getCorrectPercent(a) - getCorrectPercent(b)
         }
       )
     }
