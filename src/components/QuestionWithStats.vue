@@ -1,5 +1,7 @@
 <template>
-  <div class="p-8 mx-12 my-6 border rounded-lg shadow-md">
+  <div
+    class="p-10 my-6 transition-shadow duration-75 border border-gray-300 rounded-lg shadow-sm hover:shadow-md"
+  >
     <div class="flex mb-4 space-x-2">
       <h1 class="my-auto text-xl font-medium">Domanda</h1>
       <p class="my-auto font-light text-gray-500">
@@ -17,7 +19,19 @@
       </p>
     </div>
     <div v-highlight v-html="highlightCode(question.text)"></div>
-    <div class="flex">
+    <div
+      class="my-2 text-sm text-center text-gray-500 cursor-pointer"
+      @click="expanded = !expanded"
+    >
+      <i
+        class="mr-1 far"
+        :class="{ 'fa-eye': !expanded, 'fa-eye-slash': expanded }"
+      ></i>
+      <span class="underline"
+        >{{ expanded ? 'Nascondi' : 'Mostra' }} dettagli risposte</span
+      >
+    </div>
+    <div v-if="expanded" class="flex">
       <div class="my-auto">
         <h1
           v-if="question.answers.length"
@@ -29,12 +43,17 @@
           v-for="(answer, index) in question.answers"
           :key="'q-' + question.id + '-a-' + answer.id"
           class="flex space-x-4"
-          :class="{
-            'text-red-700': !answer.is_right_answer,
-            'text-green-700': answer.is_right_answer
-          }"
         >
-          <span class="mr-1">{{ index + 1 }}.</span>
+          <span class="mr-1"
+            ><i
+              class="mr-1 far"
+              :class="{
+                'text-red-700 fa-times-circle': !answer.is_right_answer,
+                'text-green-700 fa-check-circle': answer.is_right_answer
+              }"
+            ></i>
+            {{ index + 1 }}.</span
+          >
           <span v-highlight v-html="highlightCode(answer.text)"></span>
           <span class="font-light text-gray-500 "
             >&mdash;<span class="ml-4 font-normal text-gray-700">{{
@@ -60,6 +79,7 @@
 <script>
 import 'vue-code-highlight/themes/duotone-sea.css'
 import { highlightCode } from '../constants.js'
+import { getCorrectPercent } from '../utility.js'
 
 export default {
   name: 'QuestionWithStats',
@@ -70,6 +90,14 @@ export default {
   },
   components: {},
   watch: {
+    expanded: function (newVal) {
+      if (newVal) {
+        setTimeout(
+          () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+          10
+        )
+      }
+    },
     $props: {
       handler () {
         // render LaTeX code
@@ -83,35 +111,16 @@ export default {
     }
   },
   data () {
-    return {}
+    return {
+      expanded: false
+    }
   },
   methods: {
     highlightCode
   },
   computed: {
     correctPercent () {
-      if (
-        this.question.num_appearances == 0 ||
-        this.question.answers.length == 0
-      ) {
-        return 0
-      }
-      const num_selections_correct_answers = this.question.answers
-        .filter(a => a.is_right_answer)
-        .reduce((acc, a) => {
-          return acc + a.selections
-        }, 0)
-      if (!this.question.accepts_multiple_answers) {
-        return (
-          (num_selections_correct_answers * 100) / this.question.num_appearances
-        )
-      }
-      return (
-        (num_selections_correct_answers * 100) /
-        this.question.answers.reduce((acc, a) => {
-          return acc + a.selections
-        }, 0)
-      )
+      return getCorrectPercent(this.question)
     },
 
     barChartData () {

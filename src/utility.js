@@ -71,3 +71,25 @@ export function truncateString (str, upToChar) {
 
   return str.slice(0, upToChar) + '&#8230;'
 }
+
+export function getCorrectPercent (question) {
+  if (question.num_appearances == 0 || question.answers.length == 0) {
+    return 0
+  }
+  const num_selections_correct_answers = question.answers
+    .filter(a => a.is_right_answer)
+    .reduce((acc, a) => {
+      return acc + a.selections
+    }, 0)
+  if (!question.accepts_multiple_answers) {
+    return Math.round(
+      (num_selections_correct_answers * 100) / question.num_appearances
+    )
+  }
+  return Math.round(
+    (num_selections_correct_answers * 100) /
+      question.answers.reduce((acc, a) => {
+        return acc + a.selections
+      }, 0)
+  )
+}
