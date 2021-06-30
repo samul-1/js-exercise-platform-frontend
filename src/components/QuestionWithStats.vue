@@ -1,10 +1,18 @@
 <template>
   <div
-    class="p-10 my-6 transition-shadow duration-75 border border-gray-300 rounded-lg shadow-sm hover:shadow-md"
+    class="p-12 my-6 transition-shadow duration-75 border border-gray-300 rounded-lg shadow-sm hover:shadow-md"
   >
     <div class="flex mb-4 space-x-2">
-      <h1 class="my-auto text-xl font-medium">Domanda</h1>
-      <p class="my-auto font-light text-gray-500">
+      <h1 class="my-auto mr-auto text-xl font-medium">
+        Domanda in
+        {{
+          question.category_name.slice(0, 9).toLowerCase() == 'categoria'
+            ? ''
+            : 'categoria'
+        }}
+        {{ question.category_name }}
+      </h1>
+      <div class="my-auto text-lg font-light text-gray-600">
         <span class="mx-3">
           Vista
           <span class="font-normal text-gray-700">{{
@@ -16,8 +24,12 @@
           Percentuale risposte corrette:
           <span class="font-normal text-gray-700">{{ correctPercent }}%</span>
         </span>
-      </p>
+      </div>
     </div>
+    <aggregated-question-introduction
+      v-if="question.introduction"
+      :text="question.introduction"
+    ></aggregated-question-introduction>
     <div v-highlight v-html="highlightCode(question.text)"></div>
     <div
       class="my-2 text-sm text-center text-gray-500 cursor-pointer"
@@ -80,6 +92,7 @@
 import 'vue-code-highlight/themes/duotone-sea.css'
 import { highlightCode } from '../constants.js'
 import { getCorrectPercent } from '../utility.js'
+import AggregatedQuestionIntroduction from '../components/AggregatedQuestionIntroduction.vue'
 
 export default {
   name: 'QuestionWithStats',
@@ -88,10 +101,13 @@ export default {
       type: Object
     }
   },
-  components: {},
+  components: {
+    AggregatedQuestionIntroduction
+  },
   watch: {
     expanded: function (newVal) {
       if (newVal) {
+        // todo make this a function (`renderTex()`) and export it to utility.js
         setTimeout(
           () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
           10

@@ -39,7 +39,13 @@
         >
       </h3>
     </div>
-    <h2 class="mb-2 text-2xl">Domande più sbagliate</h2>
+    <div class="flex items-center">
+      <h2 class="text-2xl ">Domande più sbagliate</h2>
+      <span class="my-auto ml-3 font-light text-gray-600"
+        >(Sono escluse le domande aperte e quelle che non sono state
+        visualizzate da alcuno studente)</span
+      >
+    </div>
     <div class="w-full">
       <question-with-stats
         v-for="question in sortedNonOpenQuestions"
@@ -165,11 +171,13 @@ export default {
   },
   computed: {
     sortedNonOpenQuestions () {
-      return [...this.exam.questions.filter(q => q.answers.length)].sort(
-        (a, b) => {
-          return getCorrectPercent(a) - getCorrectPercent(b)
-        }
-      )
+      return [
+        ...this.exam.questions.filter(
+          q => q.answers.length || q.num_appearances > 0
+        )
+      ].sort((a, b) => {
+        return getCorrectPercent(a) - getCorrectPercent(b)
+      })
     }
   }
 }

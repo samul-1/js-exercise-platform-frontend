@@ -31,6 +31,8 @@ Vue.config.errorHandler = function (err, vm, info) {
     .post('/frontend_errors/', {
       error_details: JSON.stringify(err, Object.getOwnPropertyNames(err)),
       component_data: vm._data,
+      component_name: vm.$options.name,
+      route: vm.$route.path,
       additional_info: info
     })
     .then(response => {

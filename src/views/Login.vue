@@ -2,6 +2,7 @@
   <div
     class="w-3/5 px-32 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md login-box"
   >
+    <button @click="throwE">a</button>
     <h1 class="text-3xl font-medium">
       Login {{ $route.params.role == 'teacher' ? ' docente' : '' }}
     </h1>
@@ -71,6 +72,10 @@ export default {
     }
   },
   methods: {
+    throwE () {
+      throw new Error('abc')
+    },
+
     redirectToMainView,
     async onGoogleSignInSuccess (resp) {
       //console.log('successfully signed in with google:', resp)
