@@ -173,7 +173,7 @@ export default {
     sortedNonOpenQuestions () {
       return [
         ...this.exam.questions.filter(
-          q => q.answers.length || q.num_appearances > 0
+          q => q.answers.length && q.num_appearances > 0
         )
       ].sort((a, b) => {
         return getCorrectPercent(a) - getCorrectPercent(b)
