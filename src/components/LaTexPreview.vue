@@ -15,17 +15,17 @@
 </template>
 
 <script>
+import { renderTex } from '../utility'
 export default {
   name: 'LaTexPreview',
   props: { text: { type: String } },
   watch: {
     $props: {
       handler () {
-        // render LaTeX code
-        setTimeout(
-          () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
-          10
-        )
+        renderTex() // setTimeout(
+        //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+        //   10
+        // )
       },
       deep: true,
       immediate: true

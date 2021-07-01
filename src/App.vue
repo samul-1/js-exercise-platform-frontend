@@ -101,16 +101,16 @@ export default {
       axios.defaults.headers.common['Authorization'] = ''
     }
   },
+  created () {
+    if (this.storeSmallMsg) {
+      // hide any leftover messages from store
+      this.hideStoreSmallMessage(1000)
+    }
+  },
   watch: {
     storeSmallMsg (newVal) {
-      console.log('newVal', newVal)
       if (newVal) {
-        setTimeout(
-          () => {
-            this.$store.commit('resetSmallMessage')
-          },
-          newVal.severity == 1 ? 2000 : 3000
-        )
+        this.hideStoreSmallMessage(newVal.severity == 1 ? 2000 : 3000)
       }
     }
   },
@@ -125,6 +125,11 @@ export default {
   },
 
   methods: {
+    hideStoreSmallMessage (delay) {
+      setTimeout(() => {
+        this.$store.commit('resetSmallMessage')
+      }, delay)
+    },
     updateUserCourse () {
       if (!this.selectedCourse) return
 
@@ -136,7 +141,10 @@ export default {
           console.log(response)
           this.$store.commit('setUser', response.data)
         })
-        .catch(error => console.log(error))
+        .catch(error => {
+          console.log(error)
+          throw error // let the global handler catch this
+        })
     }
   },
   computed: {

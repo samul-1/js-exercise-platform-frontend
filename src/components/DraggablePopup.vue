@@ -43,7 +43,6 @@ export default {
   mounted () {
     // keep draggable area in sync with actual scroll width and height of the popup
     setInterval(() => {
-      // ! test
       if (window.document.getElementById('draggable-container')) {
         this.overlayHeight =
           window.document.getElementById('draggable-container').scrollHeight -

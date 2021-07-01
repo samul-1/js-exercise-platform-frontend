@@ -174,6 +174,7 @@ import AnswerEditor from './AnswerEditor.vue'
 import { uuid } from 'vue-uuid'
 import LaTexPreview from './LaTexPreview.vue'
 import { highlightCode } from '../constants'
+import { renderTex } from '../utility'
 export default {
   name: 'QuestionEditor',
   components: {
@@ -195,11 +196,11 @@ export default {
     $props: {
       handler () {
         if (!this.expanded) {
-          // render LaTeX code
-          setTimeout(
-            () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
-            10
-          )
+          renderTex()
+          // setTimeout(
+          //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+          //   10
+          // )
         }
       },
       deep: true,

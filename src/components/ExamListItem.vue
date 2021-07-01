@@ -232,7 +232,6 @@ export default {
       axios
         .patch(`/exams/${id}/terminate/`)
         .then(response => {
-          console.log(response)
           // todo refactor this (this changes the prop)
           this.exam = response.data
           this.$store.commit('setSmallMessage', {
@@ -242,6 +241,7 @@ export default {
         })
         .catch(error => {
           console.log(error)
+          throw error
         })
         .finally(() => {
           this.loading = false
@@ -260,8 +260,8 @@ export default {
         .then(response => {
           this.forceFileDownload(response, `Simulazione_${exam.name}.pdf`)
         })
-        .catch(err => {
-          console.log(err)
+        .catch(error => {
+          console.log(error)
         })
         .finally(() => {
           this.loading = false

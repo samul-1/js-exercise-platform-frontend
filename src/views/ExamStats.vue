@@ -48,7 +48,7 @@
     </div>
     <div class="w-full">
       <question-with-stats
-        v-for="question in sortedNonOpenQuestions"
+        v-for="question in sortedNonOpenSeenQuestions"
         :key="'q-stats-' + question.id"
         :question="question"
       ></question-with-stats>
@@ -106,6 +106,7 @@ export default {
         })
         .catch(error => {
           console.log(error)
+          throw error
         })
         .finally(() => {
           this.loading = false
@@ -116,38 +117,7 @@ export default {
         .get(`/exams/${this.$route.params.examid}/`)
         .then(response => {
           console.log(response.data)
-          const { categories, exercises, questions, ...rest } = response.data
-          this.exam = {
-            // separate categories (which server sees as a single type of resource) into
-            // question categories and exercise categories
-            questionCategories: categories
-              .filter(c => c.item_type == 'q')
-              .reverse(),
-            exerciseCategories: categories
-              .filter(c => c.item_type == 'e')
-              .reverse(),
-            exercises: exercises.reverse(), // reverse items as the most recent ones are at the top of the list
-            questions: questions.reverse(),
-            ...rest
-          }
-
-          // todo is there a better way to do this?
-          // strip off the "inline-block" style attribute from <p> tags to prevent issues with text editor
-          ;[...this.exam.questions, ...this.exam.exercises].forEach(item => {
-            item.text = item.text.replace(
-              /<p\s+style="display:\s*inline-block">/g,
-              '<p>'
-            )
-          })
-          ;[
-            ...this.exam.questionCategories,
-            ...this.exam.exerciseCategories
-          ].forEach(item => {
-            item.introduction_text = item.introduction_text.replace(
-              /<p\s+style="display:\s*inline-block">/g,
-              '<p>'
-            )
-          })
+          this.exam = response.data
         })
         .catch(error => {
           // todo see if you can factor this out
@@ -162,6 +132,7 @@ export default {
               'setMessage',
               error.response.data.message ?? error.message
             )
+            throw error
           }
         })
         .finally(() => {
@@ -170,7 +141,7 @@ export default {
     }
   },
   computed: {
-    sortedNonOpenQuestions () {
+    sortedNonOpenSeenQuestions () {
       return [
         ...this.exam.questions.filter(
           q => q.answers.length && q.num_appearances > 0

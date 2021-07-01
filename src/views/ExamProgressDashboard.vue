@@ -9,7 +9,7 @@
           <i class="fas fa-chevron-left"></i></button
       ></router-link>
       <h1 class="text-2xl">Esame {{ exam.name }} in corso</h1>
-      <span class="my-auto pt-0.5 ml-4 text-sm text-gray-600"
+      <span class="my-auto font-light pt-0.5 ml-4 text-sm text-gray-600"
         ><i class="far fa-clock"></i> Termine previsto:
         <strong class="font-medium">{{
           formatTimestamp(exam.end_timestamp)
@@ -150,6 +150,7 @@ export default {
             'setMessage',
             error.response.data.message ?? error.message
           )
+          throw error
         }
       })
       .finally(() => {
@@ -157,8 +158,13 @@ export default {
       })
     this.getData(true)
     // todo update more frequently around beginning and end of exam
-    // todo clear this interval when exiting the page
-    setInterval(this.getData, 5000)
+    this.setIntervalHandle = setInterval(this.getData, 5000)
+  },
+  beforeRouteLeave (_to, _from, next) {
+    if (this.setIntervalHandle) {
+      clearInterval(this.setIntervalHandle)
+    }
+    next()
   },
   data () {
     return {
@@ -189,6 +195,7 @@ export default {
       numCompleted: 0,
       exam: { end_timestamp: '0' }, // default value to prevent it from complaining about calling `formatTimestamp' on undefined initially
       loading: false,
+      setIntervalHandle: null,
       paginationOptions: {
         enabled: true,
         mode: 'pages',
@@ -225,18 +232,13 @@ export default {
         })
         .catch(error => {
           console.log(error)
+          throw error
         })
         .finally(() => {
           this.loading = false
         })
     },
     searchFn (row, col, cellValue, searchTerm) {
-      // console.log({
-      //   row,
-      //   col,
-      //   cellValue,
-      //   searchTerm
-      // })
       if (this.selectedSearchCol == 'progress') {
         if (col.field != 'progress') {
           return false

@@ -1,8 +1,6 @@
 <template>
   <div id="editor-view" ref="editorView" class="px-4 my-5">
-    <!-- // todo make into spinner component -->
     <Spinner v-if="loading"></Spinner>
-    <!-- // todo end spinner -->
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
       <div
@@ -350,7 +348,7 @@ export default {
             this.question = response.data.question
             // move to question pane
             this.pane = 'question'
-            this.seenQuestionCount++ // ! save this to local storage
+            this.seenQuestionCount++
           } else this.question.id = null
 
           // save exercise
@@ -385,6 +383,8 @@ export default {
               'setMessage',
               error.response.data.message ?? error.message
             )
+            // let the global handler catch this
+            throw error
           }
         })
     },
@@ -415,6 +415,7 @@ export default {
         })
         .catch(error => {
           console.log(JSON.stringify(error))
+          throw error
         })
     },
     submitAnswer (resetAnswer = false) {
@@ -450,6 +451,7 @@ export default {
         })
         .catch(error => {
           console.log(JSON.stringify(error))
+          throw error
         })
       this.selectedAnswers = null
     },
@@ -499,6 +501,7 @@ export default {
             error.response.data.message ?? error.message
           )
           console.log(JSON.stringify(error))
+          throw error
         })
     },
     editorInit

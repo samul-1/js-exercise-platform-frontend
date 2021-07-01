@@ -38,6 +38,7 @@
 <script>
 import 'vue-code-highlight/themes/duotone-sea.css'
 import { highlightCode } from '../constants.js'
+import { renderTex } from '../utility.js'
 
 export default {
   name: 'Question',
@@ -60,14 +61,13 @@ export default {
     answerText (newValue) {
       this.$emit('text', newValue)
     },
-    //! can this be done in a centralized way?
     $props: {
       handler () {
-        // render LaTeX code
-        setTimeout(
-          () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
-          10
-        )
+        renderTex()
+        // setTimeout(
+        //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+        //   10
+        // )
         // reset answer selection
         this.selected = []
         this.answerText = ''

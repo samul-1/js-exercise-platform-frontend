@@ -22,12 +22,15 @@
         modalità incognito.
       </p>
       <div class="mt-4 ">
-        <span class="mr-3 ">Browser supportati:</span>
+        <span class="mr-3 font-medium">Browser supportati:</span>
         <img
-          class="inline-block w-5 h-5 my-auto mr-2"
+          class="inline-block w-5 h-5 my-auto mr-2 drop-shadow"
           src="../assets/chrome.png"
         />
-        <img class="inline-block w-5 h-5 my-auto" src="../assets/firefox.png" />
+        <img
+          class="inline-block w-5 h-5 my-auto drop-shadow"
+          src="../assets/firefox.png"
+        />
       </div>
       <g-signin-button
         class=""
@@ -100,9 +103,10 @@ export default {
           axios.defaults.headers.common['Authorization'] =
             'Bearer ' + resp.data.access_token
         })
-        .catch(err => {
+        .catch(error => {
           console.log('Error converting token:')
-          console.log(err)
+          console.log(error)
+          throw error
         })
 
       // get user info from backend
@@ -126,6 +130,8 @@ export default {
             'Si è verificato un errore con il login. Ricarica la pagina e riprova.'
           )
           console.log('error getting user info', JSON.stringify(error))
+          // let the global error handler log this to server
+          throw error
         })
     },
     onGoogleSignInError (error) {
@@ -133,7 +139,15 @@ export default {
         'I cookie devono essere abilitati per utilizzare questo servizio. Esci dalla modalità incognito se la stai attualmente utilizzando, o abilita i cookie.'
       )
       console.log('google sign in error', error)
+      // let the global error handler log this to server
+      throw error
     }
   }
 }
 </script>
+
+<style>
+.drop-shadow {
+  filter: drop-shadow(1px 1px 2px rgba(134, 125, 125, 0.4));
+}
+</style>

@@ -414,6 +414,8 @@ export default {
               'setMessage',
               error.response.data.message ?? error.message
             )
+            // let the global handler catch this
+            throw error
           }
         })
         .finally(() => {
@@ -479,11 +481,12 @@ export default {
     getTeachers () {
       axios
         .get('/users/teachers/')
-        .then(resp => {
-          this.teachers = resp.data
+        .then(response => {
+          this.teachers = response.data
         })
-        .catch(err => {
-          console.log(err)
+        .catch(error => {
+          console.log(error)
+          throw error
         })
     },
     toggleExpand (id) {
@@ -518,6 +521,7 @@ export default {
         })
         .catch(error => {
           console.log(error)
+          throw error
         })
         .finally(() => {
           this.loading = false

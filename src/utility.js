@@ -17,7 +17,16 @@ export function redirectAndSetMessage (app, redirectTo, msg, severity) {
 }
 
 export function formatTimestamp (timestamp) {
+  if (!timestamp) {
+    return ''
+  }
   const [year, month, rest] = timestamp.split('-')
+  if (!year || !month) {
+    return ''
+  }
+  if (!rest) {
+    return `${day}/${month}/${year}`
+  }
   const [day, time] = rest.split(' ')
   // eslint-disable-next-line no-unused-vars
   const [hours, minutes, seconds] = time.split(':')
@@ -25,6 +34,9 @@ export function formatTimestamp (timestamp) {
 }
 
 export function formatTimestampShort (timestamps) {
+  if (!timestamps.length) {
+    return ''
+  }
   // todo refactor
   // if the two timestamps are the same day, omits the second timestamp's date and only adds the time
   const [year1, month1, rest1] = timestamps[0].split('-')
@@ -91,5 +103,12 @@ export function getCorrectPercent (question) {
       question.answers.reduce((acc, a) => {
         return acc + a.selections
       }, 0)
+  )
+}
+
+export function renderTex () {
+  setTimeout(
+    () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+    10
   )
 }

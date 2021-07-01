@@ -30,7 +30,7 @@
         <span v-if="categoryName"> esercizio {{ index }}</span>
       </h1>
     </div>
-    <ul v-if="errors" class="mb-4 -mt-2 flex space-x-4">
+    <ul v-if="errors" class="flex mb-4 -mt-2 space-x-4">
       <li v-for="(error, index) in errors" :key="exercise.id + '-err-' + index">
         <p class="text-sm text-red-500"><strong>&#183;</strong> {{ error }}</p>
       </li>
@@ -191,6 +191,7 @@ import TestCaseEditor from '../components/TestCaseEditor.vue'
 import { aceEditorOptions, toolbar, editorInit } from '../constants.js'
 import LaTexPreview from '../components/LaTexPreview.vue'
 import { highlightCode } from '../constants.js'
+import { renderTex } from '../utility'
 export default {
   name: 'ExerciseEditor',
   components: {
@@ -219,10 +220,11 @@ export default {
       handler () {
         if (!this.expanded) {
           // render LaTeX code
-          setTimeout(
-            () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
-            10
-          )
+          renderTex()
+          // setTimeout(
+          //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+          //   10
+          // )
         }
       },
       deep: true,

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-12 my-6 transition-shadow duration-75 border border-gray-300 rounded-lg shadow-sm hover:shadow-md"
+    class="p-12 my-6 transition-shadow duration-100 border border-gray-300 rounded-lg shadow-sm hover:shadow-md"
   >
     <div class="flex mb-4 space-x-2">
       <h1 class="my-auto mr-auto text-xl font-medium">
@@ -91,7 +91,7 @@
 <script>
 import 'vue-code-highlight/themes/duotone-sea.css'
 import { highlightCode } from '../constants.js'
-import { getCorrectPercent } from '../utility.js'
+import { getCorrectPercent, renderTex } from '../utility.js'
 import AggregatedQuestionIntroduction from '../components/AggregatedQuestionIntroduction.vue'
 
 export default {
@@ -107,20 +107,20 @@ export default {
   watch: {
     expanded: function (newVal) {
       if (newVal) {
-        // todo make this a function (`renderTex()`) and export it to utility.js
-        setTimeout(
-          () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
-          10
-        )
+        renderTex()
+        // setTimeout(
+        //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+        //   10
+        // )
       }
     },
     $props: {
       handler () {
-        // render LaTeX code
-        setTimeout(
-          () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
-          10
-        )
+        renderTex()
+        // setTimeout(
+        //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
+        //   10
+        // )
       },
       deep: true,
       immediate: true
