@@ -796,7 +796,7 @@ export default {
     editorErrors () {
       return getEditorErrors(this.exam)
     },
-    // todo add error reporting
+    // todo use editorErrors to know if form is invalid
     invalidForm () {
       return (
         /* exam fields checks */

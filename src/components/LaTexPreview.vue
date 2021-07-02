@@ -22,7 +22,8 @@ export default {
   watch: {
     $props: {
       handler () {
-        renderTex() // setTimeout(
+        renderTex()
+        // setTimeout(
         //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
         //   10
         // )

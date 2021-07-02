@@ -11,6 +11,7 @@
         </button></router-link
       >
     </div>
+    <skeleton v-if="loadingExams"></skeleton>
     <exam-list-item
       v-for="exam in recentExams"
       :key="exam.id"
@@ -45,15 +46,17 @@ import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
 import ExamListItem from '../components/ExamListItem.vue'
 import { forceFileDownload } from '../filedownloads'
+import Skeleton from '../components/Skeleton.vue'
 
 export default {
   name: 'ExamList',
   components: {
     Spinner,
-    ExamListItem
+    ExamListItem,
+    Skeleton
   },
   created () {
-    this.loading = true
+    this.loadingExams = true
     axios
       .get('/exams/')
       .then(response => {
@@ -77,7 +80,7 @@ export default {
         }
       })
       .finally(() => {
-        this.loading = false
+        this.loadingExams = false
       })
   },
   beforeRouteLeave (to, from, next) {
@@ -92,6 +95,7 @@ export default {
     return {
       exams: [],
       loading: false,
+      loadingExams: false,
       loadingMessage: '',
       socket: null,
       showOldExams: false
