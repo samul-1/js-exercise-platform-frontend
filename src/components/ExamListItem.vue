@@ -262,6 +262,7 @@ export default {
         })
         .catch(error => {
           console.log(error)
+          throw error
         })
         .finally(() => {
           this.loading = false
@@ -285,6 +286,7 @@ export default {
         })
         .catch(error => {
           console.log(error)
+          throw error
         })
         .finally(() => {
           this.loading = false
@@ -305,6 +307,7 @@ export default {
         })
         .catch(error => {
           console.log(error)
+          throw error
         })
         .finally(() => {
           this.loading = false
@@ -312,7 +315,6 @@ export default {
     },
     showExamInstructions (exam) {
       // shows a dialog that prompts the user for confirmation to close an exam
-
       this.dialog = {
         shown: true,
         string: "Istruzioni per l'accesso all'esame",

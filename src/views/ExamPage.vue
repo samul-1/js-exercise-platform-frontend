@@ -149,6 +149,11 @@
             @answer="selectedAnswers = $event"
             @text="answerText = $event"
           ></Question>
+          <!--<new-question-test
+            :question="question"
+            @answer="selectedAnswers = $event"
+            @text="answerText = $event"
+          ></new-question-test>-->
         </div>
       </div>
       <!-- submissions sidebar -->
@@ -239,6 +244,7 @@ import Spinner from '../components/Spinner.vue'
 import Submission from '../components/Submission.vue'
 import TestCase from '../components/TestCase.vue'
 import Question from '../components/Question.vue'
+// import NewQuestionTest from '../components/NewQuestionTest.vue'
 import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
@@ -259,6 +265,7 @@ export default {
     TestCase,
     Dialog,
     Question,
+    // NewQuestionTest,
     Skeleton,
     DraggablePopup,
     Spinner,

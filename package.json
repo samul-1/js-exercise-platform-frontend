@@ -18,6 +18,7 @@
     "vue-clickaway": "^2.2.2",
     "vue-code-highlight": "^0.7.6",
     "vue-csv-import": "^2.3.4",
+    "vue-debounce": "^3.0.0",
     "vue-good-table": "^2.21.10",
     "vue-google-login": "^2.0.5",
     "vue-google-signin-button": "^1.0.4",
