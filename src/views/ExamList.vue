@@ -36,6 +36,7 @@
         :key="exam.id"
         :exam="exam"
         :old="true"
+        :hideStats="true"
       ></exam-list-item>
     </div>
   </div>

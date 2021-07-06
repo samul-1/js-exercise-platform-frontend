@@ -47,7 +47,7 @@
       <button
         class=" px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-1 text-sm fas fa-file-pdf"></i> Simulazione
+        <i class="mr-1 text-sm fas fa-file-pdf"></i> PDF
       </button>
       <ul
         class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
@@ -112,7 +112,16 @@
       <i class="mr-1 text-sm fas fa-link"></i>
       Codice accesso
     </button>
+    <router-link :to="`/exams/${exam.id}/stats`"
+      ><button
+        v-if="exam.closed && !hideStats"
+        class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      >
+        <i class="mr-1 fas fa-chart-bar "></i>
 
+        Statistiche
+      </button></router-link
+    >
     <!-- end left buttons -->
 
     <!--right buttons -->
@@ -197,6 +206,10 @@ export default {
       type: Object
     },
     old: {
+      type: Boolean,
+      default: false
+    },
+    hideStats: {
       type: Boolean,
       default: false
     }
