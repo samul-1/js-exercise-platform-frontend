@@ -70,7 +70,14 @@
     </main>
     <footer class="flex w-full px-6 py-3 text-sm text-white bg-gray-900">
       <p>
-        Powered by
+        Crafted with
+        <img
+          alt="love"
+          class="inline-block mb-0.5"
+          style="width: 0.95rem"
+          src="./assets/heart.png"
+        />
+        by
         <a
           target="_blank"
           class="font-medium text-blue-300 hover:underline"
