@@ -74,7 +74,7 @@
         <img
           alt="love"
           class="inline-block mb-0.5"
-          style="width: 0.95rem"
+          style="width: 0.95rem; margin-left: 1px; margin-right: 1px"
           src="./assets/heart.png"
         />
         by
