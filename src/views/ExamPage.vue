@@ -378,11 +378,12 @@ export default {
               this.$router.currentRoute.fullPath
             )
             this.$router.push('/login')
+            // TODO try this: use 404 for non-existent exam or not-yet-begun exam, and use 410 for closed exam
           } else if (error.response.status == 404) {
             this.$store.commit('setSmallMessage', {
               severity: 2,
               // todo better message for exam that hasn't started yet or is closed
-              msg: 'Esame non trovato.'
+              msg: 'Esame non trovato.' // todo probably `error.message ?? 'Esame non trovato'`
             })
             this.$router.push('/exam')
           } else {
