@@ -37,7 +37,7 @@
           >
             Domanda {{ seenQuestionCount }}
           </div>
-          <button
+          <!-- <button
             v-if="question.id"
             @click="confirmSkippingQuestion()"
             class="p-1 px-3 mr-1 font-medium text-white transition-all duration-75 bg-red-700 shadow-md cursor-pointer rounded-t-md hover:bg-red-800"
@@ -56,6 +56,22 @@
           >
             <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
             Invia risposta
+          </button> -->
+
+          <button
+            @click="getExam(-1)"
+            :disabled="isSendingAnswer"
+            class="w-40 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-600 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-700"
+          >
+            <i class="mr-2 fas fa-chevron-left"></i> Indietro
+          </button>
+
+          <button
+            @click="getExam(1)"
+            :disabled="isSendingAnswer"
+            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-600 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-700"
+          >
+            Avanti <i class="ml-2 fas fa-chevron-right"></i>
           </button>
 
           <!-- exercise controls -->
@@ -144,16 +160,17 @@
             v-if="question.introduction"
             :text="question.introduction"
           ></AggregatedQuestionIntroduction>
-          <Question
+          <!-- <Question
             :question="question"
             @answer="selectedAnswers = $event"
             @text="answerText = $event"
-          ></Question>
-          <!--<new-question-test
+          ></Question> -->
+          <new-question-test
             :question="question"
-            @answer="selectedAnswers = $event"
-            @text="answerText = $event"
-          ></new-question-test>-->
+            :examId="$route.params.examId"
+            @sendingAnswer="isSendingAnswer = true"
+            @sentAnswer="isSendingAnswer = false"
+          ></new-question-test>
         </div>
       </div>
       <!-- submissions sidebar -->
@@ -243,8 +260,8 @@ import AceEditor from 'vuejs-ace-editor'
 import Spinner from '../components/Spinner.vue'
 import Submission from '../components/Submission.vue'
 import TestCase from '../components/TestCase.vue'
-import Question from '../components/Question.vue'
-// import NewQuestionTest from '../components/NewQuestionTest.vue'
+// import Question from '../components/Question.vue'
+import NewQuestionTest from '../components/NewQuestionTest.vue'
 import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
@@ -264,8 +281,8 @@ export default {
     Submission,
     TestCase,
     Dialog,
-    Question,
-    // NewQuestionTest,
+    //Question,
+    NewQuestionTest,
     Skeleton,
     DraggablePopup,
     Spinner,
@@ -296,7 +313,7 @@ export default {
       dialog: {
         shown: false
       },
-
+      isSendingAnswer: false,
       loading: false,
 
       editorElement: document.getElementById('app'),
@@ -322,8 +339,6 @@ export default {
       seenQuestionCount: 0,
 
       code: '',
-      selectedAnswers: null,
-      answerText: '',
 
       processingSubmission: false,
       submissions: [],
@@ -333,11 +348,25 @@ export default {
   },
   methods: {
     highlightCode,
-    getExam () {
+    getExam (delta = 0) {
       const examId = this.$route.params.examId
       this.loading = true
+
+      let apiEntryPoint
+
+      switch (delta) {
+        case 1:
+          apiEntryPoint = 'next_item'
+          break
+        case -1:
+          apiEntryPoint = 'previous_item'
+          break
+        default:
+          apiEntryPoint = 'current_item'
+      }
+
       axios
-        .post(`/exams/${examId}/my_exam/`)
+        .post(`/exams/${examId}/${apiEntryPoint}/`)
         .then(response => {
           console.log(response)
           this.loading = false
@@ -425,43 +454,6 @@ export default {
           console.log(JSON.stringify(error))
           throw error
         })
-    },
-    submitAnswer (resetAnswer = false) {
-      // submits answer to the server, then loads next question or exercise. When
-      // a question is skipped, this function is called with `resetAnswer` set to true, to
-      // send a null answer even if the user had clicked on an answer before deciding to skip
-      if (resetAnswer) {
-        this.selectedAnswers = this.question.accepts_multiple_answers
-          ? []
-          : [null]
-        this.answerText = ''
-      }
-
-      // close confirmation dialog if it had been opened
-      this.dialog = { shown: false }
-
-      axios
-        .post(
-          `/questions/${this.question.id}/given_answers/${
-            this.question.accepts_multiple_answers ? 'multiple/' : ''
-          }`,
-          {
-            answer: this.question.accepts_multiple_answers
-              ? this.selectedAnswers
-              : this.selectedAnswers[0],
-            text: this.answerText
-          }
-        )
-        .then(response => {
-          console.log(response.data)
-          // ask for next exercise or question
-          this.getExam()
-        })
-        .catch(error => {
-          console.log(JSON.stringify(error))
-          throw error
-        })
-      this.selectedAnswers = null
     },
     confirmTurnIn (id) {
       // shows a dialog that prompts the user for confirmation to turn in a submission

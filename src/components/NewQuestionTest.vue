@@ -43,6 +43,9 @@ export default {
   props: {
     question: {
       type: Object
+    },
+    examId: {
+      type: [Number, String]
     }
   },
   directives: { debounce: getDirective() },
@@ -68,7 +71,7 @@ export default {
       // called `oldValue` and `newValue` will differ by one and only one element
       if (newValue.length > oldValue.length) {
         // a new answer was checked: send server request to record the given answer
-        this.sendAnswer(newValue.slice(-1))
+        this.sendAnswer(newValue.slice(-1)[0])
       } else {
         const uncheckedAnswer = oldValue.filter(a => !newValue.includes(a))[0]
         this.withdrawAnswer(uncheckedAnswer)
@@ -80,11 +83,18 @@ export default {
       // TODO you probably need to emit some event to tell the parent to lock "forward/back" buttons
     },
     question: {
-      handler () {
+      handler (newVal) {
         renderTex()
         this.ignoreWatchers = true // prevent `selectedStringified` watcher from firing
         this.selected = [] // TODO this will make the watcher for `selectedStringified` fire--how to avoid?
         this.answerText = ''
+
+        const alreadySelected = newVal.answers
+          .filter(a => a.is_selected)
+          .map(a => a.id)
+
+        this.selected = [...alreadySelected]
+
         this.$nextTick(() => {
           this.ignoreWatchers = false
         })
@@ -109,8 +119,9 @@ export default {
     sendAnswer (answer) {
       // issue request to give an answer to this question
       this.loading = true
+      this.$emit('sendingAnswer')
       axios
-        .post(`/questions/${this.question.id}/give_answer`, {
+        .post(`/exams/${this.examId}/give_answer/`, {
           answer
         })
         .then(response => {
@@ -121,12 +132,13 @@ export default {
         })
         .finally(() => {
           this.loading = false
+          this.$emit('sentAnswer')
         })
     },
     sendAnswerText (text) {
       this.loading = true
       axios
-        .post(`/questions/${this.question.id}/give_answer`, {
+        .post(`/exams/${this.examId}/give_answer/`, {
           text
         })
         .then(response => {
@@ -147,7 +159,7 @@ export default {
       // issue request to delete an answer given to this question
       this.loading = true
       axios
-        .post(`/questions/${this.question.id}/withdraw_answer`, {
+        .post(`/exams/${this.examId}/withdraw_answer/`, {
           answer
         })
         .then(response => {
