@@ -57,12 +57,12 @@ export default {
       const newValue = JSON.parse(_newValue)
       const oldValue = JSON.parse(_oldValue)
 
-      let action, argument
+      let apiAction, argument
 
       if (!this.question.accepts_multiple_answers) {
         // question accepts a single answer and the selected answer changed: send
         // server request to (create or) update the answer given to this question
-        action = this.sendAnswer
+        apiAction = 'give_answer'
         argument = newValue[0]
       }
 
@@ -71,17 +71,17 @@ export default {
       // called `oldValue` and `newValue` will differ by one and only one element
       else if (newValue.length > oldValue.length) {
         // a new answer was checked: send server request to record the given answer
-        action = this.sendAnswer
+        apiAction = 'give_answer'
         argument = newValue.slice(-1)[0]
       } else {
         // a previously selected answer was unchecked: send server request to delete the answer
         const uncheckedAnswer = oldValue.filter(a => !newValue.includes(a))[0]
-        action = this.withdrawAnswer
+        apiAction = 'withdraw_answer'
         argument = uncheckedAnswer
       }
 
       try {
-        await action(argument)
+        await this.sendAnswerUpdate(apiAction, argument)
       } catch {
         // roll back to before state as the request to server failed
         this.noWatcherSetSelectedAnswers(oldValue)
@@ -123,12 +123,12 @@ export default {
   methods: {
     highlightCode,
     // TODO factor the three functions below into one
-    async sendAnswer (answer) {
-      // issue request to give an answer to this question
+    async sendAnswerUpdate (apiActionUrl, answer) {
+      // issue request to update (give/withdraw) an answer to this question
       this.loading = true
       this.$emit('sendingAnswer')
       await axios
-        .post(`/exams/${this.examId}/give_answer/`, {
+        .post(`/exams/${this.examId}/${apiActionUrl}/`, {
           answer
         })
         .then(response => {
@@ -167,29 +167,6 @@ export default {
           // todo remove this in production
           console.log('setting dirty to false')
           this.answerTextDirty = false
-        })
-    },
-    async withdrawAnswer (answer) {
-      // issue request to delete an answer given to this question
-      this.loading = true
-      this.$emit('sendingAnswer')
-      await axios
-        .post(`/exams/${this.examId}/withdraw_answer/`, {
-          answer
-        })
-        .then(response => {
-          console.log(response)
-        })
-        .catch(error => {
-          this.$store.commit('setSmallMessage', {
-            severity: 2,
-            msg: error.response.data.message ?? error.message
-          })
-          throw error
-        })
-        .finally(() => {
-          this.loading = false
-          this.$emit('sentAnswer')
         })
     },
     noWatcherSetSelectedAnswers (value) {

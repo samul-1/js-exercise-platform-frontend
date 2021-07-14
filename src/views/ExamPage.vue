@@ -383,7 +383,6 @@ export default {
         .post(`/exams/${examId}/${apiEntryPoint}/`)
         .then(response => {
           console.log(response)
-          this.loading = false
           // backend will return 204 if all exercises and questions have been completed
           if (response.status == 204) {
             this.$store.commit(
@@ -439,6 +438,9 @@ export default {
             // let the global handler catch this
             throw error
           }
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     submitCode () {
