@@ -35,7 +35,7 @@
             @click="pane = 'question'"
             :class="{ 'bg-gray-700': pane == 'question' }"
           >
-            Domanda {{ seenQuestionCount }}
+            Domanda {{ currentQuestionNumber + 1 }}
           </div>
           <!-- <button
             v-if="question.id"
@@ -60,18 +60,28 @@
 
           <button
             @click="getExam(-1)"
-            :disabled="isSendingAnswer"
-            class="w-40 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-600 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-700"
+            v-if="allowGoingBack"
+            :disabled="isSendingAnswer || isFirstItem || loading"
+            class="w-40 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
             <i class="mr-2 fas fa-chevron-left"></i> Indietro
           </button>
 
           <button
             @click="getExam(1)"
-            :disabled="isSendingAnswer"
-            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-600 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-700"
+            :disabled="isSendingAnswer || loading"
+            v-if="!isLastItem"
+            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
             Avanti <i class="ml-2 fas fa-chevron-right"></i>
+          </button>
+          <button
+            @click="confirmEndExam()"
+            :disabled="isSendingAnswer || loading"
+            v-else
+            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-700 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-green-600 active:bg-green-700"
+          >
+            <i class="mr-1 fas fa-check"></i> Termina
           </button>
 
           <!-- exercise controls -->
@@ -226,7 +236,9 @@
                 :canBeTurnedIn="submission.is_eligible && !index"
                 :index="submissions.length - index"
                 :submission="submission"
-                @turnIn="confirmTurnIn(submission.id)"
+                @turnInSubmissionCode="
+                  confirmTurnInCodeSubmission(submission.id)
+                "
               ></Submission>
             </div>
           </div>
@@ -324,6 +336,7 @@ export default {
       editorOptions: {},
 
       examName: null,
+      allowGoingBack: false,
 
       exercise: {
         id: null,
@@ -335,10 +348,11 @@ export default {
         text: '',
         answers: []
       },
-
-      seenQuestionCount: 0,
-
       code: '',
+
+      currentQuestionNumber: 0,
+      isFirstItem: false,
+      isLastItem: false,
 
       processingSubmission: false,
       submissions: [],
@@ -384,8 +398,8 @@ export default {
             this.question = response.data.question
             // move to question pane
             this.pane = 'question'
-            this.seenQuestionCount++
-          } else this.question.id = null
+            this.currentQuestionNumber = response.data.ordering
+          }
 
           // save exercise
           if (response.data.exercise) {
@@ -394,11 +408,15 @@ export default {
             this.exercise = exercise
             // move to assignment text pane
             this.pane = 'text'
-          } else this.exercise.id = null
+
+            this.submissions = response.data.submissions
+          }
 
           // copy rest of response data into the corresponding fields
           this.examName = response.data.name
-          this.submissions = response.data.submissions
+          this.isFirstItem = response.data.is_first_item
+          this.isLastItem = response.data.is_last_item
+          this.allowGoingBack = response.data.allow_going_back
         })
         .catch(error => {
           if (error.response.status == 401 || error.response.status == 403) {
@@ -407,12 +425,10 @@ export default {
               this.$router.currentRoute.fullPath
             )
             this.$router.push('/login')
-            // TODO try this: use 404 for non-existent exam or not-yet-begun exam, and use 410 for closed exam
           } else if (error.response.status == 404) {
             this.$store.commit('setSmallMessage', {
               severity: 2,
-              // todo better message for exam that hasn't started yet or is closed
-              msg: 'Esame non trovato.' // todo probably `error.message ?? 'Esame non trovato'`
+              msg: 'Esame non trovato.'
             })
             this.$router.push('/exam')
           } else {
@@ -455,7 +471,7 @@ export default {
           throw error
         })
     },
-    confirmTurnIn (id) {
+    confirmTurnInCodeSubmission (id) {
       // shows a dialog that prompts the user for confirmation to turn in a submission
       this.dialog = {
         shown: true,
@@ -463,27 +479,45 @@ export default {
         subText:
           'Una volta confermata, la consegna non potrà più essere modificata.',
         confirmOnly: false,
-        onYes: { callback: this.turnIn, param: id },
+        onYes: { callback: this.turnInSubmissionCode, param: id },
         onNo: {
           callback: () => (this.dialog = { shown: false })
         }
       }
     },
-    confirmSkippingQuestion () {
-      // shows a dialog that prompts the user for confirmation to submit an answer
+    confirmEndExam () {
+      // shows a dialog that prompts the user for confirmation to end the exam
       this.dialog = {
         shown: true,
-        string: 'Sei sicuro di voler saltare questa domanda?',
+        string: 'Sei sicuro di voler consegnare?',
         subText: 'Se confermi, non potrai più tornare indietro.',
         confirmOnly: false,
         severity: 2,
-        onYes: { callback: this.submitAnswer, param: true },
+        onYes: { callback: this.endExam },
         onNo: {
           callback: () => (this.dialog = { shown: false })
         }
       }
     },
-    turnIn (submissionId) {
+    endExam () {
+      this.dialog = { shown: false }
+      axios
+        .post(`/exams/${this.$route.params.examId}/end_exam/`, {})
+        .then(() => {
+          this.$store.commit(
+            'setMessage',
+            'Hai completato tutti gli esercizi. Puoi chiudere questa pagina.'
+          )
+        })
+        .catch(error => {
+          this.$store.commit(
+            'setMessage',
+            error.response.data.message ?? error.message
+          )
+          throw error
+        })
+    },
+    turnInSubmissionCode (submissionId) {
       // makes a PUT request to the server asking to turn in an eligible submission
       this.dialog = { shown: false }
       axios

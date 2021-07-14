@@ -9,9 +9,9 @@
           :disabled="loading"
           :type="question.accepts_multiple_answers ? 'checkbox' : 'radio'"
           :id="'ans-' + answer.id"
+          class="mr-1"
           :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           v-model="selected"
-          class="mr-1"
         />
         <label :for="'ans-' + answer.id"
           ><span v-highlight v-html="highlightCode(answer.text)"></span>
@@ -34,7 +34,7 @@
 <script>
 import 'vue-code-highlight/themes/duotone-sea.css'
 import { highlightCode } from '../constants.js'
-import { renderTex } from '../utility.js'
+// import { renderTex } from '../utility.js'
 import axios from 'axios'
 import { getDirective } from 'vue-debounce'
 
@@ -50,54 +50,61 @@ export default {
   },
   directives: { debounce: getDirective() },
   watch: {
-    selectedStringified (_newValue, _oldValue) {
+    async selectedStringified (_newValue, _oldValue) {
       if (this.ignoreWatchers) {
         return
       }
       const newValue = JSON.parse(_newValue)
       const oldValue = JSON.parse(_oldValue)
 
-      console.log('new', newValue, 'old', oldValue)
+      let action, argument
 
       if (!this.question.accepts_multiple_answers) {
         // question accepts a single answer and the selected answer changed: send
         // server request to (create or) update the answer given to this question
-        this.sendAnswer(newValue[0])
-        return
+        action = this.sendAnswer
+        argument = newValue[0]
       }
 
       // if the question accepts multiple answers, then either a new answer was checked
       // or a checked answer was un-checked - the assumption here is when this watcher is
       // called `oldValue` and `newValue` will differ by one and only one element
-      if (newValue.length > oldValue.length) {
+      else if (newValue.length > oldValue.length) {
         // a new answer was checked: send server request to record the given answer
-        this.sendAnswer(newValue.slice(-1)[0])
+        action = this.sendAnswer
+        argument = newValue.slice(-1)[0]
       } else {
+        // a previously selected answer was unchecked: send server request to delete the answer
         const uncheckedAnswer = oldValue.filter(a => !newValue.includes(a))[0]
-        this.withdrawAnswer(uncheckedAnswer)
+        action = this.withdrawAnswer
+        argument = uncheckedAnswer
+      }
+
+      try {
+        await action(argument)
+      } catch {
+        // roll back to before state as the request to server failed
+        this.noWatcherSetSelectedAnswers(oldValue)
       }
     },
     answerText () {
-      console.log('setting dirty to true')
+      // todo if this.answerTextDirty is false, set it to true and emit an event to block the buttons
       this.answerTextDirty = true
-      // TODO you probably need to emit some event to tell the parent to lock "forward/back" buttons
     },
     question: {
       handler (newVal) {
-        renderTex()
-        this.ignoreWatchers = true // prevent `selectedStringified` watcher from firing
-        this.selected = [] // TODO this will make the watcher for `selectedStringified` fire--how to avoid?
-        this.answerText = ''
+        // renderTex()
 
+        // this.selected = []
+        this.answerText = '' //?
+
+        // set answers that had previously been selected (i.e. before refreshing
+        // the page or coming back to a question the user had already answered)
         const alreadySelected = newVal.answers
           .filter(a => a.is_selected)
           .map(a => a.id)
 
-        this.selected = [...alreadySelected]
-
-        this.$nextTick(() => {
-          this.ignoreWatchers = false
-        })
+        this.noWatcherSetSelectedAnswers(alreadySelected)
       },
       deep: true,
       immediate: true
@@ -116,11 +123,11 @@ export default {
   methods: {
     highlightCode,
     // TODO factor the three functions below into one
-    sendAnswer (answer) {
+    async sendAnswer (answer) {
       // issue request to give an answer to this question
       this.loading = true
       this.$emit('sendingAnswer')
-      axios
+      await axios
         .post(`/exams/${this.examId}/give_answer/`, {
           answer
         })
@@ -128,13 +135,19 @@ export default {
           console.log(response)
         })
         .catch(error => {
-          console.log(error)
+          this.$store.commit('setSmallMessage', {
+            severity: 2,
+            msg: error.response.data.message ?? error.message
+          })
+          // throw error back to caller for catching
+          throw error
         })
         .finally(() => {
           this.loading = false
           this.$emit('sentAnswer')
         })
     },
+    // todo handle failure
     sendAnswerText (text) {
       this.loading = true
       axios
@@ -146,6 +159,7 @@ export default {
           this.answerTextDirty = false // TODO you probably need to emit some event to tell the parent to unlock "forward/back" buttons
         })
         .catch(error => {
+          // todo throw error back to caller for catching
           console.log(error)
         })
         .finally(() => {
@@ -155,10 +169,11 @@ export default {
           this.answerTextDirty = false
         })
     },
-    withdrawAnswer (answer) {
+    async withdrawAnswer (answer) {
       // issue request to delete an answer given to this question
       this.loading = true
-      axios
+      this.$emit('sendingAnswer')
+      await axios
         .post(`/exams/${this.examId}/withdraw_answer/`, {
           answer
         })
@@ -166,11 +181,26 @@ export default {
           console.log(response)
         })
         .catch(error => {
-          console.log(error)
+          this.$store.commit('setSmallMessage', {
+            severity: 2,
+            msg: error.response.data.message ?? error.message
+          })
+          throw error
         })
         .finally(() => {
           this.loading = false
+          this.$emit('sentAnswer')
         })
+    },
+    noWatcherSetSelectedAnswers (value) {
+      // sets the flag to ignore watchers for `selected`, then sets `selected` to the passed value,
+      // and finally resets the flag. this is used to roll back the value of `selected` when a server
+      // error occurs or when the propr `question` changes
+      this.ignoreWatchers = true
+      this.selected = [...value]
+      this.$nextTick(() => {
+        this.ignoreWatchers = false
+      })
     }
   },
   computed: {
