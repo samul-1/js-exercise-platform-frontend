@@ -57,13 +57,15 @@ export default {
       const newValue = JSON.parse(_newValue)
       const oldValue = JSON.parse(_oldValue)
 
-      let apiAction, argument
+      let apiAction, body
 
       if (!this.question.accepts_multiple_answers) {
         // question accepts a single answer and the selected answer changed: send
         // server request to (create or) update the answer given to this question
         apiAction = 'give_answer'
-        argument = newValue[0]
+        body = {
+          answer: newValue[0]
+        }
       }
 
       // if the question accepts multiple answers, then either a new answer was checked
@@ -72,32 +74,33 @@ export default {
       else if (newValue.length > oldValue.length) {
         // a new answer was checked: send server request to record the given answer
         apiAction = 'give_answer'
-        argument = newValue.slice(-1)[0]
+        body = {
+          answer: newValue.slice(-1)[0]
+        }
       } else {
         // a previously selected answer was unchecked: send server request to delete the answer
         const uncheckedAnswer = oldValue.filter(a => !newValue.includes(a))[0]
         apiAction = 'withdraw_answer'
-        argument = uncheckedAnswer
+        body = {
+          answer: uncheckedAnswer
+        }
       }
 
       try {
-        await this.sendAnswerUpdate(apiAction, argument)
+        await this.sendAnswerUpdate(apiAction, body)
       } catch {
         // roll back to before state as the request to server failed
         this.noWatcherSetSelectedAnswers(oldValue)
       }
     },
     answerText () {
-      // todo if this.answerTextDirty is false, set it to true and emit an event to block the buttons
-      this.answerTextDirty = true
+      if (!this.answerTextDirty && !this.ignoreWatchers) {
+        this.answerTextDirty = true
+        this.$emit('sendingAnswer')
+      }
     },
     question: {
       handler (newVal) {
-        // renderTex()
-
-        // this.selected = []
-        this.answerText = '' //?
-
         // set answers that had previously been selected (i.e. before refreshing
         // the page or coming back to a question the user had already answered)
         const alreadySelected = newVal.answers
@@ -105,6 +108,7 @@ export default {
           .map(a => a.id)
 
         this.noWatcherSetSelectedAnswers(alreadySelected)
+        this.noWatcherSetAnswerText(newVal.answer_text)
       },
       deep: true,
       immediate: true
@@ -123,14 +127,12 @@ export default {
   methods: {
     highlightCode,
     // TODO factor the three functions below into one
-    async sendAnswerUpdate (apiActionUrl, answer) {
+    async sendAnswerUpdate (apiActionUrl, body) {
       // issue request to update (give/withdraw) an answer to this question
       this.loading = true
       this.$emit('sendingAnswer')
       await axios
-        .post(`/exams/${this.examId}/${apiActionUrl}/`, {
-          answer
-        })
+        .post(`/exams/${this.examId}/${apiActionUrl}/`, body)
         .then(response => {
           console.log(response)
         })
@@ -145,29 +147,13 @@ export default {
         .finally(() => {
           this.loading = false
           this.$emit('sentAnswer')
-        })
-    },
-    // todo handle failure
-    sendAnswerText (text) {
-      this.loading = true
-      axios
-        .post(`/exams/${this.examId}/give_answer/`, {
-          text
-        })
-        .then(response => {
-          console.log(response)
-          this.answerTextDirty = false // TODO you probably need to emit some event to tell the parent to unlock "forward/back" buttons
-        })
-        .catch(error => {
-          // todo throw error back to caller for catching
-          console.log(error)
-        })
-        .finally(() => {
-          this.loading = false
-          // todo remove this in production
-          console.log('setting dirty to false')
           this.answerTextDirty = false
         })
+    },
+    async sendAnswerText () {
+      await this.sendAnswerUpdate('give_answer', {
+        text: this.answerText
+      })
     },
     noWatcherSetSelectedAnswers (value) {
       // sets the flag to ignore watchers for `selected`, then sets `selected` to the passed value,
@@ -175,6 +161,13 @@ export default {
       // error occurs or when the propr `question` changes
       this.ignoreWatchers = true
       this.selected = [...value]
+      this.$nextTick(() => {
+        this.ignoreWatchers = false
+      })
+    },
+    noWatcherSetAnswerText (value) {
+      this.ignoreWatchers = true
+      this.answerText = value
       this.$nextTick(() => {
         this.ignoreWatchers = false
       })
