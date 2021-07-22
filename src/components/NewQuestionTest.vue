@@ -18,7 +18,7 @@
         </label>
       </div>
     </div>
-    <div class="flex" v-else>
+    <div v-else>
       <textarea
         placeholder="Scrivi qui la tua risposta..."
         class="p-2 mx-auto border border-gray-200 rounded-md shadow-sm "
@@ -27,6 +27,18 @@
         v-model="answerText"
         v-debounce:1500ms.lock="sendAnswerText"
       ></textarea>
+      <div class="my-2" v-if="errorWhileUpdatingAnswerText">
+        <span class="inline text-red-500">
+          Si è verificato un errore e parte della tua risposta non è stata
+          salvata.
+        </span>
+        <button
+          @click="sendAnswerText"
+          class="mr-auto px-3 py-0.5 my-auto ml-2 text-lg text-white transition-all duration-100 bg-red-700 rounded-md hover:bg-red-800"
+        >
+          Riprova
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -93,8 +105,10 @@ export default {
         this.noWatcherSetSelectedAnswers(oldValue)
       }
     },
-    answerText () {
+    // eslint-disable-next-line no-unused-vars
+    answerText (_newVal, oldVal) {
       if (!this.answerTextDirty && !this.ignoreWatchers) {
+        this.savedAnswerText = oldVal
         this.answerTextDirty = true
         this.$emit('sendingAnswer')
       }
@@ -121,7 +135,9 @@ export default {
       answerText: '',
       answerTextDirty: false,
       loading: false,
-      ignoreWatchers: false
+      ignoreWatchers: false,
+      savedAnswerText: '',
+      errorWhileUpdatingAnswerText: false
     }
   },
   methods: {
@@ -135,6 +151,7 @@ export default {
         .post(`/exams/${this.examId}/${apiActionUrl}/`, body)
         .then(response => {
           console.log(response)
+          this.errorWhileUpdatingAnswerText = false
         })
         .catch(error => {
           this.$store.commit('setSmallMessage', {
@@ -151,9 +168,13 @@ export default {
         })
     },
     async sendAnswerText () {
-      await this.sendAnswerUpdate('give_answer', {
-        text: this.answerText
-      })
+      try {
+        await this.sendAnswerUpdate('give_answer', {
+          text: this.answerText
+        })
+      } catch {
+        this.errorWhileUpdatingAnswerText = true
+      }
     },
     noWatcherSetSelectedAnswers (value) {
       // sets the flag to ignore watchers for `selected`, then sets `selected` to the passed value,

@@ -196,6 +196,8 @@ export default {
     return {
       loading: false,
       loadingMessage: '',
+      pollIntervalHandle: null,
+      pollForResults: false,
       dialog: {
         shown: false
       }
@@ -212,6 +214,19 @@ export default {
     hideStats: {
       type: Boolean,
       default: false
+    }
+  },
+  watch: {
+    pollForResults (newVal) {
+      if (newVal) {
+        this.pollIntervalHandle = setInterval(this.getZipArchive, 2500)
+        this.loadingMessage =
+          'Generazione dei report in corso. Questo processo potrebbe impiegare alcuni minuti...'
+      } else {
+        clearInterval(this.pollIntervalHandle)
+        this.pollIntervalHandle = null
+        this.loadingMessage = ''
+      }
     }
   },
   methods: {
@@ -271,7 +286,10 @@ export default {
           }
         )
         .then(response => {
-          this.forceFileDownload(response, `Simulazione_${exam.name}.pdf`)
+          this.forceFileDownload(
+            response,
+            `${allItems ? 'Completo' : 'Simulazione'}_${exam.name}.pdf`
+          )
         })
         .catch(error => {
           console.log(error)
@@ -281,21 +299,18 @@ export default {
           this.loading = false
         })
     },
-    getCSVReport (exam) {
+    getCSVReport () {
       this.loading = true
       axios
         .post(
-          `exams/${exam.id}/report/`,
+          `exams/${this.exam.id}/report/`,
           {},
           {
-            headers: {
-              Accept: 'text/csv'
-            },
             responseType: 'blob'
           }
         )
         .then(response => {
-          this.forceFileDownload(response, `${exam.name}.csv`)
+          this.forceFileDownload(response, `${this.exam.name}.csv`)
         })
         .catch(error => {
           console.log(error)
@@ -305,25 +320,33 @@ export default {
           this.loading = false
         })
     },
-    getZipArchive (exam) {
+    getZipArchive () {
       this.loading = true
       axios
         .post(
-          `exams/${exam.id}/zip_archive/`,
+          `exams/${this.exam.id}/zip_archive/`,
           {},
           {
             responseType: 'blob'
           }
         )
         .then(response => {
-          this.forceFileDownload(response, `${exam.name}.zip`)
+          if (
+            response.status == 202 || // just scheduled generation
+            (response.status == 204 && !this.pollForResults) // someone else scheduled the generation
+          ) {
+            // periodically poll server to see if results are ready
+            this.pollForResults = true
+          } else if (response.status != 204) {
+            this.pollForResults = false
+            this.forceFileDownload(response, `${this.exam.name}.zip`)
+            this.loading = false
+          }
         })
         .catch(error => {
+          this.loading = false
           console.log(error)
           throw error
-        })
-        .finally(() => {
-          this.loading = false
         })
     },
     showExamInstructions (exam) {

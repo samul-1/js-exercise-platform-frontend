@@ -50,6 +50,14 @@
       v-model="exam.allowed_teachers"
     ></SelectableUserList>
 
+    <input
+      class="mb-4 mr-2"
+      type="checkbox"
+      v-model="exam.allow_going_back"
+      id="allow-going-back-checkbox"
+    /><label for="allow-going-back-checkbox"
+      >Permetti agli studenti di tornare indietro durante l'esame</label
+    >
     <!-- question categories -->
     <fieldset
       v-show="exam.questions.length"
@@ -117,7 +125,6 @@
 
       <transition-group name="bounce">
         <QuestionEditor
-          v-on-clickaway="updateEditorErrors"
           v-for="(question, index) in exam.questions"
           :id="'q-' + question.id"
           :key="'q-' + question.id"
@@ -445,6 +452,7 @@ export default {
       socket: null,
       exam: {
         name: '',
+        allow_going_back: true,
         begin_timestamp: null,
         end_timestamp: null,
         exercises: [],
@@ -459,9 +467,6 @@ export default {
     }
   },
   methods: {
-    // updateEditorErrors () {
-    //   this.editorErrors = getEditorErrors(this.exam)
-    // },
     confirmLeave () {
       return window.confirm(
         'Hai effettuato dei cambiamenti che non hai salvato. Sei sicuro di voler uscire dalla pagina?'
