@@ -196,6 +196,8 @@ export default {
     return {
       loading: false,
       loadingMessage: '',
+      processedReports: 0,
+      totalReports: 0,
       pollIntervalHandle: null,
       pollForResults: false,
       dialog: {
@@ -220,13 +222,16 @@ export default {
     pollForResults (newVal) {
       if (newVal) {
         this.pollIntervalHandle = setInterval(this.getZipArchive, 2500)
-        this.loadingMessage =
-          'Generazione dei report in corso. Questo processo potrebbe impiegare alcuni minuti...'
       } else {
         clearInterval(this.pollIntervalHandle)
         this.pollIntervalHandle = null
         this.loadingMessage = ''
       }
+    },
+    processedReports (newVal) {
+      this.loadingMessage = `Generazione dei report in corso. Questo processo potrebbe impiegare alcuni minuti...<br />
+          (${newVal} file generati su ${this.totalReports})
+          `
     }
   },
   methods: {
@@ -320,7 +325,7 @@ export default {
           this.loading = false
         })
     },
-    getZipArchive () {
+    async getZipArchive () {
       this.loading = true
       axios
         .post(
@@ -330,14 +335,23 @@ export default {
             responseType: 'blob'
           }
         )
-        .then(response => {
-          if (
-            response.status == 202 || // just scheduled generation
-            (response.status == 204 && !this.pollForResults) // someone else scheduled the generation
-          ) {
-            // periodically poll server to see if results are ready
+        .then(async response => {
+          if (response.status == 202) {
+            // just scheduled - periodically poll server to see if results are ready
             this.pollForResults = true
-          } else if (response.status != 204) {
+          } else if (response.status == 206) {
+            // still generating reports
+            if (!this.pollForResults) {
+              // someone else scheduled the generation
+              this.pollForResults = true
+            }
+            const responseDataAsText = JSON.parse(
+              await new Response(response.data).text()
+            )
+            this.processedReports = responseDataAsText.processed
+            this.totalReports = responseDataAsText.total
+          } else {
+            // server finished processing
             this.pollForResults = false
             this.forceFileDownload(response, `${this.exam.name}.zip`)
             this.loading = false
