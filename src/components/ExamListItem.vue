@@ -200,6 +200,7 @@ export default {
       totalReports: 0,
       pollIntervalHandle: null,
       pollForResults: false,
+      awaitingResponse: false,
       dialog: {
         shown: false
       }
@@ -221,7 +222,13 @@ export default {
   watch: {
     pollForResults (newVal) {
       if (newVal) {
-        this.pollIntervalHandle = setInterval(this.getZipArchive, 2500)
+        this.pollIntervalHandle = setInterval(() => {
+          if (!this.awaitingResponse) {
+            // this is used to prevent client from sending multiple requests if the response
+            // takes longer to arrive than the time between consecutive requests
+            this.getZipArchive()
+          }
+        }, 2500)
       } else {
         clearInterval(this.pollIntervalHandle)
         this.pollIntervalHandle = null
@@ -327,6 +334,7 @@ export default {
     },
     async getZipArchive () {
       this.loading = true
+      this.awaitingResponse = true
       axios
         .post(
           `exams/${this.exam.id}/zip_archive/`,
@@ -361,6 +369,9 @@ export default {
           this.loading = false
           console.log(error)
           throw error
+        })
+        .finally(() => {
+          this.awaitingResponse = false
         })
     },
     showExamInstructions (exam) {
