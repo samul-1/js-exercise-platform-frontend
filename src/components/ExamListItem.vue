@@ -196,7 +196,7 @@ export default {
     return {
       loading: false,
       loadingMessage: '',
-      processedReports: 0,
+      processedReports: -1,
       totalReports: 0,
       pollIntervalHandle: null,
       pollForResults: false,
