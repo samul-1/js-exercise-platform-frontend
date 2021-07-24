@@ -347,6 +347,7 @@ export default {
           if (response.status == 202) {
             // just scheduled - periodically poll server to see if results are ready
             this.pollForResults = true
+            this.processedReports = 0
           } else if (response.status == 206) {
             // still generating reports
             if (!this.pollForResults) {
