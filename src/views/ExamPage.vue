@@ -4,11 +4,11 @@
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
       <div
-        class="w-full h-full transition-all duration-300 border border-gray-200 shadow-sm rounded-xl"
+        class="w-full h-full transition-all duration-300 border border-gray-300 rounded-lg shadow-xl"
         :class="{ 'lg:w-3/5': exercise.id }"
       >
         <!-- tabs -->
-        <div class="flex bg-gray-900 rounded-t-lg">
+        <div class="flex bg-gray-900 rounded-t-lg borer">
           <div
             v-if="exercise.id"
             class="px-3 py-1 mr-1 text-white transition-all duration-75 bg-gray-500 shadow-inner cursor-pointer hover:bg-gray-700 rounded-t-md"
@@ -37,27 +37,6 @@
           >
             Domanda {{ currentQuestionNumber + 1 }}
           </div>
-          <!-- <button
-            v-if="question.id"
-            @click="confirmSkippingQuestion()"
-            class="p-1 px-3 mr-1 font-medium text-white transition-all duration-75 bg-red-700 shadow-md cursor-pointer rounded-t-md hover:bg-red-800"
-          >
-            Salta domanda
-          </button>
-
-          <button
-            v-if="question.id"
-            @click="submitAnswer()"
-            :disabled="
-              (selectedAnswers == null || !selectedAnswers.length) &&
-                !answerText.length
-            "
-            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
-          >
-            <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
-            Invia risposta
-          </button> -->
-
           <button
             @click="getExam(-1)"
             v-if="allowGoingBack"
@@ -66,7 +45,6 @@
           >
             <i class="mr-2 fas fa-chevron-left"></i> Indietro
           </button>
-
           <button
             @click="getExam(1)"
             :disabled="isSendingAnswer || loading"
@@ -121,7 +99,7 @@
         <!-- test case pane -->
         <div
           :style="'height:' + editorHeight"
-          class="overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
+          class="overflow-auto bg-gray-100 border border-transparent rounded-b-lg"
           v-show="pane == 'testcases'"
         >
           <div
@@ -141,7 +119,7 @@
         <!-- exercise text pane pane -->
         <div
           :style="'height:' + editorHeight"
-          class="p-3 overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
+          class="p-3 overflow-auto bg-gray-100 border border-transparent rounded-b-lg"
           v-show="pane == 'text'"
         >
           <div class="flex w-full">
@@ -163,18 +141,13 @@
         <!-- question text pane  -->
         <div
           :style="'height:' + editorHeight"
-          class="p-3 overflow-auto bg-gray-200 border border-transparent rounded-b-lg"
+          class="p-3 overflow-auto bg-gray-100 border border-transparent rounded-b-lg"
           v-show="pane == 'question'"
         >
           <AggregatedQuestionIntroduction
             v-if="question.introduction"
             :text="question.introduction"
           ></AggregatedQuestionIntroduction>
-          <!-- <Question
-            :question="question"
-            @answer="selectedAnswers = $event"
-            @text="answerText = $event"
-          ></Question> -->
           <new-question-test
             :question="question"
             :examId="$route.params.examId"
@@ -186,7 +159,7 @@
       <!-- submissions sidebar -->
       <transition name="bounce-x">
         <div
-          class="bg-gray-200 border shadow-sm rounded-xl md:ml-3"
+          class="bg-gray-100 border shadow-sm rounded-xl md:ml-3"
           v-show="exercise.id"
           :class="{
             'w-0 w-lg:0': !exercise.id,

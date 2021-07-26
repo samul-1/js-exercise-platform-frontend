@@ -246,6 +246,7 @@
           Annulla
         </button></router-link
       >
+      <button @click="deepCopyExam(processedExamObject)">JSON</button>
       <ul v-if="editorErrors.globalErrors" class="my-auto ml-10">
         <li
           v-for="(error, index) in editorErrors.globalErrors"
@@ -276,6 +277,7 @@ import QuestionEditor from './QuestionEditor.vue'
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'
 import { uuid } from 'vue-uuid'
+import { deepCopyExam } from '../helpers.js'
 import Spinner from '../components/Spinner.vue'
 import ExamEditorIndex from '../components/ExamEditorIndex.vue'
 import HelpTextButton from '../components/HelpTextButton.vue'
@@ -467,6 +469,7 @@ export default {
     }
   },
   methods: {
+    deepCopyExam,
     confirmLeave () {
       return window.confirm(
         'Hai effettuato dei cambiamenti che non hai salvato. Sei sicuro di voler uscire dalla pagina?'

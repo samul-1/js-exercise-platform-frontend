@@ -17,6 +17,9 @@
       :key="exam.id"
       :exam="exam"
     ></exam-list-item>
+    <p class="my-6" v-if="!recentExams.length && !loadingExams">
+      Non ci sono esami recenti.
+    </p>
     <div
       v-if="!loading && oldExams.length"
       class="my-8 text-sm text-center text-gray-500 cursor-pointer"
