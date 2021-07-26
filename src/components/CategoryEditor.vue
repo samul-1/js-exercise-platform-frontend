@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ul v-if="errors" class="px-4 mt-2 pt-2 flex space-x-4">
+    <ul v-if="errors" class="flex px-4 pt-2 mt-2 space-x-4">
       <li v-for="(error, index) in errors" :key="category.id + '-err-' + index">
         <p class="text-sm text-red-500"><strong>&#183;</strong> {{ error }}</p>
       </li>
@@ -16,7 +16,7 @@
       </div>
       <label class="my-auto mr-2" :for="id + '-cat-name'">Nome</label>
       <input
-        class="px-2 py-1 my-2 mr-4 border border-gray-300 rounded-md w-60"
+        class="w-56 px-2 py-1 my-2 mr-4 border border-gray-300 rounded-md"
         @input="update('name', $event.target.value)"
         type="text"
         v-model="category.name"
@@ -24,10 +24,14 @@
       />
       <p
         v-if="!category.is_aggregated_question && category.randomize"
-        class="my-auto ml-2"
+        class="my-auto ml-5 text-sm w-60"
       >
-        N. {{ category.item_type == 'e' ? 'esercizi' : 'domande' }} per questa
-        categoria
+        Numero di
+        {{ category.item_type == 'e' ? 'esercizi' : 'domande' }} scelt{{
+          category.item_type == 'e' ? 'i' : 'e'
+        }}
+        a caso da<br />
+        questa categoria per ogni studente
       </p>
       <help-text-button
         v-if="!category.is_aggregated_question && category.randomize"
@@ -35,7 +39,7 @@
       ></help-text-button>
       <div
         v-if="!category.is_aggregated_question && category.randomize"
-        class="relative flex flex-row w-32 h-full my-auto ml-1 mr-4 bg-transparent rounded-lg"
+        class="relative flex flex-row w-32 h-full my-auto ml-2 mr-4 bg-transparent rounded-lg"
       >
         <button
           @click="
@@ -43,7 +47,7 @@
             update('amount', category.amount)
           "
           :disabled="category.amount <= 0"
-          class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-l-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
+          class="w-20 h-full text-white transition-colors duration-75 bg-gray-500 rounded-l-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-600"
         >
           <span class="m-auto text-2xl font-thin">−</span>
         </button>
@@ -61,7 +65,7 @@
             category.amount++
             update('amount', category.amount)
           "
-          class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-r-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
+          class="w-20 h-full text-white transition-colors duration-75 bg-gray-500 rounded-r-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-600"
         >
           <span class="m-auto text-2xl font-thin">+</span>
         </button>
@@ -70,7 +74,7 @@
         v-if="category.item_type == 'q'"
         v-model="category.is_aggregated_question"
         @input="update('is_aggregated_question', $event.target.checked)"
-        class="my-auto ml-4"
+        class="my-auto ml-5"
         type="checkbox"
         :id="id + '-aggr-quest'"
       />
@@ -87,7 +91,7 @@
       ><input
         v-model="category.randomize"
         @input="update('randomize', $event.target.checked)"
-        class="my-auto ml-6"
+        class="my-auto ml-5"
         type="checkbox"
         :id="id + '-randomize'"
       />

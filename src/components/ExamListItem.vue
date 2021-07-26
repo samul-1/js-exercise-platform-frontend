@@ -367,6 +367,13 @@ export default {
           }
         })
         .catch(error => {
+          if (error.response.status == 401 || error.response.status == 403) {
+            this.$store.commit(
+              'setRedirectToAfterLogin',
+              this.$router.currentRoute.fullPath
+            )
+            this.$router.push('/login/teacher')
+          }
           this.loading = false
           console.log(error)
           throw error

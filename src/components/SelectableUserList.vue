@@ -11,49 +11,52 @@
         id="filter-bar"
       />
     </div>
-
-    <div
-      class="flex py-1.5 px-3"
-      v-for="(user, index) in filteredUserList"
-      :class="{
-        'bg-gray-100': index % 2,
-        'rounded-b-md': index === filteredUserList.length - 1
-      }"
-      :key="user.id"
-    >
-      <div class="w-1/5 ">
-        <span
-          :class="{
-            'font-semibold': selected.indexOf(user.id) !== -1
-          }"
-        >
-          {{ getUserFullName(user) }}
-        </span>
-        <span v-if="selected.indexOf(user.id) !== -1 || lockedId == user.id">
-          <i
-            class="ml-2"
+    <div class="grid grid-cols-2">
+      <div
+        class="flex py-2 px-14"
+        v-for="(user, index) in filteredUserList"
+        :class="{
+          'pl-6': index % 2 == 0,
+          'bg-gray-50': index % 4 < 2,
+          'rounded-b-md': index === filteredUserList.length - 1
+        }"
+        :key="user.id"
+      >
+        <div class="w-2/3">
+          <span
             :class="{
-              'text-green-900 fas fa-check': selected.indexOf(user.id) !== -1,
-              'text-gray-600 fas fa-lock': user.id == lockedId
+              'font-semibold': selected.indexOf(user.id) !== -1
+            }"
+          >
+            {{ getUserFullName(user) }}
+          </span>
+          <span v-if="selected.indexOf(user.id) !== -1 || lockedId == user.id">
+            <i
+              class="ml-2"
+              :class="{
+                'text-green-900 fas fa-check': selected.indexOf(user.id) !== -1,
+                'text-gray-600 fas fa-lock': user.id == lockedId
+              }"
+            ></i>
+          </span>
+        </div>
+        <button
+          v-if="lockedId != user.id"
+          v-cloak
+          @click="toggleSelection(user.id)"
+        >
+          <i
+            :class="{
+              'fas fa-plus-circle text-green-800':
+                selected.indexOf(user.id) === -1,
+              'fas fa-minus-circle text-red-800':
+                selected.indexOf(user.id) !== -1
             }"
           ></i>
-        </span>
+          {{ selected.indexOf(user.id) === -1 ? 'Aggiungi' : 'Rimuovi' }}
+        </button>
+        <p v-else class="text-gray-600"><em>Creatore esame</em></p>
       </div>
-      <button
-        v-if="lockedId != user.id"
-        v-cloak
-        @click="toggleSelection(user.id)"
-      >
-        <i
-          :class="{
-            'fas fa-plus-circle text-green-800':
-              selected.indexOf(user.id) === -1,
-            'fas fa-minus-circle text-red-800': selected.indexOf(user.id) !== -1
-          }"
-        ></i>
-        {{ selected.indexOf(user.id) === -1 ? 'Aggiungi' : 'Rimuovi' }}
-      </button>
-      <p v-else class="text-gray-600"><em>Creatore esame</em></p>
     </div>
   </div>
 </template>

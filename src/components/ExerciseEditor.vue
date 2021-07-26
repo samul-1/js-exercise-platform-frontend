@@ -129,7 +129,7 @@
               update('min_passing_testcases', exercise.min_passing_testcases)
             "
             :disabled="exercise.min_passing_testcases <= 0"
-            class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-l-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
+            class="w-20 h-full text-white transition-colors duration-75 bg-gray-500 rounded-l-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-600"
           >
             <span class="m-auto text-2xl font-thin">−</span>
           </button>
@@ -152,7 +152,7 @@
               exercise.min_passing_testcases++
               update('min_passing_testcases', exercise.min_passing_testcases)
             "
-            class="w-20 h-full text-white transition-colors duration-75 bg-gray-600 rounded-r-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-700"
+            class="w-20 h-full text-white transition-colors duration-75 bg-gray-500 rounded-r-lg outline-none cursor-pointer disabled:opacity-60 focus:outline-none hover:bg-gray-600"
           >
             <span class="m-auto text-2xl font-thin">+</span>
           </button>
