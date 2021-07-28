@@ -104,6 +104,9 @@ export default {
             'Bearer ' + resp.data.access_token
         })
         .catch(error => {
+          alert(
+            'Si è verificato un errore con il login. Ricarica la pagina e riprova.'
+          )
           console.log('Error converting token:')
           console.log(error)
           throw error

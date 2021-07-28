@@ -183,7 +183,8 @@ import {
   formatTimestampShort,
   getExamSummaryText,
   getExamInstructions,
-  truncateString
+  truncateString,
+  redirectIfPermissionErrorOrSetMessage
 } from '../utility'
 import { forceFileDownload, beforeDownload } from '../filedownloads'
 export default {
@@ -280,8 +281,13 @@ export default {
           })
         })
         .catch(error => {
-          console.log(error)
-          throw error
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            "Si è verificato un errore chiudendo l'esame. Riprova.",
+            false
+          )
         })
         .finally(() => {
           this.loading = false
@@ -304,8 +310,13 @@ export default {
           )
         })
         .catch(error => {
-          console.log(error)
-          throw error
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            "Si è verificato un errore scaricando l'esame. Riprova.",
+            false
+          )
         })
         .finally(() => {
           this.loading = false
@@ -325,8 +336,13 @@ export default {
           this.forceFileDownload(response, `${this.exam.name}.csv`)
         })
         .catch(error => {
-          console.log(error)
-          throw error
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando i risultati. Riprova.',
+            false
+          )
         })
         .finally(() => {
           this.loading = false
@@ -367,16 +383,14 @@ export default {
           }
         })
         .catch(error => {
-          if (error.response.status == 401 || error.response.status == 403) {
-            this.$store.commit(
-              'setRedirectToAfterLogin',
-              this.$router.currentRoute.fullPath
-            )
-            this.$router.push('/login/teacher')
-          }
           this.loading = false
-          console.log(error)
-          throw error
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando i risultati. Riprova.',
+            false
+          )
         })
         .finally(() => {
           this.awaitingResponse = false

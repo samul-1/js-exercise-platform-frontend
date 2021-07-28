@@ -60,7 +60,10 @@
 import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
 import QuestionWithStats from '../components/QuestionWithStats.vue'
-import { getCorrectPercent } from '../utility'
+import {
+  getCorrectPercent,
+  redirectIfPermissionErrorOrSetMessage
+} from '../utility'
 export default {
   name: 'ExamStats',
   created () {
@@ -105,8 +108,12 @@ export default {
           this.totalItemsCount = response.data.total_items_count
         })
         .catch(error => {
-          console.log(error)
-          throw error
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando i dati. Riprova.'
+          )
         })
         .finally(() => {
           this.loading = false
@@ -120,20 +127,12 @@ export default {
           this.exam = response.data
         })
         .catch(error => {
-          // todo see if you can factor this out
-          if (error.response.status == 401 || error.response.status == 403) {
-            this.$store.commit(
-              'setRedirectToAfterLogin',
-              this.$router.currentRoute.fullPath
-            )
-            this.$router.push('/login/teacher')
-          } else {
-            this.$store.commit(
-              'setMessage',
-              error.response.data.message ?? error.message
-            )
-            throw error
-          }
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando i dati. Riprova.'
+          )
         })
         .finally(() => {
           this.loading = false

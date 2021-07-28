@@ -16,6 +16,32 @@ export function redirectAndSetMessage (app, redirectTo, msg, severity) {
   app.$router.push(redirectTo)
 }
 
+export function redirectIfPermissionErrorOrSetMessage (
+  app,
+  err,
+  redirectTo,
+  defaultMsg,
+  fatal = true
+) {
+  console.log('in the new function')
+  console.log(err)
+  if (err.response.status == 401 || err.response.status == 403) {
+    app.$store.commit(
+      'setRedirectToAfterLogin',
+      app.$router.currentRoute.fullPath
+    )
+    app.$router.push(redirectTo)
+  } else {
+    const message =
+      defaultMsg + '<br />' + (err.response.data.message ?? err.message)
+    app.$store.commit(
+      fatal ? 'setMessage' : 'setSmallMessage',
+      fatal ? message : { severity: 2, msg: message }
+    )
+    throw err
+  }
+}
+
 export function formatTimestamp (timestamp) {
   if (!timestamp) {
     return ''

@@ -213,7 +213,6 @@ export default {
   data () {
     return {
       toolbar,
-      // todo take a closer look at the options
       options: {
         theme: 'snow',
         formats: [

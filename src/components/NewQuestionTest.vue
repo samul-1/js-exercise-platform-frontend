@@ -142,7 +142,6 @@ export default {
   },
   methods: {
     highlightCode,
-    // TODO factor the three functions below into one
     async sendAnswerUpdate (apiActionUrl, body) {
       // issue request to update (give/withdraw) an answer to this question
       this.loading = true

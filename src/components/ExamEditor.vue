@@ -102,7 +102,7 @@
             :key="'c-' + category.id"
             v-model="exam.questionCategories[index]"
             @delete="exam.questionCategories.splice(index, 1)"
-            :class="{ 'bg-gray-70': index % 2 }"
+            :class="{ 'bg-gray-50': index % 2 }"
             :errors="editorErrors.questionCategoryErrors[category.id]"
           ></CategoryEditor>
         </transition-group>
@@ -183,7 +183,7 @@
             :key="'c-' + category.id"
             v-model="exam.exerciseCategories[index]"
             @delete="exam.exerciseCategories.splice(index, 1)"
-            :class="{ 'bg-gray-70': index % 2 }"
+            :class="{ 'bg-gray-50': index % 2 }"
             :errors="editorErrors.exerciseCategoryErrors[category.id]"
           ></CategoryEditor>
         </transition-group>
@@ -286,7 +286,10 @@ import {
   redirectIfNotAuthenticated,
   redirectIfNotTeacher
 } from '../permissions'
-import { redirectAndSetMessage } from '../utility'
+import {
+  redirectAndSetMessage,
+  redirectIfPermissionErrorOrSetMessage
+} from '../utility'
 import { getEditorErrors } from '../examEditorErrors.js'
 
 export default {
@@ -308,7 +311,6 @@ export default {
     // automatically add a category when a question/exercise is added for the first
     // time and no categories exist yet for that type of item
     exerciseLen (newVal, oldVal) {
-      // todo see if you can factor these out
       // create new category when first exercise is added
       if (newVal == 1 && !oldVal && !this.exam.exerciseCategories.length) {
         this.exam.exerciseCategories.unshift(
@@ -392,7 +394,6 @@ export default {
             ...rest
           }
 
-          // todo is there a better way to do this?
           // strip off the "inline-block" style attribute from <p> tags to prevent issues with text editor
           ;[...this.exam.questions, ...this.exam.exercises].forEach(item => {
             item.text = item.text.replace(
@@ -411,21 +412,12 @@ export default {
           })
         })
         .catch(error => {
-          // todo see if you can factor this out
-          if (error.response.status == 401 || error.response.status == 403) {
-            this.$store.commit(
-              'setRedirectToAfterLogin',
-              this.$router.currentRoute.fullPath
-            )
-            this.$router.push('/login/teacher')
-          } else {
-            this.$store.commit(
-              'setMessage',
-              error.response.data.message ?? error.message
-            )
-            // let the global handler catch this
-            throw error
-          }
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            "Si è verificato un errore caricando l'esame. Riprova."
+          )
         })
         .finally(() => {
           this.loading = false
@@ -493,7 +485,12 @@ export default {
           this.teachers = response.data
         })
         .catch(error => {
-          console.log(error)
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore. Riprova'
+          )
           throw error
         })
     },
@@ -615,7 +612,8 @@ export default {
           }
         }
       }
-      this.socket.onerror = () => {
+      this.socket.onerror = error => {
+        console.log('socket error', error)
         redirectAndSetMessage(
           this,
           '/exams',

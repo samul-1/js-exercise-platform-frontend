@@ -14,7 +14,7 @@
 const EXAM_NO_NAME = "Inserisci un nome per l'esame"
 const EXAM_NO_BEGIN_TIMESTAMP = 'Seleziona una data e ora di inizio esame'
 const EXAM_NO_END_TIMESTAMP = 'Seleziona una data e ora di fine esame'
-const EXAM_NO_ITEMS = "Non hai inserito domande o esercizi nell'esame" // todo maybe should allow to save as draft?
+const EXAM_NO_ITEMS = "Non hai inserito domande o esercizi nell'esame"
 
 const EXERCISE_NO_TEXT = 'Questo esercizio non ha un testo'
 const EXERCISE_INVALID_TESTCASE_THRESHOLD =

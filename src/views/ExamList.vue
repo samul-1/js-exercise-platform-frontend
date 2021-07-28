@@ -51,7 +51,7 @@ import Spinner from '../components/Spinner.vue'
 import ExamListItem from '../components/ExamListItem.vue'
 import { forceFileDownload } from '../filedownloads'
 import Skeleton from '../components/Skeleton.vue'
-
+import { redirectIfPermissionErrorOrSetMessage } from '../utility'
 export default {
   name: 'ExamList',
   components: {
@@ -125,7 +125,13 @@ export default {
           this.forceFileDownload(response, `${exam.name}.csv`)
         })
         .catch(error => {
-          console.log(error)
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando il report. Riprova.',
+            false
+          )
         })
         .finally(() => {
           this.loading = false
@@ -145,7 +151,13 @@ export default {
           this.forceFileDownload(response, `${exam.name}.zip`)
         })
         .catch(error => {
-          console.log(error)
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando il report. Riprova.',
+            false
+          )
         })
         .finally(() => {
           this.loading = false

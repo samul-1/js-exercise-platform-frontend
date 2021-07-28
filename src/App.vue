@@ -50,9 +50,7 @@
         v-if="$store.state.msg"
         class="py-12 mx-auto text-white bg-gray-900 rounded-lg shadow-md px-36 w-max"
       >
-        <h1 class="text-xl text-center">
-          {{ $store.state.msg }}
-        </h1>
+        <h1 class="text-xl text-center" v-html="$store.state.msg"></h1>
       </div>
       <router-view v-else />
       <transition name="fade">
@@ -63,9 +61,8 @@
             'bg-red-400 text-red-900': $store.state.smallMsg.severity == 2
           }"
           v-if="$store.state.smallMsg"
-        >
-          {{ $store.state.smallMsg.msg }}
-        </div>
+          v-html="$store.state.smallMsg.msg"
+        ></div>
       </transition>
     </main>
     <footer class="flex w-full px-6 py-3 text-sm text-white bg-gray-900">

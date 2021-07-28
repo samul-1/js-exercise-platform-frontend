@@ -122,7 +122,10 @@
 <script>
 import axios from 'axios'
 import Spinner from '../components/Spinner.vue'
-import { formatTimestamp } from '../utility'
+import {
+  formatTimestamp,
+  redirectIfPermissionErrorOrSetMessage
+} from '../utility'
 import 'vue-good-table/dist/vue-good-table.css'
 import { VueGoodTable } from 'vue-good-table'
 export default {
@@ -138,26 +141,17 @@ export default {
         this.exam = response.data
       })
       .catch(error => {
-        // todo see if you can factor this out
-        if (error.response.status == 401 || error.response.status == 403) {
-          this.$store.commit(
-            'setRedirectToAfterLogin',
-            this.$router.currentRoute.fullPath
-          )
-          this.$router.push('/login/teacher')
-        } else {
-          this.$store.commit(
-            'setMessage',
-            error.response.data.message ?? error.message
-          )
-          throw error
-        }
+        redirectIfPermissionErrorOrSetMessage(
+          this,
+          error,
+          '/login/teacher',
+          'Si è verificato un errore. Riprova.'
+        )
       })
       .finally(() => {
         this.loading = false
       })
     this.getData(true)
-    // todo update more frequently around beginning and end of exam
     this.setIntervalHandle = setInterval(this.getData, 5000)
   },
   beforeRouteLeave (_to, _from, next) {
@@ -231,8 +225,13 @@ export default {
           this.rows = response.data.participants_progress
         })
         .catch(error => {
-          console.log(error)
-          throw error
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando i nuovi dati.',
+            false
+          )
         })
         .finally(() => {
           this.loading = false
@@ -253,7 +252,7 @@ export default {
           .map(
             s =>
               'Math.round(+cellValue.slice(0, -4) / this.totalItemsCount) ' + s
-          ) // todo pass already parsed value
+          )
           .join(' && ')
         if (!conditionStr.length) {
           return true

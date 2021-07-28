@@ -34,6 +34,7 @@ export function deepCopyExam (exam) {
     ;[...(item.testcases ?? item.answers)].forEach(item => delete item.id)
   })
 
+  // todo delete stuff like "closed_by" fields from exam object and "selections", "num_appearances" from items
   console.log(JSON.stringify(ret))
 
   return ret
