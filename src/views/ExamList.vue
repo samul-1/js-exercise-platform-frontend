@@ -70,18 +70,12 @@ export default {
       })
       .catch(error => {
         console.log(error)
-        if (error.response.status == 401 || error.response.status == 403) {
-          this.$store.commit(
-            'setRedirectToAfterLogin',
-            this.$router.currentRoute.fullPath
-          )
-          this.$router.push('/login/teacher')
-        } else {
-          this.$store.commit(
-            'setMessage',
-            error.response.data.message ?? error.message
-          )
-        }
+        redirectIfPermissionErrorOrSetMessage(
+          this,
+          error,
+          '/login/teacher',
+          'Si è verificato un errore. Riprova.'
+        )
       })
       .finally(() => {
         this.loadingExams = false
@@ -107,62 +101,6 @@ export default {
   },
   methods: {
     forceFileDownload,
-
-    getCSVReport (exam) {
-      this.loading = true
-      axios
-        .post(
-          `exams/${exam.id}/report/`,
-          {},
-          {
-            headers: {
-              Accept: 'text/csv'
-            },
-            responseType: 'blob'
-          }
-        )
-        .then(response => {
-          this.forceFileDownload(response, `${exam.name}.csv`)
-        })
-        .catch(error => {
-          redirectIfPermissionErrorOrSetMessage(
-            this,
-            error,
-            '/login/teacher',
-            'Si è verificato un errore scaricando il report. Riprova.',
-            false
-          )
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-    getZipArchive (exam) {
-      this.loading = true
-      axios
-        .post(
-          `exams/${exam.id}/zip_archive/`,
-          {},
-          {
-            responseType: 'blob'
-          }
-        )
-        .then(response => {
-          this.forceFileDownload(response, `${exam.name}.zip`)
-        })
-        .catch(error => {
-          redirectIfPermissionErrorOrSetMessage(
-            this,
-            error,
-            '/login/teacher',
-            'Si è verificato un errore scaricando il report. Riprova.',
-            false
-          )
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
     connectToSocket () {
       const wsScheme = window.location.protocol == 'https:' ? 'wss' : 'ws'
       this.socket = new WebSocket(

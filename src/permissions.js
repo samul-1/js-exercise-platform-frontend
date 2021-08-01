@@ -16,7 +16,7 @@ export function redirectIfNotTeacher (app, path) {
 
 export function redirectToMainView (app) {
   // If the logged in user is a teacher, redirects the user to the teacher dashboard
-  // If the logged in user a student, redirects the student to the exam page
+  // If the logged in user a student, redirects the student to the exam selection page
   if (app.$store.state.redirectToAfterLogin) {
     app.$router.push(app.$store.state.redirectToAfterLogin)
     app.$store.commit('resetRedirectToAfterLogin')
@@ -25,10 +25,6 @@ export function redirectToMainView (app) {
       app.$router.push('/dashboard')
     } else {
       app.$router.push('/exam')
-      // app.$store.commit(
-      //   'setMessage',
-      //   "Ottieni il link per l'esame dal tuo docente."
-      // )
     }
   }
 }

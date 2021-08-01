@@ -8,9 +8,9 @@
         <input
           :disabled="loading"
           :type="question.accepts_multiple_answers ? 'checkbox' : 'radio'"
+          :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           :id="'ans-' + answer.id"
           class="mr-1"
-          :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           v-model="selected"
         />
         <label :for="'ans-' + answer.id"
@@ -23,7 +23,7 @@
         placeholder="Scrivi qui la tua risposta..."
         class="p-2 mx-auto border border-gray-200 rounded-md shadow-sm "
         rows="10"
-        style="width:98%"
+        style="width: 98%"
         v-model="answerText"
         v-debounce:1500ms.lock="sendAnswerText"
       ></textarea>

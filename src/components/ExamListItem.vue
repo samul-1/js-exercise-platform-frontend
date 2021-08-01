@@ -326,7 +326,7 @@ export default {
       this.loading = true
       axios
         .post(
-          `exams/${this.exam.id}/report/`,
+          `exams/${this.exam.id}/csv_report/`,
           {},
           {
             responseType: 'blob'

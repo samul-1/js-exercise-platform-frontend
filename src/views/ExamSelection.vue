@@ -10,7 +10,8 @@
         v-model="code"
         type="number"
         placeholder="Codice esame"
-        class="w-full p-4 text-lg border-2 border-gray-200 rounded-lg shadow-inner"
+        @keyup.enter="goToExam()"
+        class="w-full p-4 text-lg border border-gray-300 rounded-lg shadow-inner"
       />
 
       <button
@@ -34,6 +35,9 @@ export default {
   },
   methods: {
     goToExam () {
+      if (!this.code.length) {
+        return
+      }
       this.$router.push(`/exam/${this.code}`)
     }
   }

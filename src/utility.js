@@ -23,14 +23,24 @@ export function redirectIfPermissionErrorOrSetMessage (
   defaultMsg,
   fatal = true
 ) {
-  console.log('in the new function')
   console.log(err)
-  if (err.response.status == 401 || err.response.status == 403) {
+  if (!err.response && !err.request) {
+    // don't handle errors that have nothing to do with the request or response
+    throw err
+  }
+  if (!err.response) {
+    const message = defaultMsg + '<br />' + err.message
+    app.$store.commit(
+      fatal ? 'setMessage' : 'setSmallMessage',
+      fatal ? message : { severity: 2, msg: message }
+    )
+  } else if (err.response.status == 401 || err.response.status == 403) {
     app.$store.commit(
       'setRedirectToAfterLogin',
       app.$router.currentRoute.fullPath
     )
     app.$router.push(redirectTo)
+    return
   } else {
     const message =
       defaultMsg + '<br />' + (err.response.data.message ?? err.message)
@@ -38,8 +48,9 @@ export function redirectIfPermissionErrorOrSetMessage (
       fatal ? 'setMessage' : 'setSmallMessage',
       fatal ? message : { severity: 2, msg: message }
     )
-    throw err
   }
+  // let the global error handler catch and log the error
+  throw err
 }
 
 export function formatTimestamp (timestamp) {
@@ -107,7 +118,7 @@ export function truncateString (str, upToChar) {
     return str
   }
 
-  return str.slice(0, upToChar) + '&#8230;'
+  return str.slice(0, upToChar) + '&#8230;' // ellipses
 }
 
 export function getCorrectPercent (question) {

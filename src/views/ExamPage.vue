@@ -274,16 +274,15 @@ export default {
     AggregatedQuestionIntroduction
   },
   created () {
-    // ! use the functions from permissions.js
-    if (!this.$store.state.isAuthenticated) {
-      this.$store.commit(
-        'setRedirectToAfterLogin',
-        this.$router.currentRoute.fullPath
-      )
-      this.$router.push('/login')
-    } else {
-      this.getExam()
-    }
+    // if (!this.$store.state.isAuthenticated) {
+    //   this.$store.commit(
+    //     'setRedirectToAfterLogin',
+    //     this.$router.currentRoute.fullPath
+    //   )
+    //   this.$router.push('/login')
+    // } else {
+    this.getExam()
+    //}
   },
   mounted () {
     // set the editor height to approximately 70% of parent height

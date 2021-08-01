@@ -23,16 +23,16 @@
 </template>
 
 <script>
-import {
-  redirectIfNotAuthenticated,
-  redirectIfNotTeacher
-} from '../permissions'
+// import {
+//   redirectIfNotAuthenticated,
+//   redirectIfNotTeacher
+// } from '../permissions'
 export default {
-  name: 'TeacherDashboard',
-  created () {
-    redirectIfNotAuthenticated(this, '/login/teacher')
-    redirectIfNotTeacher(this, '/login')
-  }
+  name: 'TeacherDashboard'
+  // created () {
+  //   redirectIfNotAuthenticated(this, '/login/teacher')
+  //   redirectIfNotTeacher(this, '/login')
+  // }
 }
 </script>
 

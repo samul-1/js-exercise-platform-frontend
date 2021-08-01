@@ -269,7 +269,6 @@
 
 <script>
 import axios from 'axios'
-import { directive as onClickaway } from 'vue-clickaway'
 import ExerciseEditor from '../components/ExerciseEditor.vue'
 import CategoryEditor from '../components/CategoryEditor.vue'
 import SelectableUserList from '../components/SelectableUserList.vue'
@@ -282,10 +281,10 @@ import Spinner from '../components/Spinner.vue'
 import ExamEditorIndex from '../components/ExamEditorIndex.vue'
 import HelpTextButton from '../components/HelpTextButton.vue'
 import { HELP_TXTS } from '../help_txts'
-import {
-  redirectIfNotAuthenticated,
-  redirectIfNotTeacher
-} from '../permissions'
+// import {
+//   redirectIfNotAuthenticated,
+//   redirectIfNotTeacher
+// } from '../permissions'
 import {
   redirectAndSetMessage,
   redirectIfPermissionErrorOrSetMessage
@@ -303,9 +302,6 @@ export default {
     SelectableUserList,
     HelpTextButton,
     ExamEditorIndex
-  },
-  directives: {
-    onClickaway
   },
   watch: {
     // automatically add a category when a question/exercise is added for the first
@@ -363,8 +359,8 @@ export default {
     window.removeEventListener('beforeunload', this.beforeWindowUnload)
   },
   created () {
-    redirectIfNotAuthenticated(this, '/login/teacher')
-    redirectIfNotTeacher(this, '/login')
+    // redirectIfNotAuthenticated(this, '/login/teacher')
+    // redirectIfNotTeacher(this, '/login')
     window.addEventListener('beforeunload', this.beforeWindowUnload)
 
     this.getTeachers()
@@ -396,7 +392,7 @@ export default {
 
           // strip off the "inline-block" style attribute from <p> tags to prevent issues with text editor
           ;[...this.exam.questions, ...this.exam.exercises].forEach(item => {
-            item.text = item.text.replace(
+            item.text = item.text?.replace(
               /<p\s+style="display:\s*inline-block">/g,
               '<p>'
             )
@@ -405,13 +401,15 @@ export default {
             ...this.exam.questionCategories,
             ...this.exam.exerciseCategories
           ].forEach(item => {
-            item.introduction_text = item.introduction_text.replace(
+            item.introduction_text = item.introduction_text?.replace(
               /<p\s+style="display:\s*inline-block">/g,
               '<p>'
             )
           })
         })
         .catch(error => {
+          // console.log(error)
+          // throw error
           redirectIfPermissionErrorOrSetMessage(
             this,
             error,
@@ -489,7 +487,7 @@ export default {
             this,
             error,
             '/login/teacher',
-            'Si è verificato un errore. Riprova'
+            'Si è verificato un errore. Riprova.'
           )
           throw error
         })
@@ -525,7 +523,12 @@ export default {
           )
         })
         .catch(error => {
-          console.log(error)
+          this.$store.commit('setSmallMessage', {
+            severity: 2,
+            msg:
+              'Si è verificato un errore. Riprova. <br /> ' +
+              (error.response?.data.message ?? error.message)
+          })
           throw error
         })
         .finally(() => {

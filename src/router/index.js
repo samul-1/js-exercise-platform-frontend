@@ -21,12 +21,18 @@ const routes = [
   {
     path: '/exam',
     name: 'ExamSelection',
-    component: ExamSelection
+    component: ExamSelection,
+    meta: {
+      studentsOnly: true
+    }
   },
   {
     path: '/exam/:examId',
     name: 'ExamPage',
-    component: ExamPage
+    component: ExamPage,
+    meta: {
+      studentsOnly: true
+    }
   },
   {
     path: '/login/:role?',
@@ -35,31 +41,66 @@ const routes = [
   },
   {
     path: '/dashboard',
-    name: 'TeacherDashoard',
-    component: TeacherDashboard
+    name: 'TeacherDashboard',
+    component: TeacherDashboard,
+    meta: {
+      teachersOnly: true
+    }
   },
   {
     path: '/editor/:examid?',
     name: 'EditExam',
-    component: ExamEditor
+    component: ExamEditor,
+    meta: {
+      teachersOnly: true
+    }
   },
   {
     path: '/exams',
     name: 'ExamList',
-    component: ExamList
+    component: ExamList,
+    meta: {
+      teachersOnly: true
+    }
   },
   {
     path: '/exams/:examid/progress',
     name: 'ExamProgressDashboard',
-    component: ExamProgressDashboard
+    component: ExamProgressDashboard,
+    meta: {
+      teachersOnly: true
+    }
   },
   {
     path: '/exams/:examid/stats',
     name: 'ExamStats',
-    component: ExamStats
+    component: ExamStats,
+    meta: {
+      teachersOnly: true
+    }
   },
   { path: '*', component: PageNotFound }
 ]
+
+function teachersOnly (route) {
+  return route.meta.teachersOnly
+}
+
+function studentsOnly (route) {
+  return route.meta.studentsOnly
+}
+
+function isAuthenticated () {
+  return store.state.isAuthenticated
+}
+
+function isTeacher () {
+  return isAuthenticated() && store.state.user.is_teacher
+}
+
+function isStudent () {
+  return isAuthenticated() && !store.state.user.is_teacher
+}
 
 const router = new VueRouter({
   mode: 'history',
@@ -69,7 +110,15 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   store.commit('resetMessage')
-  next()
+  if (studentsOnly(to) && !isStudent()) {
+    store.commit('setRedirectToAfterLogin', to)
+    next('/login')
+  } else if (teachersOnly(to) && !isTeacher()) {
+    store.commit('setRedirectToAfterLogin', to)
+    next('/login/teacher')
+  } else {
+    next()
+  }
 })
 
 export default router
