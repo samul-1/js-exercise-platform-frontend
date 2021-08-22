@@ -8,6 +8,18 @@ export function forceFileDownload (response, title) {
   link.click()
 }
 
+export function downloadObjectAsJson (exportObj, exportName) {
+  var dataStr =
+    'data:text/json;charset=utf-8,' +
+    encodeURIComponent(JSON.stringify(exportObj, undefined, 2))
+  var downloadAnchorNode = document.createElement('a')
+  downloadAnchorNode.setAttribute('href', dataStr)
+  downloadAnchorNode.setAttribute('download', exportName)
+  document.body.appendChild(downloadAnchorNode) // required for firefox
+  downloadAnchorNode.click()
+  downloadAnchorNode.remove()
+}
+
 export async function beforeDownload ({ html2pdf, options, pdfContent }) {
   await html2pdf()
     .set(options)

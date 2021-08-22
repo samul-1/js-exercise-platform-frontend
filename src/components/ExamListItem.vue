@@ -105,6 +105,12 @@
       </div>
     </div>
     <button
+      @click="exportExamQuestions()"
+      class="px-2.5 mb-auto py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+    >
+      Esporta domande
+    </button>
+    <button
       @click="showExamInstructions(exam)"
       v-if="!exam.closed"
       class="px-2.5 py-1 ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
@@ -186,7 +192,11 @@ import {
   truncateString,
   redirectIfPermissionErrorOrSetMessage
 } from '../utility'
-import { forceFileDownload, beforeDownload } from '../filedownloads'
+import {
+  forceFileDownload,
+  beforeDownload,
+  downloadObjectAsJson
+} from '../filedownloads'
 export default {
   name: 'ExamListItem',
   components: {
@@ -249,6 +259,7 @@ export default {
     getExamSummaryText,
     getExamInstructions,
     beforeDownload,
+    downloadObjectAsJson,
     forceFileDownload,
     confirmClosure (exam) {
       // shows a dialog that prompts the user for confirmation to close an exam
@@ -334,6 +345,27 @@ export default {
         )
         .then(response => {
           this.forceFileDownload(response, `${this.exam.name}.csv`)
+        })
+        .catch(error => {
+          redirectIfPermissionErrorOrSetMessage(
+            this,
+            error,
+            '/login/teacher',
+            'Si è verificato un errore scaricando i risultati. Riprova.',
+            false
+          )
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    exportExamQuestions () {
+      this.loading = true
+      axios
+        .get(`exams/${this.exam.id}/export/`)
+        .then(response => {
+          console.log(response.data)
+          this.downloadObjectAsJson(response.data, `${this.exam.name}.json`)
         })
         .catch(error => {
           redirectIfPermissionErrorOrSetMessage(

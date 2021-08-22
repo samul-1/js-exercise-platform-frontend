@@ -64,6 +64,7 @@ const routes = [
     }
   },
   {
+    // use nested routes
     path: '/exams/:examid/progress',
     name: 'ExamProgressDashboard',
     component: ExamProgressDashboard,
