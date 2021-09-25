@@ -4,13 +4,17 @@
       <div v-highlight v-html="highlightCode(question.text)"></div>
     </div>
     <div v-if="question.question_type == 'm'">
-      <div v-for="answer in question.answers" :key="answer.id" class="my-1">
+      <div
+        v-for="answer in question.answers"
+        :key="answer.id"
+        class="flex my-1 space-x-1"
+      >
         <input
           :disabled="loading"
           :type="question.accepts_multiple_answers ? 'checkbox' : 'radio'"
           :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           :id="'ans-' + answer.id"
-          class="mr-1"
+          class="mt-1 mb-auto"
           v-model="selected"
         />
         <label :for="'ans-' + answer.id"

@@ -150,6 +150,7 @@
           :style="'height:' + editorHeight"
           class="p-3 overflow-auto bg-gray-100 border border-transparent rounded-b-lg"
           v-show="pane == 'question'"
+          id="current-question"
         >
           <AggregatedQuestionIntroduction
             v-if="question.introduction"

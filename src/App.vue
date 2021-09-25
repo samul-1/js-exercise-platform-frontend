@@ -8,7 +8,7 @@
     />
     <nav class="flex w-full px-6 py-2 text-white bg-gray-900">
       <img class="w-28 md:w-32" src="./assets/unipi-logo.svg" />
-      <div class="my-auto ml-auto text-xs md:text-md">
+      <div class="my-auto ml-auto text-xs md:text-base">
         <template v-if="$store.state.isAuthenticated">
           <span
             ><i class="mr-2 far fa-user"></i>{{ $store.state.user.email }}</span
@@ -55,7 +55,7 @@
       <router-view v-else />
       <transition name="fade">
         <div
-          class="fixed px-4 py-4 transform -translate-x-1/2 rounded-md shadow-xl md:px-20 left-1/2 top-20"
+          class="fixed w-11/12 px-4 py-4 text-center transform -translate-x-1/2 rounded-md shadow-xl md:w-max md:px-20 left-1/2 top-20"
           :class="{
             'bg-green-400 text-green-900': $store.state.smallMsg.severity == 1,
             'bg-red-400 text-red-900': $store.state.smallMsg.severity == 2
