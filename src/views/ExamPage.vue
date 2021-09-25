@@ -1,5 +1,9 @@
 <template>
-  <div id="editor-view" ref="editorView" class="px-4 my-5">
+  <div
+    id="editor-view"
+    ref="editorView"
+    class="h-full px-2 mb-10 md:h-max md:my-5 md:px-4"
+  >
     <Spinner v-if="loading"></Spinner>
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
@@ -41,25 +45,28 @@
             @click="getExam(-1)"
             v-if="allowGoingBack"
             :disabled="isSendingAnswer || isFirstItem || loading"
-            class="w-40 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
+            class="w-20 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
-            <i class="mr-2 fas fa-chevron-left"></i> Indietro
+            <i class="md:mr-2 fas fa-chevron-left"></i>
+            <span class="hidden md:inline">Indietro</span>
           </button>
           <button
             @click="getExam(1)"
             :disabled="isSendingAnswer || loading"
             v-if="!isLastItem"
-            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
+            class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
-            Avanti <i class="ml-2 fas fa-chevron-right"></i>
+            <span class="hidden md:inline">Avanti</span>
+            <i class="md:ml-2 fas fa-chevron-right"></i>
           </button>
           <button
             @click="confirmEndExam()"
             :disabled="isSendingAnswer || loading"
             v-else
-            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-700 shadow-md cursor-pointer disabled:opacity-80 rounded-t-md hover:bg-green-600 active:bg-green-700"
+            class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-green-600 active:bg-green-700"
           >
-            <i class="mr-1 fas fa-check"></i> Termina
+            <i class="md:mr-1 fas fa-check"></i>
+            <span class="hidden md:inline">Termina</span>
           </button>
 
           <!-- exercise controls -->

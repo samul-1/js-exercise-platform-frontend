@@ -11,7 +11,7 @@
       <transition name="bounce" @after-leave="$emit(choice)">
         <div
           v-if="showContent"
-          class="z-20 w-3/5 px-10 py-10 bg-white rounded-lg shadow-lg "
+          class="z-20 px-4 py-10 mx-2 bg-white rounded-lg shadow-lg md:mx-0 md:px-10 md:w-3/5 "
         >
           <div class="mb-10 text-black">
             <p v-html="string" class="mb-4 text-2xl"></p>

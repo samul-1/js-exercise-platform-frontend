@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-3/5 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md px-28 login-box"
+    class="px-4 py-10 m-auto mx-2 text-center border border-gray-300 rounded-lg shadow-md md:mx-0 md:w-3/5 md:px-28 login-box"
   >
     <h1 class="text-2xl font-medium">
       Inserisci il codice dell'esame ottenuto dal docente

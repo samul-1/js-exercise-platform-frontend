@@ -7,14 +7,14 @@
       crossorigin="anonymous"
     />
     <nav class="flex w-full px-6 py-2 text-white bg-gray-900">
-      <img class="w-32" src="./assets/unipi-logo.svg" />
-      <div class="my-auto ml-auto">
+      <img class="w-28 md:w-32" src="./assets/unipi-logo.svg" />
+      <div class="my-auto ml-auto text-xs md:text-md">
         <template v-if="$store.state.isAuthenticated">
           <span
             ><i class="mr-2 far fa-user"></i>{{ $store.state.user.email }}</span
           >
           <router-link v-if="$store.state.user.is_teacher" to="/dashboard"
-            ><span><i class="ml-6 mr-2 text-lg fas fa-home"></i></span
+            ><span><i class="ml-6 mr-2 md:text-lg fas fa-home"></i></span
           ></router-link>
         </template>
         <Dialog
@@ -48,7 +48,7 @@
     <main class="my-auto">
       <div
         v-if="$store.state.msg"
-        class="py-12 mx-auto text-white bg-gray-900 rounded-lg shadow-md px-36 w-max"
+        class="px-4 py-12 mx-4 text-white bg-gray-900 rounded-lg shadow-md md:mx-auto md:px-36 md:w-max"
       >
         <h1 class="text-xl text-center" v-html="$store.state.msg"></h1>
       </div>
