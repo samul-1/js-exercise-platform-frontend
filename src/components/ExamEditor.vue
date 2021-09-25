@@ -246,7 +246,7 @@
           Annulla
         </button></router-link
       >
-      <button @click="deepCopyExam(processedExamObject)">JSON</button>
+      <!-- <button @click="deepCopyExam(processedExamObject)">JSON</button> -->
       <ul v-if="editorErrors.globalErrors" class="my-auto ml-10">
         <li
           v-for="(error, index) in editorErrors.globalErrors"

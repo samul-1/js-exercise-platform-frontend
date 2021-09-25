@@ -83,7 +83,7 @@ export default {
 
       // log in with access token
       await axios
-        .post('/users/auth/convert-token', {
+        .post('/users/auth/convert-token/', {
           grant_type: 'convert_token',
           client_id: process.env.VUE_APP_GOOGLE_OAUTH_CLIENT_ID,
           client_secret: process.env.VUE_APP_GOOGLE_OAUTH_CLIENT_SECRET,
@@ -109,7 +109,7 @@ export default {
 
       // get user info from backend
       axios
-        .get('/api/v1/users/me')
+        .get('/api/v1/users/me/')
         .then(response => {
           console.log('user info:', response)
           // save user details to store and local storage
