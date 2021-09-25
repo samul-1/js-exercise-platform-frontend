@@ -55,7 +55,7 @@
       <router-view v-else />
       <transition name="fade">
         <div
-          class="fixed px-20 py-4 transform -translate-x-1/2 rounded-md shadow-xl left-1/2 top-20"
+          class="fixed px-4 py-4 transform -translate-x-1/2 rounded-md shadow-xl md:px-20 left-1/2 top-20"
           :class="{
             'bg-green-400 text-green-900': $store.state.smallMsg.severity == 1,
             'bg-red-400 text-red-900': $store.state.smallMsg.severity == 2

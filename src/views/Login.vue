@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-4/5 py-10 m-auto text-center border border-gray-300 rounded-lg shadow-md md:w-3/5 md:px-32 login-box"
+    class="px-2 py-10 m-auto mx-4 text-center border border-gray-300 rounded-lg shadow-md md:mx-0 md:w-3/5 md:px-32 login-box"
   >
     <h1 class="text-3xl font-medium">
       Login {{ $route.params.role == 'teacher' ? ' docente' : '' }}
