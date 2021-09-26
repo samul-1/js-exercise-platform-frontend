@@ -14,10 +14,10 @@
           :type="question.accepts_multiple_answers ? 'checkbox' : 'radio'"
           :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           :id="'ans-' + answer.id"
-          class="mt-1 mb-auto"
+          class="block mt-1 mb-auto"
           v-model="selected"
         />
-        <label :for="'ans-' + answer.id"
+        <label :for="'ans-' + answer.id" class="block"
           ><span v-highlight v-html="highlightCode(answer.text)"></span>
         </label>
       </div>
