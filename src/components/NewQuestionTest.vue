@@ -205,3 +205,10 @@ export default {
   }
 }
 </script>
+
+<style>
+input[type='radio'],
+input[type='checkbox'] {
+  min-width: 20px !important;
+}
+</style>
