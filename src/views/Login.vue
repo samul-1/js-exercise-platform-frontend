@@ -83,7 +83,7 @@ export default {
 
       // log in with access token
       await axios
-        .post('/users/auth/convert-token', {
+        .post('/users/auth/convert-token/', {
           grant_type: 'convert_token',
           client_id: process.env.VUE_APP_GOOGLE_OAUTH_CLIENT_ID,
           client_secret: process.env.VUE_APP_GOOGLE_OAUTH_CLIENT_SECRET,
