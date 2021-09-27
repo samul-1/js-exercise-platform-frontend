@@ -10,7 +10,11 @@
         Effettua l'accesso con la tua email
         <strong
           >@{{
-            $route.params.role != 'teacher' ? 'studenti.' : ''
+            $route.params.role != 'teacher'
+              ? $route.params.role != 'phd'
+                ? 'studenti.'
+                : 'phd.'
+              : ''
           }}unipi.it</strong
         >.
       </p>
@@ -69,6 +73,8 @@ export default {
         hosted_domain:
           this.$route.params.role == 'teacher'
             ? 'unipi.it'
+            : this.$route.params.role == 'phd'
+            ? 'phd.unipi.it'
             : 'studenti.unipi.it'
       }
     }
