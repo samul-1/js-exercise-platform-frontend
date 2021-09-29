@@ -43,7 +43,7 @@
           </div>
           <button
             @click="getExam(-1)"
-            v-if="allowGoingBack"
+            v-if="allowGoingBack && !this.exercise.id"
             :disabled="isSendingAnswer || isFirstItem || loading"
             class="w-20 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
@@ -53,7 +53,7 @@
           <button
             @click="getExam(1)"
             :disabled="isSendingAnswer || loading"
-            v-if="!isLastItem"
+            v-if="!isLastItem && !this.exercise.id"
             class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
             <span class="hidden md:inline">Avanti</span>
@@ -62,7 +62,7 @@
           <button
             @click="confirmEndExam()"
             :disabled="isSendingAnswer || loading"
-            v-else
+            v-else-if="!exercise.id"
             class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-green-600 active:bg-green-700"
           >
             <i class="md:mr-1 fas fa-check"></i>
@@ -131,7 +131,7 @@
         >
           <div class="flex w-full">
             <h1 class="my-2 text-2xl font-medium">
-              {{ examName }}
+              Esercizio {{ currentQuestionNumber + 1 }}
             </h1>
             <button
               @click="popupOpen = true"
@@ -239,7 +239,7 @@
     <transition name="bounce">
       <DraggablePopup
         v-show="popupOpen"
-        :title="examName"
+        :title="'Esercizio ' + (currentQuestionNumber + 1)"
         :content="highlightCode(exercise.text)"
         @hide="popupOpen = false"
       ></DraggablePopup>
@@ -377,7 +377,8 @@ export default {
             this.question = response.data.question
             // move to question pane
             this.pane = 'question'
-            this.currentQuestionNumber = response.data.ordering
+          } else {
+            this.question.id = null
           }
 
           // save exercise
@@ -389,6 +390,8 @@ export default {
             this.pane = 'text'
 
             this.submissions = response.data.submissions
+          } else {
+            this.exercise.id = null
           }
 
           // copy rest of response data into the corresponding fields
@@ -396,6 +399,7 @@ export default {
           this.isFirstItem = response.data.is_first_item
           this.isLastItem = response.data.is_last_item
           this.allowGoingBack = response.data.allow_going_back
+          this.currentQuestionNumber = response.data.ordering
         })
         .catch(error => {
           if (error.response.status == 401 || error.response.status == 403) {
@@ -508,8 +512,12 @@ export default {
           {}
         )
         .then(() => {
-          // ask for next exercise or question
-          this.getExam()
+          if (!this.isLastItem) {
+            // ask for next exercise or question
+            this.getExam(1)
+          } else {
+            this.endExam()
+          }
         })
         .catch(error => {
           this.$store.commit(

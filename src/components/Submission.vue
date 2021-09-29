@@ -39,7 +39,7 @@
         ({{ failedTests }} test fallit{{ failedTests == 1 ? 'o' : 'i' }})
       </div>
       <button
-        @click="$emit('turnIn')"
+        @click="$emit('turnInSubmissionCode')"
         class="px-3 mt-1 ml-auto text-white transition-all duration-100 bg-green-800 border border-green-700 rounded-md shadow-lg hover:bg-green-900 py md:mt-0"
         v-if="canBeTurnedIn"
       >
