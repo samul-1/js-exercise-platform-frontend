@@ -41,9 +41,27 @@
           >
             Domanda {{ currentQuestionNumber + 1 }}
           </div>
+          <!-- exercise controls -->
+          <button
+            v-if="exercise.id"
+            @click="pane = 'text'"
+            class="p-1 px-3 mr-1 font-medium text-white transition-all duration-75 bg-indigo-700 shadow-md cursor-pointer rounded-t-md hover:bg-indigo-800"
+            :class="{ 'bg-indigo-800': pane == 'text' }"
+          >
+            Testo
+          </button>
+          <button
+            v-if="exercise.id && !turnedInSubmission"
+            @click="submitCode()"
+            :disabled="submitCooldown != 0 || !code.length"
+            class="w-40 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
+          >
+            <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
+            {{ !submitCooldown ? 'Esegui codice' : submitCooldown }}
+          </button>
           <button
             @click="getExam(-1)"
-            v-if="allowGoingBack && !this.exercise.id"
+            v-if="allowGoingBack"
             :disabled="isSendingAnswer || isFirstItem || loading"
             class="w-20 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
@@ -53,7 +71,7 @@
           <button
             @click="getExam(1)"
             :disabled="isSendingAnswer || loading"
-            v-if="!isLastItem && !this.exercise.id"
+            v-if="!isLastItem"
             class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
             <span class="hidden md:inline">Avanti</span>
@@ -62,34 +80,23 @@
           <button
             @click="confirmEndExam()"
             :disabled="isSendingAnswer || loading"
-            v-else-if="!exercise.id"
+            v-else
             class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-green-600 active:bg-green-700"
           >
             <i class="md:mr-1 fas fa-check"></i>
             <span class="hidden md:inline">Termina</span>
           </button>
-
-          <!-- exercise controls -->
-          <button
-            v-if="exercise.id"
-            @click="pane = 'text'"
-            class="p-1 px-3 mr-1 font-medium text-white transition-all duration-75 bg-indigo-700 shadow-md cursor-pointer rounded-t-md hover:bg-indigo-800"
-            :class="{ 'bg-indigo-800': pane == 'text' }"
-          >
-            Testo dell'esercizio
-          </button>
-          <button
-            v-if="exercise.id"
-            @click="submitCode()"
-            :disabled="submitCooldown != 0 || !code.length"
-            class="w-40 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
-          >
-            <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
-            {{ !submitCooldown ? 'Esegui codice' : submitCooldown }}
-          </button>
         </div>
         <!-- editor pane -->
-        <div v-show="pane == 'editor'">
+        <div class="relative" v-show="pane == 'editor'">
+          <div
+            v-if="turnedInSubmission"
+            class="absolute z-10 flex w-full h-full opacity-40 bg-gradient-to-br from-gray-300 to-gray-400"
+          >
+            <p class="mx-auto my-auto text-gray-700">
+              Hai già sottomesso una soluzione per questo esercizio
+            </p>
+          </div>
           <AceEditor
             class="rounded-b-lg"
             id="editor-el"
@@ -530,7 +537,13 @@ export default {
     },
     editorInit
   },
-  computed: {}
+  computed: {
+    turnedInSubmission () {
+      return (
+        this.exercise.id && this.submissions.some(s => s.has_been_turned_in)
+      )
+    }
+  }
 }
 </script>
 <style>

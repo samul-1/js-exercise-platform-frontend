@@ -41,10 +41,13 @@
       <button
         @click="$emit('turnInSubmissionCode')"
         class="px-3 mt-1 ml-auto text-white transition-all duration-100 bg-green-800 border border-green-700 rounded-md shadow-lg hover:bg-green-900 py md:mt-0"
-        v-if="canBeTurnedIn"
+        v-if="canBeTurnedIn && !submission.has_been_turned_in"
       >
         <i class="mr-1 fas fa-paper-plane"></i> Consegna
       </button>
+      <p v-if="submission.has_been_turned_in" class="ml-auto font-medium">
+        Consegnata
+      </p>
     </div>
 
     <!-- testcase list -->
