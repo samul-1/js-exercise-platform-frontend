@@ -586,7 +586,7 @@ export default {
         amount: 1,
         is_aggregated_question: false,
         introduction_text: '',
-        randomize: true
+        randomize: false
       }
     },
     confirmDeletion (arr, index) {
