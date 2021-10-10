@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-12 my-6 transition-shadow duration-100 border border-gray-300 rounded-lg shadow-sm hover:shadow-md"
+    class="px-2 py-12 my-6 transition-shadow duration-100 border border-gray-300 rounded-lg shadow-sm md:px-12 hover:shadow-md"
   >
     <div class="flex mb-4 space-x-2">
       <h1 class="my-auto mr-auto text-xl font-medium">
@@ -43,7 +43,7 @@
         >{{ expanded ? 'Nascondi' : 'Mostra' }} dettagli risposte</span
       >
     </div>
-    <div v-if="expanded" class="flex">
+    <div v-if="expanded" class="flex flex-col md:flex-row">
       <div class="my-auto">
         <h1
           v-if="question.answers.length"
@@ -75,7 +75,7 @@
           >
         </div>
       </div>
-      <div v-if="question.answers.length" class="ml-auto">
+      <div v-if="question.answers.length" class="md:ml-auto">
         <apexchart
           width="300"
           height="250"

@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-8 my-5 ">
+  <div class="mx-4 my-5 md:mx-8 ">
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <div class="flex my-4">
       <h1 class="text-3xl font-medium ">Lista esami</h1>

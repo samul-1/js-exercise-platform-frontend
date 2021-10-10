@@ -1,17 +1,20 @@
 <template>
   <div
-    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-300 rounded-lg shadow-sm hover:shadow-lg"
+    class="relative px-2 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-300 rounded-lg shadow-sm md:px-10 hover:shadow-lg"
   >
-    <div class="absolute right-10">
+    <div class="absolute md:right-10 right-4">
       <button
-        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-600 rounded-lg disabled:opacity-50"
+        class="px-2 py-1 mr-2 text-sm text-gray-900 bg-gray-200 border border-gray-900 rounded-lg shadow-inner disabled:opacity-50"
         @click="$emit('toggleExpand')"
       >
-        <i class="fas fa-expand-alt"></i>
+        <i
+          class="fas"
+          :class="{ 'fa-expand-alt': !expanded, 'fa-compress-alt': expanded }"
+        ></i>
       </button>
       <button
         @click="$emit('delete')"
-        class="py-1.5 px-2.5 text-xs text-white shadow-inner bg-red-700 rounded-lg disabled:opacity-50"
+        class="pt-2 pb-1.5 border boder-red-700 px-2.5 text-xs text-white shadow-inner bg-red-700 rounded-lg disabled:opacity-50"
       >
         <i class="fas fa-trash"></i>
       </button>
@@ -28,7 +31,7 @@
           {{ categoryName ? categoryName : '' }}</span
         ><span v-if="categoryName"> domanda {{ index }}</span>
       </h1>
-      <ul v-if="errors" class="flex mt-2 space-x-4">
+      <ul v-if="errors" class="flex flex-col mt-2 md:flex-row md:space-x-4">
         <li
           v-for="(error, index) in errors"
           :key="question.id + '-err-' + index"
@@ -44,24 +47,28 @@
     </div>
     <div v-show="expanded">
       <div class="mb-4">
-        <div class="flex mb-1">
-          <span class="my-auto mr-2">Categoria</span>
-          <select
-            class="p-1 border rounded-md"
-            @change="update('category', question.category)"
-            v-model="question.category"
-          >
-            <option :value="null" selected disabled>Seleziona categoria</option>
-
-            <option
-              v-for="category in categoryChoices"
-              :key="category.id"
-              :value="category.id"
+        <div class="flex flex-col mb-1 space-y-4 md:flex-row md:space-y-0">
+          <div>
+            <span class="my-auto mr-2">Categoria</span>
+            <select
+              class="p-1 border rounded-md"
+              @change="update('category', question.category)"
+              v-model="question.category"
             >
-              {{ category.name }}
-            </option>
-          </select>
-          <div class="ml-6">
+              <option :value="null" selected disabled
+                >Seleziona categoria</option
+              >
+
+              <option
+                v-for="category in categoryChoices"
+                :key="category.id"
+                :value="category.id"
+              >
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+          <div class="md:ml-6">
             <span
               >Domanda
               <strong>
@@ -74,31 +81,35 @@
               @click="
                 switchQuestionType(question.question_type == 'm' ? 'o' : 'm')
               "
-              class="px-3 py-1.5 ml-2 text-sm transition-colors duration-75 text-white bg-gray-500 hover:bg-gray-600 rounded-md shadow-sm"
+              class="px-3 py-1.5 md:ml-2 text-sm transition-colors duration-75 text-white bg-gray-500 hover:bg-gray-600 rounded-md shadow-sm"
             >
               <i class="mr-1 fas fa-exchange-alt"></i> Cambia in domanda
               {{
                 question.question_type == 'o' ? 'a scelta multipla' : 'aperta'
               }}
             </button>
-            <span v-if="question.question_type == 'm'">
-              <input
-                class="ml-6 mr-2"
-                type="checkbox"
-                v-model="question.accepts_multiple_answers"
-                :id="question.id + '-accepts-multiple-answers'"
-                @change="
-                  update('accepts_multiple_answers', $event.target.checked)
-                "
-              />
-              <label :for="question.id + '-accepts-multiple-answers'"
-                >Accetta risposte multiple</label
-              >
-            </span>
+            <div class="mt-2 md:inline md:mt-0">
+              <span v-if="question.question_type == 'm'">
+                <input
+                  class="mr-2 md:ml-6"
+                  type="checkbox"
+                  v-model="question.accepts_multiple_answers"
+                  :id="question.id + '-accepts-multiple-answers'"
+                  @change="
+                    update('accepts_multiple_answers', $event.target.checked)
+                  "
+                />
+                <label :for="question.id + '-accepts-multiple-answers'"
+                  >Accetta risposte multiple</label
+                >
+              </span>
+            </div>
           </div>
         </div>
         <div class="flex">
-          <h2 class="my-2 text-lg">Testo della domanda</h2>
+          <h2 class="my-2 text-lg">
+            Testo <span class="hidden md:inline">della domanda</span>
+          </h2>
           <div class="my-auto ml-auto text-xs">
             <!-- <div
               class="mr-1 w-5 h-5 px-1.5 py-0.5 my-auto bg-yellow-400 rounded-full"
@@ -107,7 +118,7 @@
             </div>-->
           </div>
 
-          <p class="my-auto text-xs text-gray-600">
+          <p class="my-auto ml-2 text-xs text-gray-600 md:ml-0">
             Per inserire codice, racchiudilo tra ```
             <span class="mx-1">&mdash;</span> Evidenzia il codice LaTeX per
             vederne l'anteprima

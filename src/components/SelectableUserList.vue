@@ -11,12 +11,12 @@
         id="filter-bar"
       />
     </div>
-    <div class="grid grid-cols-2">
+    <div class="grid md:grid-cols-2">
       <div
-        class="flex py-2 px-14"
+        class="flex px-4 py-2 md:px-14"
         v-for="(user, index) in filteredUserList"
         :class="{
-          'pl-6': index % 2 == 0,
+          'md:pl-6': index % 2 == 0,
           'bg-gray-50': index % 4 < 2,
           'rounded-b-md': index === filteredUserList.length - 1
         }"
@@ -53,7 +53,9 @@
                 selected.indexOf(user.id) !== -1
             }"
           ></i>
-          {{ selected.indexOf(user.id) === -1 ? 'Aggiungi' : 'Rimuovi' }}
+          <span class="hidden md:ml-1 md:inline">{{
+            selected.indexOf(user.id) === -1 ? 'Aggiungi' : 'Rimuovi'
+          }}</span>
         </button>
         <p v-else class="text-gray-600"><em>Creatore esame</em></p>
       </div>

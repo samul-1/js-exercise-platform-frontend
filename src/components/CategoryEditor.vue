@@ -1,11 +1,14 @@
 <template>
   <div>
-    <ul v-if="errors" class="flex px-4 pt-2 mt-2 space-x-4">
+    <ul
+      v-if="errors"
+      class="flex flex-col px-4 pt-2 mt-2 md:space-x-4 md:flex-row"
+    >
       <li v-for="(error, index) in errors" :key="category.id + '-err-' + index">
         <p class="text-sm text-red-500"><strong>&#183;</strong> {{ error }}</p>
       </li>
     </ul>
-    <div class="flex px-4 py-2">
+    <div class="flex flex-col px-2 py-2 md:px-4 md:flex-row">
       <div v-if="category._new" class="order-12 my-auto ml-auto">
         <button
           @click="$emit('delete')"
@@ -16,7 +19,7 @@
       </div>
       <label class="my-auto mr-2" :for="id + '-cat-name'">Nome</label>
       <input
-        class="w-56 px-2 py-1 my-2 mr-4 border border-gray-300 rounded-md"
+        class="w-full px-2 py-1 my-2 mr-4 border border-gray-300 rounded-md md:w-56"
         @input="update('name', $event.target.value)"
         type="text"
         v-model="category.name"
@@ -24,7 +27,7 @@
       />
       <p
         v-if="!category.is_aggregated_question && category.randomize"
-        class="my-auto ml-5 text-sm w-60"
+        class="w-full my-auto text-sm md:ml-5 md:w-60"
       >
         Numero di
         {{ category.item_type == 'e' ? 'esercizi' : 'domande' }} scelt{{
@@ -39,7 +42,7 @@
       ></help-text-button>
       <div
         v-if="!category.is_aggregated_question && category.randomize"
-        class="relative flex flex-row w-32 h-full my-auto ml-2 mr-4 bg-transparent rounded-lg"
+        class="relative flex flex-row w-32 h-full my-auto mt-2 mb-4 mr-4 bg-transparent rounded-lg md:mb-0 md:mt-0 md:ml-2"
       >
         <button
           @click="
@@ -70,32 +73,36 @@
           <span class="m-auto text-2xl font-thin">+</span>
         </button>
       </div>
-      <input
-        v-if="category.item_type == 'q'"
-        v-model="category.is_aggregated_question"
-        @input="update('is_aggregated_question', $event.target.checked)"
-        class="my-auto ml-5"
-        type="checkbox"
-        :id="id + '-aggr-quest'"
-      />
-      <label
-        v-if="category.item_type == 'q'"
-        :for="id + '-aggr-quest'"
-        class="my-auto ml-2"
-        >Usa come domanda aggregata</label
-      >
+      <div class="my-auto">
+        <input
+          v-if="category.item_type == 'q'"
+          v-model="category.is_aggregated_question"
+          @input="update('is_aggregated_question', $event.target.checked)"
+          class="my-auto md:ml-5"
+          type="checkbox"
+          :id="id + '-aggr-quest'"
+        />
+        <label
+          v-if="category.item_type == 'q'"
+          :for="id + '-aggr-quest'"
+          class="my-auto ml-2"
+          >Usa come domanda aggregata</label
+        >
+      </div>
       <help-text-button
         v-if="category.item_type == 'q'"
         :helpText="HELP_TXTS.AGGR_QUEST_TXT"
-      ></help-text-button
-      ><input
-        v-model="category.randomize"
-        @input="update('randomize', $event.target.checked)"
-        class="my-auto ml-5"
-        type="checkbox"
-        :id="id + '-randomize'"
-      />
-      <label :for="id + '-randomize'" class="my-auto ml-2">Randomizza</label>
+      ></help-text-button>
+      <div class="my-auto">
+        <input
+          v-model="category.randomize"
+          @input="update('randomize', $event.target.checked)"
+          class="my-auto md:ml-5"
+          type="checkbox"
+          :id="id + '-randomize'"
+        />
+        <label :for="id + '-randomize'" class="my-auto ml-2">Randomizza</label>
+      </div>
       <help-text-button
         :helpText="HELP_TXTS.RAND_CAT_TXT"
         :width="category.item_type == 'q' ? 40 : 80"

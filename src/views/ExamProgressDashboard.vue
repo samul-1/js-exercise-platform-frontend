@@ -1,14 +1,16 @@
 <template>
-  <div class="mx-8 my-5">
+  <div class="mx-2 my-5 md:mx-8">
     <Spinner v-if="loading"></Spinner>
-    <header class="flex">
-      <router-link class="my-auto mr-2 " to="/exams"
-        ><button
-          class="pl-1.5 pr-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-700 py"
-        >
-          <i class="fas fa-chevron-left"></i></button
-      ></router-link>
-      <h1 class="text-2xl">Esame {{ exam.name }} in corso</h1>
+    <header class="flex flex-col md:flex-row">
+      <div class="flex">
+        <router-link class="my-auto mr-2 " to="/exams"
+          ><button
+            class="pl-1.5 pr-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-700 py"
+          >
+            <i class="fas fa-chevron-left"></i></button
+        ></router-link>
+        <h1 class="text-2xl">Esame {{ exam.name }} in corso</h1>
+      </div>
       <span class="my-auto font-light pt-0.5 ml-4 text-sm text-gray-600"
         ><i class="far fa-clock"></i> Termine previsto:
         <strong class="font-medium">{{
@@ -16,7 +18,9 @@
         }}</strong></span
       >
     </header>
-    <div class="flex my-10 space-x-12 text-xl">
+    <div
+      class="flex flex-col my-10 space-y-4 text-xl md:space-y-0 md:space-x-12 md:flex-row"
+    >
       <h3>
         <i class="mr-2 text-gray-900 fas fa-user"></i>Numero partecipanti:
         <span class="ml-1">{{ numParticipants }}</span>
@@ -28,7 +32,7 @@
           max="100"
           :value="(averageProgress * 100) / totalItemsCount"
         ></progress>
-        <span class="-ml-3 text-md"
+        <span class="md:-ml-3 text-md"
           >{{ Math.round((+averageProgress * 100) / totalItemsCount) }}%</span
         ><span class="font-light text-gray-400">
           ({{ Math.round(averageProgress) }} esercizi{{
@@ -46,8 +50,8 @@
       </h3>
     </div>
     <div class="mb-1">
-      <div class="flex">
-        <h3 class="mr-6">Filtra per:</h3>
+      <div class="grid grid-cols-2 md:flex">
+        <h3 class="col-span-2 mr-6">Filtra per:</h3>
         <div class="mt-auto mr-6" v-for="col in columns" :key="col.label">
           <input
             :id="'col-' + col.label"

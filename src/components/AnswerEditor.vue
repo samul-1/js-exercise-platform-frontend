@@ -1,6 +1,6 @@
 <template>
-  <div class="relative flex mt-2">
-    <div class="w-4/5">
+  <div class="relative flex flex-col my-8 mt-2 md:flex-row md:my-0">
+    <div class="md:w-4/5">
       <la-tex-preview
         v-show="selection.length"
         :text="selection"
@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="self-center ml-auto">
+    <div class="mt-2 md:self-center md:ml-auto md:mt-0">
       <input
         type="checkbox"
         class="cursor-pointer"

@@ -1,7 +1,7 @@
 <template>
-  <div class="mx-8 my-6">
+  <div class="mx-2 my-6 md:mx-8">
     <Spinner v-if="loading"></Spinner>
-    <header class="flex">
+    <header class="flex flex-col md:flex-row">
       <router-link class="my-auto mr-2 " to="/exams"
         ><button
           class="pl-1.5 pr-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-700 py"
@@ -10,7 +10,9 @@
       ></router-link>
       <h1 class="text-3xl">Statistiche {{ exam.name }}</h1>
     </header>
-    <div class="flex my-10 space-x-12 text-xl">
+    <div
+      class="flex flex-col my-10 space-y-4 text-xl md:space-y-0 md:space-x-12 md:flex-row"
+    >
       <h3>
         <i class="mr-2 text-gray-900 fas fa-user"></i>Numero partecipanti:
         <span class="ml-1">{{ numParticipants }}</span>
@@ -22,7 +24,7 @@
           max="100"
           :value="(averageProgress * 100) / totalItemsCount"
         ></progress>
-        <span class="-ml-3 text-md"
+        <span class="md:-ml-3 text-md"
           >{{ Math.round((+averageProgress * 100) / totalItemsCount) }}%</span
         ><span class="font-light text-gray-400">
           ({{ Math.round(averageProgress) }} esercizi{{
@@ -39,9 +41,9 @@
         >
       </h3>
     </div>
-    <div class="flex items-center">
+    <div class="flex flex-col items-center md:flex-row">
       <h2 class="text-2xl ">Domande più sbagliate</h2>
-      <span class="my-auto ml-3 font-light text-gray-600"
+      <span class="my-auto font-light text-gray-600 md:ml-3"
         >(Sono escluse le domande aperte e quelle che non sono state
         visualizzate da alcuno studente)</span
       >

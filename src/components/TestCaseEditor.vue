@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-5 mt-2">
+  <div class="grid my-8 mt-2 md:grid-cols-5 md:my-0">
     <div class="col-span-4">
       <AceEditor
         class="h-full rounded-md"
@@ -13,7 +13,7 @@
         :options="aceEditorOptions"
       />
     </div>
-    <div class="self-center ml-auto">
+    <div class="self-center mt-1 md:mt-0 md:ml-auto">
       <input
         type="checkbox"
         class="cursor-pointer"

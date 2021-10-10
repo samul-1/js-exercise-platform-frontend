@@ -1,5 +1,5 @@
 <template>
-  <div class="relative mx-0.5 my-auto bottom-2">
+  <div class="hidden md:inline relative mx-0.5 my-auto bottom-2">
     <div class="mb-auto text-xs" v-tooltip="tooltip">
       <i class="text-gray-400 fas fa-question-circle"></i>
     </div>

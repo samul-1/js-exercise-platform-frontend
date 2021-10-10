@@ -1,17 +1,20 @@
 <template>
   <div
-    class="relative px-10 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-300 rounded-lg shadow-sm hover:shadow-lg"
+    class="relative px-2 py-5 mt-2 mb-6 transition-shadow duration-300 transform border border-gray-300 rounded-lg shadow-sm md:px-10 hover:shadow-lg"
   >
-    <div class="absolute right-10">
+    <div class="absolute md:right-10 right-4">
       <button
-        class="mr-2 py-1.5 px-2.5 text-xs text-white shadow-inner bg-gray-600 rounded-lg disabled:opacity-50"
+        class="px-2 py-1 mr-2 text-sm text-gray-900 bg-gray-200 border border-gray-900 rounded-lg shadow-inner disabled:opacity-50"
         @click="$emit('toggleExpand')"
       >
-        <i class="fas fa-expand-alt"></i>
+        <i
+          class="fas"
+          :class="{ 'fa-expand-alt': !expanded, 'fa-compress-alt': expanded }"
+        ></i>
       </button>
       <button
         @click="$emit('delete')"
-        class="py-1.5 px-2.5 text-xs text-white shadow-inner bg-red-700 rounded-lg disabled:opacity-50"
+        class="pt-2 pb-1.5 px-2.5 text-xs text-white shadow-inner bg-red-700 rounded-lg disabled:opacity-50"
       >
         <i class="fas fa-trash"></i>
       </button>
@@ -30,7 +33,7 @@
         <span v-if="categoryName"> esercizio {{ index }}</span>
       </h1>
     </div>
-    <ul v-if="errors" class="flex mb-4 -mt-2 space-x-4">
+    <ul v-if="errors" class="flex flex-col mb-4 -mt-2 md:flex-row md:space-x-4">
       <li v-for="(error, index) in errors" :key="exercise.id + '-err-' + index">
         <p class="text-sm text-red-500"><strong>&#183;</strong> {{ error }}</p>
       </li>

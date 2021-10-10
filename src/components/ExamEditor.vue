@@ -1,12 +1,12 @@
 <template>
-  <div class="mx-8 my-4">
+  <div class="mx-2 my-4 md:mx-8">
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <h1 class="text-3xl">
       {{ $route.params.examid ? 'Aggiorna esame' : 'Crea nuovo esame' }}
     </h1>
 
     <!-- exam meta -->
-    <div class="grid grid-cols-2 mt-8">
+    <div class="grid mt-8 md:grid-cols-2">
       <div class="mr">
         <h2 class="mb-2 text-xl">Nome esame</h2>
         <input
@@ -16,8 +16,8 @@
         />
       </div>
 
-      <div class="grid grid-cols-2">
-        <div class="ml-auto">
+      <div class="grid mb-4 md:grid-cols-2 md:mb-0">
+        <div class="md:ml-auto">
           <h2 class="mb-3 text-xl">Data e ora inizio</h2>
           <DatePicker
             v-model="exam.begin_timestamp"
@@ -26,7 +26,7 @@
           ></DatePicker>
         </div>
 
-        <div class="ml-auto">
+        <div class="md:ml-auto">
           <h2 class="mb-3 text-xl">Data e ora fine</h2>
           <DatePicker
             v-model="exam.end_timestamp"
@@ -65,7 +65,7 @@
       :class="{ 'bordered-fieldset': exam.questionCategories.length }"
     >
       <legend class="flex">
-        <h2 class="mr-4 text-xl">Categorie domande</h2>
+        <h2 class="mr-1 md:mr-4 md:text-xl">Categorie domande</h2>
         <!--<div class="flex mt-10">-->
         <button
           @click="
@@ -76,18 +76,20 @@
               )
             )
           "
-          class="px-3 text-white bg-green-700 rounded-md shadow-sm"
+          class="px-2 my-auto text-white bg-green-700 rounded-md shadow-sm md:px-3 md:my-0"
         >
-          <i class="fas fa-plus-circle"></i> Aggiungi
+          <i class="text-sm fas fa-plus-circle md:text-base"></i>
+          <span class="hidden md:ml-1 md:inline">Aggiungi</span>
         </button>
         <input
-          class="my-auto ml-6 mr-2"
+          class="my-auto ml-1 md:ml-6 md:mr-2"
           type="checkbox"
           v-model="exam.randomize_questions"
           id="randomize-questions"
         />
-        <label class="my-auto" for="randomize-questions"
-          >Randomizza ordine categorie domande</label
+        <label class="my-auto text-xs md:text-base" for="randomize-questions"
+          >Randomizza ordine
+          <span class="hidden md:inline">categorie domande</span></label
         >
         <help-text-button
           :helpText="HELP_TXTS.RAND_GLOBAL_TXT"
@@ -119,7 +121,8 @@
           @click="exam.questions.unshift(newQuestion())"
           class="px-3 text-white bg-green-700 rounded-md shadow-sm"
         >
-          <i class="fas fa-plus-circle"></i> Aggiungi
+          <i class="fas fa-plus-circle"></i
+          ><span class="hidden md:ml-1 md:inline">Aggiungi</span>
         </button>
       </div>
 
@@ -147,7 +150,10 @@
       :class="{ 'bordered-fieldset': exam.exerciseCategories.length }"
     >
       <legend class="flex">
-        <h2 class="mr-4 text-xl">Categorie esercizi di programmazione JS</h2>
+        <h2 class="mr-1 md:mr-4 md:text-xl">
+          Categorie esercizi
+          <span class="hidden md:inline">di programmazione</span> JS
+        </h2>
         <button
           @click="
             exam.exerciseCategories.unshift(
@@ -157,18 +163,20 @@
               )
             )
           "
-          class="px-3 text-white bg-green-700 rounded-md shadow-sm"
+          class="px-2 my-auto text-white bg-green-700 rounded-md shadow-sm md:px-3 md:my-0"
         >
-          <i class="fas fa-plus-circle"></i> Aggiungi
+          <i class="fas fa-plus-circle"></i
+          ><span class="hidden md:ml-1 md:inline">Aggiungi</span>
         </button>
         <input
-          class="my-auto ml-6 mr-2"
+          class="my-auto ml-1 md:ml-6 md:mr-2"
           type="checkbox"
           v-model="exam.randomize_exercises"
           id="randomize-exercises"
         />
-        <label class="my-auto" for="randomize-exercises"
-          >Randomizza ordine categorie esercizi</label
+        <label class="my-auto text-xs md:text-base" for="randomize-exercises"
+          >Randomizza ordine
+          <span class="hidden md:inline">categorie esercizi</span></label
         >
         <help-text-button
           :helpText="HELP_TXTS.RAND_GLOBAL_TXT"
@@ -199,7 +207,8 @@
           @click="exam.exercises.unshift(newExercise())"
           class="px-3 text-white bg-green-700 rounded-md shadow-sm"
         >
-          <i class="fas fa-plus-circle"></i> Aggiungi
+          <i class="fas fa-plus-circle"></i
+          ><span class="hidden md:ml-1 md:inline">Aggiungi</span>
         </button>
       </div>
 
@@ -219,11 +228,11 @@
       </transition-group>
     </div>
     <!-- end exercises -->
-    <div class="flex">
+    <div class="flex flex-col md:flex-row">
       <button
         @click="submit()"
         :disabled="loading || invalidForm"
-        class="px-4 py-2 mt-10 mb-2 mr-2 text-white bg-green-700 rounded-lg shadow-inner disabled:opacity-50"
+        class="px-4 py-2 mt-6 mb-2 text-white bg-green-700 rounded-lg shadow-inner md:mr-2 md:mt-10 disabled:opacity-50"
       >
         <i class="mr-1 fas fa-check"></i>
         {{ $route.params.examid ? 'Aggiorna' : 'Conferma e crea' }}
@@ -231,7 +240,7 @@
       <button
         @click="submit(true)"
         :disabled="loading || invalidForm"
-        class="px-4 py-2 mt-10 mb-2 mr-2 text-white bg-gray-500 rounded-lg shadow-inner disabled:opacity-50"
+        class="px-4 py-2 mb-2 text-white bg-gray-500 rounded-lg shadow-inner md:mr-2 md:mt-10 disabled:opacity-50"
       >
         <i class="mr-1.5 far fa-file"></i>
         Salva come bozza
@@ -239,7 +248,7 @@
       <router-link to="/exams">
         <button
           :disabled="loading"
-          class="px-4 py-2 mt-10 mb-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-800"
+          class="w-full px-4 py-2 mb-2 text-white bg-gray-900 rounded-lg shadow-inner md:w-max md:mt-10 hover:bg-gray-800"
         >
           <i class="mr-1.5 fas fa-chevron-left"></i>
 
@@ -247,7 +256,10 @@
         </button></router-link
       >
       <!-- <button @click="deepCopyExam(processedExamObject)">JSON</button> -->
-      <ul v-if="editorErrors.globalErrors" class="my-auto ml-10">
+      <ul
+        v-if="editorErrors.globalErrors"
+        class="order-first my-auto mt-8 md:order-last md:mt-0 md:ml-10"
+      >
         <li
           v-for="(error, index) in editorErrors.globalErrors"
           :key="'global-err-' + index"
