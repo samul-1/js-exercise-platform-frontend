@@ -59,6 +59,13 @@
             <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
             {{ !submitCooldown ? 'Esegui codice' : submitCooldown }}
           </button>
+          <p
+            class="my-auto mr-2 text-sm text-white animate-pulse"
+            v-if="showSavingAnswerDontPanic"
+          >
+            Salvataggio risposta in corso...
+          </p>
+
           <button
             @click="getExam(-1)"
             v-if="allowGoingBack"
@@ -72,8 +79,32 @@
             @click="getExam(1)"
             :disabled="isSendingAnswer || loading"
             v-if="!isLastItem"
-            class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
+            class="relative w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-50 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
+            <div
+              v-if="isSendingAnswer"
+              class="absolute transform -translate-x-1/2 left-1/2 top-1.5"
+            >
+              <svg
+                class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-75"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </div>
             <span class="hidden md:inline">Avanti</span>
             <i class="md:ml-2 fas fa-chevron-right"></i>
           </button>
@@ -307,6 +338,21 @@ export default {
     // and without doing this the font size gets screwed up for some reason
     setTimeout(() => (this.editorOptions = aceEditorOptions))
   },
+  watch: {
+    isSendingAnswer (newVal) {
+      if (newVal) {
+        this.savingAnswerHandle = setTimeout(() => {
+          if (this.isSendingAnswer) {
+            this.showSavingAnswerDontPanic = true
+          }
+        }, 2000)
+      } else {
+        clearTimeout(this.savingAnswerHandle)
+        this.savingAnswerHandle = null
+        this.showSavingAnswerDontPanic = false
+      }
+    }
+  },
   data () {
     return {
       dialog: {
@@ -344,7 +390,10 @@ export default {
       processingSubmission: false,
       submissions: [],
       pane: 'text',
-      popupOpen: false
+      popupOpen: false,
+
+      showSavingAnswerDontPanic: false,
+      savingAnswerHandle: null
     }
   },
   methods: {

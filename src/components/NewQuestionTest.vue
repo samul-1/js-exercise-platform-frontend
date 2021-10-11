@@ -29,7 +29,7 @@
         rows="10"
         style="width: 98%"
         v-model="answerText"
-        v-debounce:1500ms.lock="sendAnswerText"
+        v-debounce:500ms.lock="sendAnswerText"
       ></textarea>
       <div class="my-2" v-if="errorWhileUpdatingAnswerText">
         <span class="inline text-red-500">
