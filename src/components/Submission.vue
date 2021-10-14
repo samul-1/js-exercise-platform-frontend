@@ -1,51 +1,57 @@
 <template>
   <div
-    class="m-2 text-gray-900 rounded-md shadow-md text-shadow-lg"
-    :class="{
-      'bg-green-00': true && submission.is_eligible,
-      'bg-red-00': true && !submission.is_eligible
-    }"
+    class="m-2 text-gray-900 bg-gray-200 border border-gray-300 rounded-md shadow-md"
   >
     <div
-      class="flex flex-wrap p-3 text-gray-100 md:flex-nowrap"
+      class="flex flex-wrap items-center p-3 text-gray-100 md:flex-nowrap"
       :class="{
         'rounded-md': !expanded,
         'rounded-t-md': expanded,
-        'bg-green-500': submission.is_eligible,
-        'bg-red-400': !submission.is_eligible
+        'bg-green-500': false && submission.is_eligible,
+        'bg-red-400': false && !submission.is_eligible
       }"
     >
-      <span class="mr-3 font-medium text-md"
-        ><i
-          class="mr-1 far"
+      <p class="mr-3 font-medium text-md">
+        <i
+          class="far"
           :class="{
             'fa-check-circle text-green-900': submission.is_eligible,
             'fa-times-circle text-red-900': !submission.is_eligible
           }"
         ></i>
-        Sott{{ failedTests > 0 ? '.' : 'omissione' }} #{{ index }}</span
-      >
+        <!-- Sott{{ failedTests > 0 ? '.' : 'omissione' }} #{{ index }} -->
+      </p>
       <button
         @click="expanded = !expanded"
-        class="px-3 ml-auto text-white transition-all duration-150 bg-gray-800 border border-gray-700 rounded-md shadow-inner hover:bg-gray-900 md:ml-0 py"
+        class="pr-2 pl-2.5 text-white transition-all duration-150 bg-gray-800 border border-gray-700 rounded-md shadow-inner hover:bg-gray-900 md:ml-0 py"
       >
         <i
-          class="mr-1 transition-transform duration-75 transform fas fa-caret-right"
-          :class="{ 'rotate-90': expanded }"
+          class="my-auto mr-0.5 text-sm transform fas fa-caret-right"
+          :class="{ 'rotate-90 -ml-1 mr-px': expanded }"
         ></i>
         {{ expanded ? 'Nascondi' : 'Dettagli' }}
       </button>
-      <div v-if="failedTests" class="ml-2">
-        ({{ failedTests }} test fallit{{ failedTests == 1 ? 'o' : 'i' }})
+      <div class="w-1/3 ml-2 mr-4">
+        <progress-bar
+          :value="passedTests"
+          :max="submission.total_testcases"
+        ></progress-bar>
       </div>
+      <p class="text-gray-900">
+        {{ passedTests }} su {{ submission.total_testcases }}
+      </p>
       <button
         @click="$emit('turnInSubmissionCode')"
-        class="px-3 mt-1 ml-auto text-white transition-all duration-100 bg-green-800 border border-green-700 rounded-md shadow-lg hover:bg-green-900 py md:mt-0"
+        class="px-2 mt-1 ml-auto text-white transition-all duration-100 bg-green-800 border border-green-700 rounded-md shadow-lg hover:bg-green-900 py md:mt-0"
+        :class="{ 'animate-pulse-fast': highlightSubmitButton }"
         v-if="canBeTurnedIn && !submission.has_been_turned_in"
       >
         <i class="mr-1 fas fa-paper-plane"></i> Consegna
       </button>
-      <p v-if="submission.has_been_turned_in" class="ml-auto font-medium">
+      <p
+        v-if="submission.has_been_turned_in"
+        class="ml-auto font-medium text-green-900"
+      >
         Consegnata
       </p>
     </div>
@@ -116,19 +122,30 @@
 <script>
 import { component as VueCodeHighlight } from 'vue-code-highlight'
 import 'vue-code-highlight/themes/duotone-sea.css'
+import ProgressBar from './ProgressBar.vue'
 export default {
   name: 'Submission',
   components: {
-    VueCodeHighlight
+    VueCodeHighlight,
+    ProgressBar
   },
   props: {
     submission: Object,
     index: Number,
     canBeTurnedIn: Boolean
   },
+  created () {
+    if (this.submission.is_eligible) {
+      this.highlightSubmitButton = true
+      setTimeout(() => {
+        this.highlightSubmitButton = false
+      }, 2700)
+    }
+  },
   data () {
     return {
-      expanded: false
+      expanded: false,
+      highlightSubmitButton: false
     }
   },
   computed: {
@@ -140,6 +157,9 @@ export default {
         this.submission.public_details.tests.filter(t => !t.passed).length +
         this.submission.public_details.failed_secret_tests
       )
+    },
+    passedTests () {
+      return this.submission.total_testcases - this.failedTests
     }
   }
 }
@@ -152,5 +172,9 @@ pre[class*='language-'] {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.animate-pulse-fast {
+  animation: pulse 1s cubic-bezier(0.1, 0, 0.6, 1) infinite;
 }
 </style>

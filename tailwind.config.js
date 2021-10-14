@@ -13,7 +13,9 @@ module.exports = {
     extend: {
       borderWidth: ['last'],
       opacity: ['disabled'],
-      backgroundColor: ['active']
+      backgroundOpacity: ['disabled'],
+      backgroundColor: ['active'],
+      cursor: ['disabled']
     }
   },
   plugins: []

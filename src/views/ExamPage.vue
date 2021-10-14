@@ -15,27 +15,27 @@
         <div class="flex bg-gray-900 rounded-t-lg borer">
           <div
             v-if="exercise.id"
-            class="px-3 py-1 mr-1 text-white transition-all duration-75 bg-gray-500 shadow-inner cursor-pointer hover:bg-gray-700 rounded-t-md"
+            class="px-1 py-1 mr-1 text-white transition-colors duration-75 bg-gray-500 shadow-inner cursor-pointer lg:px-3 hover:bg-gray-700 rounded-t-md"
             @click="pane = 'editor'"
-            :class="{ 'bg-gray-700': pane == 'editor' }"
+            :class="{ 'bg-gray-700 font-medium': pane == 'editor' }"
           >
             Editor
           </div>
           <div
             v-if="exercise.id"
-            class="px-3 py-1 mr-auto text-white transition-all duration-75 bg-gray-500 shadow-inner cursor-pointer rounded-t-md hover:bg-gray-700"
+            class="px-1 py-1 mr-1 text-white transition-colors duration-75 bg-gray-500 shadow-inner cursor-pointer lg:px-3 rounded-t-md hover:bg-gray-700"
             @click="pane = 'testcases'"
             :class="{
-              'bg-gray-700': pane == 'testcases'
+              'bg-gray-700 font-medium': pane == 'testcases'
             }"
           >
-            Test case
+            Test <span class="hidden lg:inline">case</span>
           </div>
 
           <!-- question controls -->
           <div
             v-if="question.id"
-            class="px-3 py-1 mr-auto text-white transition-all duration-75 bg-gray-500 shadow-inner hover:bg-gray-700 rounded-t-md"
+            class="px-3 py-1 mr-auto text-white transition-colors duration-75 bg-gray-500 shadow-inner hover:bg-gray-700 rounded-t-md"
             @click="pane = 'question'"
             :class="{ 'bg-gray-700': pane == 'question' }"
           >
@@ -45,8 +45,8 @@
           <button
             v-if="exercise.id"
             @click="pane = 'text'"
-            class="p-1 px-3 mr-1 font-medium text-white transition-all duration-75 bg-indigo-700 shadow-md cursor-pointer rounded-t-md hover:bg-indigo-800"
-            :class="{ 'bg-indigo-800': pane == 'text' }"
+            class="p-1 px-3 mr-1 text-white transition-colors duration-75 bg-indigo-800 shadow-md cursor-pointer rounded-t-md hover:bg-indigo-800"
+            :class="{ 'bg-indigo-900 font-medium': pane == 'text' }"
           >
             Testo
           </button>
@@ -54,69 +54,60 @@
             v-if="exercise.id && !turnedInSubmission"
             @click="submitCode()"
             :disabled="submitCooldown != 0 || !code.length"
-            class="w-40 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
+            class="w-32 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
           >
             <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
-            {{ !submitCooldown ? 'Esegui codice' : submitCooldown }}
+            {{ !submitCooldown ? 'Esegui' : submitCooldown }}
           </button>
-          <p
-            class="my-auto mr-2 text-sm text-white animate-pulse"
-            v-if="showSavingAnswerDontPanic"
-          >
-            Salvataggio risposta in corso...
-          </p>
-
-          <button
-            @click="getExam(-1)"
-            v-if="allowGoingBack"
-            :disabled="isSendingAnswer || isFirstItem || loading"
-            class="w-20 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
-          >
-            <i class="md:mr-2 fas fa-chevron-left"></i>
-            <span class="hidden md:inline">Indietro</span>
-          </button>
+          <div class="flex ml-auto">
+            <p
+              class="my-auto mr-2 text-sm text-white animate-pulse"
+              v-if="showSavingAnswerDontPanic"
+            >
+              Salvataggio risposta in corso...
+            </p>
+            <button
+              @click="getExam(-1)"
+              v-if="allowGoingBack"
+              :disabled="controlButtonsDisabled || isFirstItem"
+              class="w-20 p-1 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer lg:px-3 disabled:cursor-not-allowed md:w-40 disabled:opacity-40 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
+            >
+              <i class="md:mr-2 fas fa-chevron-left"></i>
+              <span class="hidden md:inline">Indietro</span>
+            </button>
+          </div>
           <button
             @click="getExam(1)"
-            :disabled="isSendingAnswer || loading"
+            :disabled="controlButtonsDisabled"
             v-if="!isLastItem"
-            class="relative w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:opacity-50 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
+            class="relative w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:bg-opacity-40 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
           >
             <div
               v-if="isSendingAnswer"
-              class="absolute transform -translate-x-1/2 left-1/2 top-1.5"
+              class="absolute transform -translate-x-1/2 ml-1 left-1/2 top-1.5"
             >
-              <svg
-                class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-75"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
+              <inline-small-spinner></inline-small-spinner>
             </div>
-            <span class="hidden md:inline">Avanti</span>
-            <i class="md:ml-2 fas fa-chevron-right"></i>
+            <p :class="{ 'opacity-40': controlButtonsDisabled }">
+              <span class="hidden md:inline">Avanti</span>
+              <i class="md:ml-2 fas fa-chevron-right"></i>
+            </p>
           </button>
           <button
             @click="confirmEndExam()"
             :disabled="isSendingAnswer || loading"
-            v-else
+            v-else-if="!exercise.id"
             class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-green-600 active:bg-green-700"
           >
             <i class="md:mr-1 fas fa-check"></i>
             <span class="hidden md:inline">Termina</span>
           </button>
+          <div
+            v-else
+            class="hidden w-20 p-1 px-3 text-center text-white transition-all duration-75 bg-gray-700 shadow-md lg:inline md:w-40 opacity-60 rounded-t-md"
+          >
+            Ultimo esercizio!
+          </div>
         </div>
         <!-- editor pane -->
         <div class="relative" v-show="pane == 'editor'">
@@ -148,7 +139,7 @@
           v-show="pane == 'testcases'"
         >
           <div
-            class="p-4 m-2 font-medium text-gray-200 bg-yellow-600 shadow-sm rounded-xl"
+            class="p-4 m-2 font-medium bg-gray-400 shadow-md text-gray-50 rounded-xl"
           >
             <i class="mr-2 fas fa-eye-slash"></i> Il tuo codice potrebbe essere
             eseguito anche con test case non presenti in questa lista.
@@ -222,8 +213,9 @@
             v-show="processingSubmission"
             class="flex p-3 m-2 mb-0 text-black bg-gray-300 rounded-md shadow-md opacity-50 text-shadow-lg"
           >
+            <inline-small-spinner></inline-small-spinner>
             <!-- // ! spinner component -->
-            <svg
+            <!-- <svg
               class="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -242,7 +234,7 @@
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path></svg
-            ><!-- // ! end spinner -->
+            >// ! end spinner -->
             Valutazione codice in corso...
           </div>
           <div class="overflow-auto">
@@ -291,7 +283,6 @@ import AceEditor from 'vuejs-ace-editor'
 import Spinner from '../components/Spinner.vue'
 import Submission from '../components/Submission.vue'
 import TestCase from '../components/TestCase.vue'
-// import Question from '../components/Question.vue'
 import NewQuestionTest from '../components/NewQuestionTest.vue'
 import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
@@ -304,6 +295,7 @@ import {
   SUBMIT_COOLDOWN,
   editorInit
 } from '../constants'
+import InlineSmallSpinner from '../components/InlineSmallSpinner.vue'
 
 export default {
   name: 'ExamPage',
@@ -312,23 +304,15 @@ export default {
     Submission,
     TestCase,
     Dialog,
-    //Question,
     NewQuestionTest,
     Skeleton,
     DraggablePopup,
     Spinner,
-    AggregatedQuestionIntroduction
+    AggregatedQuestionIntroduction,
+    InlineSmallSpinner
   },
   created () {
-    // if (!this.$store.state.isAuthenticated) {
-    //   this.$store.commit(
-    //     'setRedirectToAfterLogin',
-    //     this.$router.currentRoute.fullPath
-    //   )
-    //   this.$router.push('/login')
-    // } else {
     this.getExam()
-    //}
   },
   mounted () {
     // set the editor height to approximately 70% of parent height
@@ -399,10 +383,11 @@ export default {
   },
   methods: {
     highlightCode,
-    getExam (delta = 0) {
+    getExam (delta = 0, y = false) {
       if (
         delta == 1 &&
         !this.allowGoingBack &&
+        !y &&
         !confirm(
           'Sei sicuro di voler andare avanti? Se confermi, non potrai più tornare indietro.'
         )
@@ -581,7 +566,7 @@ export default {
         .then(() => {
           if (!this.isLastItem) {
             // ask for next exercise or question
-            this.getExam(1)
+            this.getExam(1, true)
           } else {
             this.endExam()
           }
@@ -602,6 +587,9 @@ export default {
       return (
         this.exercise.id && this.submissions.some(s => s.has_been_turned_in)
       )
+    },
+    controlButtonsDisabled () {
+      return this.isSendingAnswer || this.loading
     }
   }
 }
