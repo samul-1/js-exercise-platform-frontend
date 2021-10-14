@@ -104,12 +104,46 @@
         </ul>
       </div>
     </div>
-    <button
+    <!-- <button
       @click="exportExamQuestions()"
       class="px-2.5 mb-auto py-1 md:ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
     >
       Esporta domande
-    </button>
+    </button> -->
+    <div class="inline-block w-full dropdown md:w-max">
+      <div class="relative">
+        <div class="absolute h-10 left-2 w-28"></div>
+      </div>
+      <button
+        class="px-2.5 w-full md:w-max py-1 md:ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      >
+        <i class="mr-1 text-sm fas fa-download"></i>
+
+        Esporta
+      </button>
+      <ul
+        class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+      >
+        <li v-if="exam.has_questions" class="">
+          <a
+            @click="exportExamItems('q')"
+            :class="{ 'rounded-b-lg': !exam.has_exercises }"
+            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
+            href="#"
+            >Esporta domande</a
+          >
+        </li>
+        <li v-if="exam.has_exercises" class="">
+          <a
+            @click="exportExamItems('e')"
+            :class="{ 'rounded-t-lg': !exam.has_questions }"
+            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
+            href="#"
+            >Esporta esercizi JS</a
+          >
+        </li>
+      </ul>
+    </div>
     <button
       @click="showExamInstructions(exam)"
       v-if="!exam.closed"
@@ -361,13 +395,22 @@ export default {
           this.loading = false
         })
     },
-    exportExamQuestions () {
+    exportExamItems (itemType) {
       this.loading = true
       axios
-        .get(`exams/${this.exam.id}/export/`)
+        .get(
+          `exams/${this.exam.id}/export_${
+            itemType == 'q' ? 'questions' : 'exercises'
+          }/`
+        )
         .then(response => {
           console.log(response.data)
-          this.downloadObjectAsJson(response.data, `${this.exam.name}.json`)
+          this.downloadObjectAsJson(
+            response.data,
+            `${this.exam.name}_${
+              itemType == 'q' ? 'domande' : 'eserciziJS'
+            }.json`
+          )
         })
         .catch(error => {
           redirectIfPermissionErrorOrSetMessage(
