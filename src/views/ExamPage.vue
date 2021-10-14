@@ -35,7 +35,7 @@
           <!-- question controls -->
           <div
             v-if="question.id"
-            class="px-3 py-1 mr-auto text-white transition-all duration-75 bg-gray-500 shadow-inner cursor-pointer hover:bg-gray-700 rounded-t-md"
+            class="px-3 py-1 mr-auto text-white transition-all duration-75 bg-gray-500 shadow-inner hover:bg-gray-700 rounded-t-md"
             @click="pane = 'question'"
             :class="{ 'bg-gray-700': pane == 'question' }"
           >

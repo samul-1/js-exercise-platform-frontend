@@ -70,12 +70,14 @@ export default {
       googleSignInParams: {
         client_id:
           '956826904172-mcsaj1bqcllv93bpad7dmd0e3oil4758.apps.googleusercontent.com', // '600729137370-h25svjos6nbofm48mmtacd3hjq6ogu95.apps.googleusercontent.com'
-        hosted_domain:
-          this.$route.params.role == 'teacher'
-            ? 'unipi.it'
-            : this.$route.params.role == 'phd'
-            ? 'phd.unipi.it'
-            : 'studenti.unipi.it'
+        ...(this.$route.params.role != 'gmail' && {
+          hosted_domain:
+            this.$route.params.role == 'teacher'
+              ? 'unipi.it'
+              : this.$route.params.role == 'phd'
+              ? 'phd.unipi.it'
+              : 'studenti.unipi.it'
+        })
       }
     }
   },
