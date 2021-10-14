@@ -1,5 +1,5 @@
 <template>
-  <div class="grid my-8 mt-2 md:grid-cols-5 md:my-0">
+  <div class="grid my-8 mt-2 md:grid-cols-5 md:my-2">
     <div class="col-span-4">
       <AceEditor
         class="h-full rounded-md"

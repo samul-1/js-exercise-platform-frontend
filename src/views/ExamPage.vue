@@ -39,7 +39,7 @@
             @click="pane = 'question'"
             :class="{ 'bg-gray-700': pane == 'question' }"
           >
-            Domanda {{ currentQuestionNumber + 1 }}
+            Domanda {{ currentQuestionNumber + 1 }} di {{ totalItemsCount }}
           </div>
           <!-- exercise controls -->
           <button
@@ -384,6 +384,7 @@ export default {
       code: '',
 
       currentQuestionNumber: 0,
+      totalItemsCount: 0,
       isFirstItem: false,
       isLastItem: false,
 
@@ -399,6 +400,15 @@ export default {
   methods: {
     highlightCode,
     getExam (delta = 0) {
+      if (
+        delta == 1 &&
+        !this.allowGoingBack &&
+        !confirm(
+          'Sei sicuro di voler andare avanti? Se confermi, non potrai più tornare indietro.'
+        )
+      ) {
+        return
+      }
       const examId = this.$route.params.examId
       this.loading = true
 
@@ -456,6 +466,7 @@ export default {
           this.isLastItem = response.data.is_last_item
           this.allowGoingBack = response.data.allow_going_back
           this.currentQuestionNumber = response.data.ordering
+          this.totalItemsCount = response.data.total_items_count
         })
         .catch(error => {
           if (error.response.status == 401 || error.response.status == 403) {
