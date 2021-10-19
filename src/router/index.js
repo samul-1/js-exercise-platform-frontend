@@ -31,7 +31,7 @@ const routes = [
     name: 'ExamPage',
     component: ExamPage,
     meta: {
-      studentsOnly: true
+      //studentsOnly: true
     }
   },
   {

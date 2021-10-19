@@ -1,7 +1,7 @@
 <template>
   <div
     :class="{ 'bg-gray-100': exam.draft || old }"
-    class="flex flex-col w-full p-4 my-3 mt-auto space-y-2 transition-shadow duration-75 border rounded-lg md:space-y-0 md:flex-row hover:shadow-md"
+    class="flex flex-col w-full px-2 py-4 my-3 mt-auto space-y-2 transition-shadow duration-75 border rounded-lg md:space-y-0 md:flex-row hover:shadow-md"
   >
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <h1
@@ -14,7 +14,7 @@
       ><button
         v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
         :disabled="exam.locked_by"
-        class="px-2.5 py-1 w-full md:w-max md:ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:w-max md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 fas fa-edit "></i>
 
@@ -24,18 +24,18 @@
     <router-link :to="`/exams/${exam.id}/progress`"
       ><button
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        class="md:ml-2 w-full md:w-max px-2.5 py-1 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-1 text-sm fas fa-eye"></i>
+        <i class="mr-1 text-xs fas fa-eye"></i>
         Monitora
       </button></router-link
     >
     <button
       @click="confirmClosure(exam)"
       v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-      class="px-2.5 py-1 md:ml-2 text-white align-middle bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
+      class="px-2 py-1 text-sm text-white align-middle bg-red-800 rounded-lg md:ml-2 disabled:opacity-40 hover:bg-red-900"
     >
-      <i class="mr-1 text-sm fas fa-exclamation-triangle"></i> Chiudi
+      <i class="mr-1 text-xs fas fa-exclamation-triangle"></i> Chiudi
     </button>
     <div
       v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
@@ -45,9 +45,9 @@
         <div class="absolute h-10 left-2 w-28"></div>
       </div>
       <button
-        class="px-2.5 py-1 md:ml-2 w-full md:w-max font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-1 text-sm fas fa-file-pdf"></i> PDF
+        <i class="mr-1 text-xs fas fa-file-pdf"></i> PDF
       </button>
       <ul
         class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
@@ -76,9 +76,9 @@
           <div class="absolute h-10 left-2 w-28"></div>
         </div>
         <button
-          class="px-2.5 w-full md:w-max py-1 md:ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:w-max md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
         >
-          <i class="mr-1 text-sm fas fa-download"></i>
+          <i class="mr-1 text-xs fas fa-download"></i>
 
           Risultati
         </button>
@@ -115,9 +115,9 @@
         <div class="absolute h-10 left-2 w-28"></div>
       </div>
       <button
-        class="px-2.5 w-full md:w-max py-1 md:ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:w-max md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-1 text-sm fas fa-download"></i>
+        <i class="mr-1 text-xs fas fa-download"></i>
 
         Esporta
       </button>
@@ -147,15 +147,24 @@
     <button
       @click="showExamInstructions(exam)"
       v-if="!exam.closed"
-      class="px-2.5 py-1 md:ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+      class="px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
     >
-      <i class="mr-1 text-sm fas fa-link"></i>
+      <i class="mr-1 text-xs fas fa-link"></i>
       Codice accesso
     </button>
+    <router-link :to="`/exam/${exam.id}`"
+      ><button
+        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
+      >
+        <i class="mr-1 fas fa-user "></i>
+
+        Simula studente
+      </button></router-link
+    >
     <router-link :to="`/exams/${exam.id}/stats`"
       ><button
         v-if="exam.closed && !hideStats"
-        class="px-2.5 py-1 md:ml-2 w-full md:w-max font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
       >
         <i class="mr-1 fas fa-chart-bar "></i>
 
@@ -168,22 +177,25 @@
     <div
       class="flex flex-col items-center my-auto space-y-2 md:space-y-0 md:ml-auto md:flex-row"
     >
-      <div class="px-2 bg-gray-600 rounded-md md:mr-4 " v-if="exam.closed">
+      <div
+        class="px-2 text-sm bg-gray-600 rounded-md md:mr-4"
+        v-if="exam.closed"
+      >
         <span class="text-white ">Terminato</span>
       </div>
       <div
         class="px-2 bg-red-800 rounded-md md:mr-4 "
         v-if="new Date() >= new Date(exam.end_timestamp) && !exam.closed"
       >
-        <span class="text-white ">Scadenza passata</span>
+        <span class="text-sm text-white">Fuori tempo</span>
       </div>
       <div
-        class="px-2 bg-green-700 rounded-md md:mr-4 animate-pulse"
+        class="px-2 text-sm bg-green-700 rounded-md md:mr-4 animate-pulse"
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
       >
         <span class="text-white ">In corso</span>
       </div>
-      <div class="px-2 bg-red-500 rounded-md md:mr-4" v-if="exam.draft">
+      <div class="px-2 text-sm bg-red-500 rounded-md md:mr-4" v-if="exam.draft">
         <span class="text-white ">Bozza</span>
       </div>
       <div
@@ -194,8 +206,8 @@
           >Modifica in corso da {{ exam.locked_by }}
         </span>
       </div>
-      <div class="text-sm text-gray-700">
-        <i class="mr-1 text-sm text-gray-500 far fa-calendar"></i>
+      <div class="text-xs text-gray-700">
+        <i class="mr-1 text-gray-500 far fa-calendar"></i>
         <span
           v-html="
             formatTimestampShort([exam.begin_timestamp, exam.end_timestamp])
