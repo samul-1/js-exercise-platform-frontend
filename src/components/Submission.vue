@@ -168,6 +168,13 @@ export default {
       return this.submission.public_details?.failed_secret_tests ?? 0
     },
     passedTests () {
+      if (
+        this.submission.details?.error ||
+        this.submission.public_details?.error
+      ) {
+        // if there was a global error, no test cases passed
+        return 0
+      }
       return this.submission.total_testcases - this.failedTests
     },
     testCasesDetails () {
