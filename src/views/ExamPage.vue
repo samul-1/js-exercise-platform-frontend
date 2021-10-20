@@ -12,7 +12,7 @@
         >
           <i class="fas fa-chevron-left"></i></button
       ></router-link>
-      <h1 class="text-lg font-medium">
+      <h1 class="text-lg">
         Simulazione esame in modalità studente
       </h1>
     </div>

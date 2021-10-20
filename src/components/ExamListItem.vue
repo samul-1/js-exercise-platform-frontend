@@ -47,7 +47,7 @@
           <i class="mr-1 text-xs fas fa-file-pdf"></i> PDF
         </button>
         <ul
-          class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+          class="absolute hidden mt-1 text-white rounded-lg shadow-big w-max dropdown-menu"
         >
           <li class="">
             <a
@@ -81,7 +81,7 @@
             Risultati
           </button>
           <ul
-            class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+            class="absolute hidden mt-1 text-white rounded-lg shadow-big w-max dropdown-menu"
           >
             <li class="">
               <a
@@ -115,7 +115,7 @@
           Esporta
         </button>
         <ul
-          class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+          class="absolute hidden mt-1 text-white rounded-lg shadow-big w-max dropdown-menu"
         >
           <li v-if="exam.has_questions" class="">
             <a
@@ -196,7 +196,7 @@
           >Modifica in corso da {{ exam.locked_by }}
         </span>
       </div>
-      <div class="text-xs text-gray-700">
+      <div class="text-xs text-gray-700 md:pl-1.5">
         <i class="mr-1 text-gray-500 far fa-calendar"></i>
         <span
           v-html="
