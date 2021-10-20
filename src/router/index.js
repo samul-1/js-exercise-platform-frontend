@@ -35,6 +35,14 @@ const routes = [
     }
   },
   {
+    path: '/exam/:examId/simulate',
+    name: 'ExamPage',
+    component: ExamPage,
+    props: {
+      restart: true
+    }
+  },
+  {
     path: '/login/:role?',
     name: 'Login',
     component: Login

@@ -145,7 +145,7 @@
         <i class="mr-1 text-xs fas fa-link"></i>
         Cod. accesso
       </button>
-      <router-link :to="`/exam/${exam.id}`"
+      <router-link :to="`/exam/${exam.id}/simulate`"
         ><button
           class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >

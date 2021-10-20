@@ -321,6 +321,12 @@ export default {
     // and without doing this the font size gets screwed up for some reason
     setTimeout(() => (this.editorOptions = aceEditorOptions))
   },
+  props: {
+    restart: {
+      type: Boolean,
+      default: false
+    }
+  },
   watch: {
     isSendingAnswer (newVal) {
       if (newVal) {
@@ -421,7 +427,9 @@ export default {
       }
 
       axios
-        .post(`/exams/${examId}/${apiEntryPoint}/`)
+        .post(`/exams/${examId}/${apiEntryPoint}/`, {
+          ...(this.restart && delta == 0 && { restart: true })
+        })
         .then(response => {
           console.log(response)
           // backend will return 204 if all exercises and questions have been completed
