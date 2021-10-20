@@ -137,7 +137,7 @@ export default {
       return this.exams.filter(exam => {
         return (
           exam.closed &&
-          new Date(exam.closed_at.replace(' ', 'T')) <=
+          new Date(exam.closed_at?.replace(' ', 'T')) <=
             new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         )
       })
@@ -146,7 +146,7 @@ export default {
       return this.exams.filter(exam => {
         return (
           !exam.closed ||
-          new Date(exam.closed_at.replace(' ', 'T')) >
+          new Date(exam.closed_at?.replace(' ', 'T')) >
             new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         )
       })
