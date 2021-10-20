@@ -31,7 +31,7 @@ const routes = [
     name: 'ExamPage',
     component: ExamPage,
     meta: {
-      //studentsOnly: true
+      studentsOnly: true
     }
   },
   {
@@ -39,6 +39,7 @@ const routes = [
     name: 'ExamPage',
     component: ExamPage,
     props: {
+      studentMode: true,
       restart: true
     }
   },

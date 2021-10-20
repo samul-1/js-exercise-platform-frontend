@@ -158,7 +158,7 @@
         v-if="exam.closed && !hideStats"
         :to="`/exams/${exam.id}/stats`"
         ><button
-          class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
+          class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:w-max disabled:opacity-40 hover:bg-indigo-800"
         >
           <i class="mr-1 fas fa-chart-bar "></i>
 

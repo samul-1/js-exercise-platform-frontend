@@ -5,6 +5,17 @@
     class="h-full px-2 mb-10 md:h-max md:my-5 md:px-4"
   >
     <Spinner v-if="loading"></Spinner>
+    <div v-if="studentMode" class="flex p-2 bg-gray-100 rounded-md">
+      <router-link class="my-auto mr-2 " to="/exams"
+        ><button
+          class="pl-1.5 pr-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-700 py"
+        >
+          <i class="fas fa-chevron-left"></i></button
+      ></router-link>
+      <h1 class="text-lg font-medium">
+        Simulazione esame in modalità studente
+      </h1>
+    </div>
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
       <div
@@ -326,6 +337,10 @@ export default {
   },
   props: {
     restart: {
+      type: Boolean,
+      default: false
+    },
+    studentMode: {
       type: Boolean,
       default: false
     }
