@@ -11,9 +11,7 @@
     ></h1>
     <!-- left buttons -->
     <div class="grid grid-cols-2 gap-2 md:gap-1 md:flex md:items-center">
-      <router-link
-        v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
-        :to="`/editor/${exam.id}`"
+      <router-link v-if="notStartedNotClosed" :to="`/editor/${exam.id}`"
         ><button
           :disabled="exam.locked_by"
           class="w-full px-2 py-1 text-sm font-light text-white bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
@@ -23,9 +21,7 @@
           Modifica
         </button></router-link
       >
-      <router-link
-        v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        :to="`/exams/${exam.id}/progress`"
+      <router-link v-if="startedNotClosed" :to="`/exams/${exam.id}/progress`"
         ><button
           class="w-full px-2 py-1 text-sm font-light text-white bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
@@ -35,16 +31,13 @@
       >
       <button
         @click="confirmClosure(exam)"
-        v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+        v-if="startedNotClosed"
         class="px-2 py-1 text-sm text-white bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
         <i class="mr-1 text-xs fas fa-exclamation-triangle"></i> Chiudi
       </button>
 
-      <div
-        v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
-        class="inline-block dropdown"
-      >
+      <div v-if="notStartedOrClosed" class="inline-block dropdown">
         <div class="relative">
           <div class="absolute h-10 left-2 w-28"></div>
         </div>
@@ -183,15 +176,12 @@
       <div class="px-2 text-sm bg-gray-600 rounded-md" v-if="exam.closed">
         <span class="text-white ">Terminato</span>
       </div>
-      <div
-        class="px-2 text-sm bg-red-800 rounded-md"
-        v-if="new Date() >= new Date(exam.end_timestamp) && !exam.closed"
-      >
+      <div class="px-2 text-sm bg-red-800 rounded-md" v-if="outOfTimeNotClosed">
         <span class="text-sm text-white">Fuori tempo</span>
       </div>
       <div
         class="px-2 text-sm bg-green-700 rounded-md animate-pulse"
-        v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+        v-if="startedNotClosed"
       >
         <span class="text-white ">In corso</span>
       </div>
@@ -498,6 +488,33 @@ export default {
           callback: () => (this.dialog = { shown: false })
         }
       }
+    }
+  },
+  computed: {
+    notStartedNotClosed () {
+      return (
+        // the replace is due to the way iPhones work with timestamp
+        new Date() < new Date(this.exam.begin_timestamp.replace(' ', 'T')) &&
+        !this.exam.closed
+      )
+    },
+    startedNotClosed () {
+      return (
+        new Date() >= new Date(this.exam.begin_timestamp.replace(' ', 'T')) &&
+        !this.exam.closed
+      )
+    },
+    notStartedOrClosed () {
+      return (
+        new Date() < new Date(this.exam.begin_timestamp.replace(' ', 'T')) ||
+        this.exam.closed
+      )
+    },
+    outOfTimeNotClosed () {
+      return (
+        new Date() >= new Date(this.exam.end_timestamp.replace(' ', 'T')) &&
+        !this.exam.closed
+      )
     }
   }
 }

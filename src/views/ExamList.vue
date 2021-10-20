@@ -14,7 +14,7 @@
     <skeleton v-if="loadingExams"></skeleton>
     <exam-list-item
       v-for="exam in recentExams"
-      :key="exam.id"
+      :key="'e-' + exam.id"
       :exam="exam"
     ></exam-list-item>
     <p class="my-6" v-if="!recentExams.length && !loadingExams">
@@ -64,7 +64,7 @@ export default {
     axios
       .get('/exams/')
       .then(response => {
-        console.log(response)
+        console.log(response.data)
         this.exams = response.data
         this.connectToSocket()
       })
@@ -137,7 +137,7 @@ export default {
       return this.exams.filter(exam => {
         return (
           exam.closed &&
-          new Date(exam.closed_at) <=
+          new Date(exam.closed_at.replace(' ', 'T')) <=
             new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         )
       })
@@ -146,7 +146,7 @@ export default {
       return this.exams.filter(exam => {
         return (
           !exam.closed ||
-          new Date(exam.closed_at) >
+          new Date(exam.closed_at.replace(' ', 'T')) >
             new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         )
       })
