@@ -144,10 +144,7 @@
             <i class="mr-2 fas fa-eye-slash"></i> Il tuo codice potrebbe essere
             eseguito anche con test case non presenti in questa lista.
           </div>
-          <div
-            v-for="(testcase, index) in exercise.public_testcases"
-            :key="testcase.id"
-          >
+          <div v-for="(testcase, index) in testCases" :key="testcase.id">
             <TestCase :testcase="testcase" :index="index + 1"></TestCase>
           </div>
         </div>
@@ -386,6 +383,17 @@ export default {
     getExam (delta = 0, y = false) {
       if (
         delta == 1 &&
+        this.exercise.id &&
+        !y &&
+        !this.turnedInSubmission &&
+        !confirm(
+          'Non hai consegnato soluzioni per questo esercizio. Se hai delle sottomissioni consegnabili, clicca su Consegna accanto alla sottomissione. Sei sicuro di voler andare avanti senza consegnare?'
+        )
+      ) {
+        return
+      }
+      if (
+        delta == 1 &&
         !this.allowGoingBack &&
         !y &&
         !confirm(
@@ -590,6 +598,9 @@ export default {
     },
     controlButtonsDisabled () {
       return this.isSendingAnswer || this.loading
+    },
+    testCases () {
+      return this.exercise.public_testcases || this.exercise.testcases
     }
   }
 }

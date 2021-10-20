@@ -58,17 +58,17 @@
 
     <!-- testcase list -->
     <div class="p-3 rounded-b-md bg-gray-50" v-show="expanded">
-      <div v-if="submission.public_details.error">
+      <div v-if="submissionError">
         Errore durante l'esecuzione:
         <vue-code-highlight
           language="javascript"
           class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
         >
-          {{ submission.public_details.error }}
+          {{ submissionError }}
         </vue-code-highlight>
       </div>
       <div
-        v-for="(testcase, index) in submission.public_details.tests"
+        v-for="(testcase, index) in testCasesDetails"
         :key="index"
         class="pb-2 border-b border-gray-300 last:border-b-0"
       >
@@ -91,6 +91,12 @@
               >{{ !testcase.passed ? 'non ' : '' }} superato</span
             >
           </p>
+          <p
+            class="my-2 text-sm font-light text-gray-500"
+            v-if="!testcase.is_public"
+          >
+            Solo gli insegnanti possono vedere questo test case
+          </p>
           <p class="mb-1 font-medium">
             <vue-code-highlight
               language="javascript"
@@ -110,10 +116,10 @@
           </p>
         </div>
       </div>
-      <p class="my-3" v-if="submission.public_details.failed_secret_tests">
+      <p class="my-3" v-if="failedSecretTests">
         <i class="text-red-900 far fa-times-circle"></i> Test case
         <span class="font-semibold text-red-900">segreti falliti:</span>
-        {{ submission.public_details.failed_secret_tests }}
+        {{ failedSecretTests }}
       </p>
     </div>
   </div>
@@ -150,16 +156,29 @@ export default {
   },
   computed: {
     failedTests () {
-      if (!this.submission.public_details.tests) {
+      if (!this.testCasesDetails) {
         return 0
       }
       return (
-        this.submission.public_details.tests.filter(t => !t.passed).length +
-        this.submission.public_details.failed_secret_tests
+        this.testCasesDetails.filter(t => !t.passed).length +
+        this.failedSecretTests
       )
+    },
+    failedSecretTests () {
+      return this.submission.public_details?.failed_secret_tests ?? 0
     },
     passedTests () {
       return this.submission.total_testcases - this.failedTests
+    },
+    testCasesDetails () {
+      return (
+        this.submission.public_details?.tests ?? this.submission.details.tests
+      )
+    },
+    submissionError () {
+      return (
+        this.submission.public_details?.error ?? this.submission.details.error
+      )
     }
   }
 }

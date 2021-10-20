@@ -1,6 +1,14 @@
 <template>
   <div class="mx-4 my-6">
-    <h3 class="font-semibold text-md">Test case #{{ index }}</h3>
+    <div class="flex space-x-2">
+      <h3 class="font-semibold text-md">Test case #{{ index }}</h3>
+      <p
+        class="my-auto text-sm font-light text-gray-500"
+        v-if="!testcase.is_public"
+      >
+        Solo gli insegnanti possono vedere questo test case
+      </p>
+    </div>
     <p class="mb-1">
       <vue-code-highlight
         language="javascript"
