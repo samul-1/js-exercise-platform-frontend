@@ -1,205 +1,205 @@
 <template>
   <div
     :class="{ 'bg-gray-100': exam.draft || old }"
-    class="flex flex-col w-full px-2 py-4 my-3 mt-auto space-y-2 transition-shadow duration-75 border rounded-lg md:space-y-0 md:flex-row hover:shadow-md"
+    class="flex flex-col w-full px-4 py-4 my-3 mt-auto space-y-2 transition-shadow duration-75 border rounded-lg md:px-2 md:space-y-0 md:flex-row hover:shadow-md"
   >
     <Spinner v-if="loading" :loadingMessage="loadingMessage"></Spinner>
     <h1
-      class="max-w-xs my-auto mr-2"
+      class="max-w-xs mb-4 mr-2 md:my-auto"
       :title="exam.name"
       v-html="truncateString(exam.name, 60)"
     ></h1>
     <!-- left buttons -->
-    <router-link :to="`/editor/${exam.id}`"
-      ><button
+    <div class="grid grid-cols-2 gap-2 md:gap-1 md:flex md:items-center">
+      <router-link
         v-if="new Date() < new Date(exam.begin_timestamp) && !exam.closed"
-        :disabled="exam.locked_by"
-        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:w-max md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
-      >
-        <i class="mr-1 fas fa-edit "></i>
+        :to="`/editor/${exam.id}`"
+        ><button
+          :disabled="exam.locked_by"
+          class="w-full px-2 py-1 text-sm font-light text-white bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        >
+          <i class="mr-1 fas fa-edit "></i>
 
-        Modifica
-      </button></router-link
-    >
-    <router-link :to="`/exams/${exam.id}/progress`"
-      ><button
+          Modifica
+        </button></router-link
+      >
+      <router-link
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
+        :to="`/exams/${exam.id}/progress`"
+        ><button
+          class="w-full px-2 py-1 text-sm font-light text-white bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        >
+          <i class="mr-1 text-xs fas fa-eye"></i>
+          Monitora
+        </button></router-link
       >
-        <i class="mr-1 text-xs fas fa-eye"></i>
-        Monitora
-      </button></router-link
-    >
-    <button
-      @click="confirmClosure(exam)"
-      v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
-      class="px-2 py-1 text-sm text-white align-middle bg-red-800 rounded-lg md:ml-2 disabled:opacity-40 hover:bg-red-900"
-    >
-      <i class="mr-1 text-xs fas fa-exclamation-triangle"></i> Chiudi
-    </button>
-    <div
-      v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
-      class="inline-block dropdown"
-    >
-      <div class="relative">
-        <div class="absolute h-10 left-2 w-28"></div>
-      </div>
       <button
-        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
+        @click="confirmClosure(exam)"
+        v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
+        class="px-2 py-1 text-sm text-white bg-red-800 rounded-lg disabled:opacity-40 hover:bg-red-900"
       >
-        <i class="mr-1 text-xs fas fa-file-pdf"></i> PDF
+        <i class="mr-1 text-xs fas fa-exclamation-triangle"></i> Chiudi
       </button>
-      <ul
-        class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+
+      <div
+        v-if="new Date() < new Date(exam.begin_timestamp) || exam.closed"
+        class="inline-block dropdown"
       >
-        <li class="">
-          <a
-            @click="getExamPreview(exam, true)"
-            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
-            href="#"
-            >Scarica esame completo</a
-          >
-        </li>
-        <li class="">
-          <a
-            @click="getExamPreview(exam, false)"
-            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
-            href="#"
-            >Scarica una possibile simulazione</a
-          >
-        </li>
-      </ul>
-    </div>
-    <div v-if="exam.closed" class="inline-block text-left ">
-      <div class="inline-block w-full dropdown md:w-max">
         <div class="relative">
           <div class="absolute h-10 left-2 w-28"></div>
         </div>
         <button
-          class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:w-max md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
+          class="w-full px-2 py-1 text-sm font-light text-white bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
         >
-          <i class="mr-1 text-xs fas fa-download"></i>
-
-          Risultati
+          <i class="mr-1 text-xs fas fa-file-pdf"></i> PDF
         </button>
         <ul
           class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
         >
           <li class="">
             <a
-              @click="getCSVReport(exam)"
+              @click="getExamPreview(exam, true)"
               class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
               href="#"
-              >Scarica come CSV</a
+              >Scarica esame completo</a
             >
           </li>
           <li class="">
             <a
-              @click="getZipArchive(exam)"
+              @click="getExamPreview(exam, false)"
               class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
               href="#"
-              >Scarica come PDF</a
+              >Scarica una possibile simulazione</a
             >
           </li>
         </ul>
       </div>
-    </div>
-    <!-- <button
-      @click="exportExamQuestions()"
-      class="px-2.5 mb-auto py-1 md:ml-2 font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
-    >
-      Esporta domande
-    </button> -->
-    <div class="inline-block w-full dropdown md:w-max">
-      <div class="relative">
-        <div class="absolute h-10 left-2 w-28"></div>
+
+      <div v-if="exam.closed" class="inline-block text-left ">
+        <div class="inline-block w-full dropdown md:w-max">
+          <div class="relative">
+            <div class="absolute h-10 left-2 w-28"></div>
+          </div>
+          <button
+            class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+          >
+            <i class="mr-1 text-xs fas fa-download"></i>
+
+            Risultati
+          </button>
+          <ul
+            class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+          >
+            <li class="">
+              <a
+                @click="getCSVReport(exam)"
+                class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
+                href="#"
+                >Scarica come CSV</a
+              >
+            </li>
+            <li class="">
+              <a
+                @click="getZipArchive(exam)"
+                class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
+                href="#"
+                >Scarica come PDF</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="inline-block w-full dropdown md:w-max">
+        <div class="relative">
+          <div class="absolute h-10 left-2 w-28"></div>
+        </div>
+        <button
+          class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        >
+          <i class="mr-1 text-xs fas fa-download"></i>
+
+          Esporta
+        </button>
+        <ul
+          class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
+        >
+          <li v-if="exam.has_questions" class="">
+            <a
+              @click="exportExamItems('q')"
+              :class="{ 'rounded-b-lg': !exam.has_exercises }"
+              class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
+              href="#"
+              >Esporta domande</a
+            >
+          </li>
+          <li v-if="exam.has_exercises" class="">
+            <a
+              @click="exportExamItems('e')"
+              :class="{ 'rounded-t-lg': !exam.has_questions }"
+              class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
+              href="#"
+              >Esporta esercizi JS</a
+            >
+          </li>
+        </ul>
       </div>
       <button
-        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:w-max md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
+        @click="showExamInstructions(exam)"
+        v-if="!exam.closed"
+        class="px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
       >
-        <i class="mr-1 text-xs fas fa-download"></i>
-
-        Esporta
+        <i class="mr-1 text-xs fas fa-link"></i>
+        Cod. accesso
       </button>
-      <ul
-        class="absolute hidden mt-1 ml-2 text-white rounded-lg shadow-big w-max dropdown-menu"
-      >
-        <li v-if="exam.has_questions" class="">
-          <a
-            @click="exportExamItems('q')"
-            :class="{ 'rounded-b-lg': !exam.has_exercises }"
-            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-t-lg hover:bg-indigo-800"
-            href="#"
-            >Esporta domande</a
-          >
-        </li>
-        <li v-if="exam.has_exercises" class="">
-          <a
-            @click="exportExamItems('e')"
-            :class="{ 'rounded-t-lg': !exam.has_questions }"
-            class="block px-6 py-4 whitespace-no-wrap bg-indigo-700 rounded-b-lg hover:bg-indigo-800"
-            href="#"
-            >Esporta esercizi JS</a
-          >
-        </li>
-      </ul>
-    </div>
-    <button
-      @click="showExamInstructions(exam)"
-      v-if="!exam.closed"
-      class="px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 disabled:opacity-40 hover:bg-indigo-800"
-    >
-      <i class="mr-1 text-xs fas fa-link"></i>
-      Codice accesso
-    </button>
-    <router-link :to="`/exam/${exam.id}`"
-      ><button
-        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
-      >
-        <i class="mr-1 fas fa-user "></i>
+      <router-link :to="`/exam/${exam.id}`"
+        ><button
+          class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg disabled:opacity-40 hover:bg-indigo-800"
+        >
+          <i class="mr-1 fas fa-user "></i>
 
-        Simula studente
-      </button></router-link
-    >
-    <router-link :to="`/exams/${exam.id}/stats`"
-      ><button
+          Simula studente
+        </button></router-link
+      >
+      <router-link
         v-if="exam.closed && !hideStats"
-        class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
-      >
-        <i class="mr-1 fas fa-chart-bar "></i>
+        :to="`/exams/${exam.id}/stats`"
+        ><button
+          class="w-full px-2 py-1 text-sm font-light text-white align-middle bg-indigo-700 rounded-lg md:ml-2 md:w-max disabled:opacity-40 hover:bg-indigo-800"
+        >
+          <i class="mr-1 fas fa-chart-bar "></i>
 
-        Statistiche
-      </button></router-link
-    >
+          Statistiche
+        </button></router-link
+      >
+    </div>
+
     <!-- end left buttons -->
 
     <!--right buttons -->
     <div
-      class="flex flex-col items-center my-auto space-y-2 md:space-y-0 md:ml-auto md:flex-row"
+      class="flex flex-col items-center space-y-2 md:space-y-0 md:space-x-1 md:ml-auto md:flex-row"
     >
-      <div
-        class="px-2 text-sm bg-gray-600 rounded-md md:mr-4"
-        v-if="exam.closed"
-      >
+      <div class="px-2 text-sm bg-gray-600 rounded-md" v-if="exam.closed">
         <span class="text-white ">Terminato</span>
       </div>
       <div
-        class="px-2 bg-red-800 rounded-md md:mr-4 "
+        class="px-2 text-sm bg-red-800 rounded-md"
         v-if="new Date() >= new Date(exam.end_timestamp) && !exam.closed"
       >
         <span class="text-sm text-white">Fuori tempo</span>
       </div>
       <div
-        class="px-2 text-sm bg-green-700 rounded-md md:mr-4 animate-pulse"
+        class="px-2 text-sm bg-green-700 rounded-md animate-pulse"
         v-if="new Date() >= new Date(exam.begin_timestamp) && !exam.closed"
       >
         <span class="text-white ">In corso</span>
       </div>
-      <div class="px-2 text-sm bg-red-500 rounded-md md:mr-4" v-if="exam.draft">
+      <div class="px-2 text-sm bg-red-500 rounded-md" v-if="exam.draft">
         <span class="text-white ">Bozza</span>
       </div>
       <div
-        class="px-2 bg-gray-700 rounded-md md:mr-3 animate-pulse"
+        class="px-2 bg-gray-700 rounded-md animate-pulse"
         v-if="exam.locked_by"
       >
         <span style="letter-spacing: -0.7px " class="text-white"
