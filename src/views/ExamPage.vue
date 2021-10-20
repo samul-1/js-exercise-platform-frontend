@@ -89,7 +89,9 @@
               <inline-small-spinner></inline-small-spinner>
             </div>
             <p :class="{ 'opacity-40': controlButtonsDisabled }">
-              <span class="hidden md:inline">Avanti</span>
+              <span class="hidden md:inline">{{
+                exercise.id ? 'Salta' : 'Avanti'
+              }}</span>
               <i class="md:ml-2 fas fa-chevron-right"></i>
             </p>
           </button>
