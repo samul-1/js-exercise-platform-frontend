@@ -149,6 +149,9 @@
           <div v-for="(testcase, index) in testCases" :key="testcase.id">
             <TestCase :testcase="testcase" :index="index + 1"></TestCase>
           </div>
+          <p class="m-2" v-if="testCases.length == 0">
+            Questo esercizio non ha test case.
+          </p>
         </div>
 
         <!-- exercise text pane pane -->
@@ -195,7 +198,7 @@
       <!-- submissions sidebar -->
       <transition name="bounce-x">
         <div
-          class="bg-gray-100 border shadow-sm rounded-xl md:ml-3"
+          class="bg-gray-100 border rounded-lg shadow-sm md:ml-3"
           v-show="exercise.id"
           :class="{
             'w-0 w-lg:0': !exercise.id,
