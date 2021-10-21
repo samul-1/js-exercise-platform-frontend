@@ -184,7 +184,7 @@ export default {
     },
     submissionError () {
       return (
-        this.submission.public_details?.error ?? this.submission.details.error
+        this.submission.public_details?.error ?? this.submission.details?.error
       )
     }
   }
