@@ -152,6 +152,7 @@
             width="100%"
             :height="editorHeight"
             :options="editorOptions"
+            v-debounce:500ms.lock="updateDraftCode"
           />
         </div>
 
@@ -319,6 +320,7 @@ import {
   editorInit
 } from '../constants'
 import InlineSmallSpinner from '../components/InlineSmallSpinner.vue'
+import { getDirective } from 'vue-debounce'
 
 export default {
   name: 'ExamPage',
@@ -334,6 +336,7 @@ export default {
     AggregatedQuestionIntroduction,
     InlineSmallSpinner
   },
+  directives: { debounce: getDirective() },
   created () {
     this.getExam()
   },
@@ -416,6 +419,15 @@ export default {
   },
   methods: {
     highlightCode,
+    async updateDraftCode () {
+      const examId = this.$route.params.examId
+
+      axios
+        .post(`/exams/${examId}/draft_code/`, { code: this.code })
+        .then(response => console.log(response))
+        .catch(error => console.log(error))
+      console.log('RUNNING')
+    },
     getExam (delta = 0, y = false) {
       if (
         delta == 1 &&
