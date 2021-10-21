@@ -102,7 +102,7 @@
               language="javascript"
               class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
             >
-              <pre>{{ testcase.assertion }}</pre>
+              {{ testcase.assertion }}
             </vue-code-highlight>
           </p>
           <p v-if="!testcase.passed" class="mb-1 break-all">
@@ -165,27 +165,20 @@ export default {
       )
     },
     failedSecretTests () {
-      return this.submission.public_details?.failed_secret_tests ?? 0
+      return this.submission.details?.failed_secret_tests ?? 0
     },
     passedTests () {
-      if (
-        this.submission.details?.error ||
-        this.submission.public_details?.error
-      ) {
+      if (this.submission.details?.error) {
         // if there was a global error, no test cases passed
         return 0
       }
       return this.submission.total_testcases - this.failedTests
     },
     testCasesDetails () {
-      return (
-        this.submission.public_details?.tests ?? this.submission.details.tests
-      )
+      return this.submission.details?.tests
     },
     submissionError () {
-      return (
-        this.submission.public_details?.error ?? this.submission.details?.error
-      )
+      return this.submission.details?.error
     }
   }
 }
