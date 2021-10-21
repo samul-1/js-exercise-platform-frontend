@@ -107,20 +107,30 @@
             </p>
           </button>
           <button
-            @click="confirmEndExam()"
+            @click="confirmEndExam(!!exercise.id)"
+            v-else
             :disabled="isSendingAnswer || loading"
-            v-else-if="!exercise.id"
-            class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-green-700 shadow-md cursor-pointer md:w-40 disabled:opacity-80 rounded-t-md hover:bg-green-600 active:bg-green-700"
+            :class="[
+              exercise.id
+                ? 'bg-gray-700 hover:bg-gray-600 active:bg-gray-700'
+                : 'bg-green-700 hover:bg-green-600 active:bg-green-700'
+            ]"
+            class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-max disabled:opacity-80 rounded-t-md"
           >
-            <i class="md:mr-1 fas fa-check"></i>
-            <span class="hidden md:inline">Termina</span>
+            <i
+              class="md:mr-1 fas"
+              :class="[exercise.id ? 'fa-exclamation-triangle' : 'fa-check']"
+            ></i>
+            <span class="hidden md:inline">{{
+              exercise.id ? 'Salta ultimo esercizio' : 'Termina'
+            }}</span>
           </button>
-          <div
+          <!-- <div
             v-else
             class="hidden w-20 p-1 px-3 text-center text-white transition-all duration-75 bg-gray-700 shadow-md lg:inline md:w-40 opacity-60 rounded-t-md"
           >
             Ultimo esercizio!
-          </div>
+          </div> -->
         </div>
         <!-- editor pane -->
         <div class="relative" v-show="pane == 'editor'">
@@ -559,11 +569,13 @@ export default {
         }
       }
     },
-    confirmEndExam () {
+    confirmEndExam (skip) {
       // shows a dialog that prompts the user for confirmation to end the exam
       this.dialog = {
         shown: true,
-        string: 'Sei sicuro di voler consegnare?',
+        string: `Sei sicuro di voler ${
+          skip ? "saltare l'esercizio" : 'consegnare'
+        }?`,
         subText: 'Se confermi, non potrai più tornare indietro.',
         confirmOnly: false,
         severity: 2,
