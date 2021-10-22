@@ -670,16 +670,12 @@ export default {
         // we might be passed a "normal" array or a vue array, which contains extra keys
         const _arr = arr['__ob__']?.value ?? arr
 
-        // keep id's where `stripId` property is absent (or falsy)
-        const dontStrip = _arr.filter(e => !e.stripId)
-
-        return [
-          ..._arr
-            .filter(e => e.stripId)
-            // eslint-disable-next-line no-unused-vars
-            .map(({ stripId, id, ...rest }) => rest), // strip off the `id` and `stripId` properties
-          ...dontStrip
-        ]
+        return _arr.map(({ stripId, id, ...rest }) => {
+          return {
+            ...(!stripId && { id: id }), // only add id property is stripId is absent (or falsy)
+            ...rest
+          }
+        })
       }
 
       const _processCategories = arr => {
@@ -696,37 +692,34 @@ export default {
 
         const _arr = arr['__ob__'].value
 
-        const ret = [
-          ..._arr.filter(c => c.randomize && !c.is_aggregated_question), // leave alone randomized and non-aggregated-question categories
-          ..._arr
-            .filter(c => c.is_aggregated_question || !c.randomize) // filter for aggregate questions and non-randomized categories
-            // eslint-disable-next-line no-unused-vars
-            .map(({ amount, id, ...rest }) => {
-              return {
-                amount:
-                  this.exam.questions.filter(q => q.category === id).length ||
-                  this.exam.exercises.filter(e => e.category === id).length, // the `amount` must be equal to the number of questions belonging to this category
-                id,
-                ...rest
-              }
-            })
-        ]
+        const ret = _arr.map(
+          ({ amount, id, randomize, is_aggregated_question, ...rest }) => {
+            return {
+              amount:
+                !randomize || is_aggregated_question // category must contain exactly the amount of items referencing it
+                  ? this.exam.questions.filter(q => q.category === id).length ||
+                    this.exam.exercises.filter(e => e.category === id).length
+                  : amount, // the category is randomized, hence we need to use the value specified by user for field `amount`
+              id,
+              randomize,
+              is_aggregated_question,
+              ...rest
+            }
+          }
+        )
 
-        const dontStrip = ret.filter(e => !e._new) // no change needed for categories that aren't new
-
-        return _fixPresentationTagsArr([
-          ...ret
-            .filter(e => e._new)
-            // eslint-disable-next-line no-unused-vars
-            .map(({ id, _new, ...rest }) => {
-              return { tmp_uuid: id, ...rest } // rename `id` prop to `tmp_uuid`
-            }),
-          ...dontStrip
-        ])
+        return _fixPresentationTagsArr(
+          ret.map(({ id, _new, ...rest }) => {
+            return {
+              ...(_new && { tmp_uuid: id }), // rename `id` prop to `tmp_uuid` if `_new` is present
+              ...(!_new && { id: id }), // otherwise, keep `id` prop
+              ...rest
+            }
+          })
+        )
       }
 
       const _remapCategoryIds = obj => {
-        // _renameCategoryProperties
         /*
         Takes in a question/exericise object.
 
@@ -751,21 +744,14 @@ export default {
       }
 
       function _fixPresentationTags (obj) {
-        // adds `inline-block` style to the first paragraph of the text/introduction_text to prevent layout issues
-        // when showing in exam page; also substitutes <pre> tags with ```
+        // substitutes <pre> tags with ```
         const { text, introduction_text, ...rest } = obj
 
         return {
-          text:
-            text &&
-            text
-              .replace(/<p[^>]*>/, `<p style="display: inline-block">`)
-              .replace(/<\/?pre[^>]*>/g, '```'),
+          text: text && text.replace(/<\/?pre[^>]*>/g, '```'),
           introduction_text:
             introduction_text &&
-            introduction_text
-              .replace(/<p[^>]*>/, `<p style="display: inline-block">`)
-              .replace(/<\/?pre[^>]*>/g, '```'),
+            introduction_text.replace(/<\/?pre[^>]*>/g, '```'),
           ...rest
         }
       }

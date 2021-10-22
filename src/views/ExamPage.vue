@@ -152,7 +152,7 @@
             width="100%"
             :height="editorHeight"
             :options="editorOptions"
-            v-debounce:500ms.lock="updateDraftCode"
+            v-debounce:5000ms.lock="updateDraftCode"
           />
         </div>
 
