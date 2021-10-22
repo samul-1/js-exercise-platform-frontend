@@ -11,7 +11,9 @@
           style="max-height: 500px"
           class="px-5 py-3 mb-10 -mr-8 overflow-y-auto transition-opacity duration-100 bg-gray-200 border border-gray-300 rounded-md shadow-2xl opacity-90 hover:opacity-100"
         >
-          <h3 class="mb-2 text-lg font-medium">Indice domande</h3>
+          <h3 v-if="questionIndex.length > 0" class="mb-2 text-lg font-medium">
+            Indice domande
+          </h3>
           <ul class="">
             <li
               class=""
@@ -30,6 +32,33 @@
                     class="text-blue-700 hover:underline"
                     :href="'#q-' + question.id"
                     v-html="indexPreview(question.text)"
+                  ></a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <h3 v-if="exerciseIndex.length > 0" class="mb-2 text-lg font-medium">
+            Indice esercizi JS
+          </h3>
+          <ul class="">
+            <li
+              class=""
+              v-for="(category, index) in exerciseIndex"
+              :key="category.id"
+            >
+              <span class="font-medium">{{ category.category.name }}</span>
+              <ul class="ml-4 list-disc">
+                <li
+                  class="ml-4"
+                  v-for="exercise in exerciseIndex[index].exercises"
+                  :key="exercise.id"
+                >
+                  <a
+                    v-highlight
+                    class="text-blue-700 hover:underline"
+                    :href="'#e-' + exercise.id"
+                    v-html="indexPreview(exercise.text)"
                   ></a>
                 </li>
               </ul>
@@ -103,6 +132,16 @@ export default {
           return {
             category: c,
             questions: this.questions.filter(q => q.category === c.id)
+          }
+        })
+        .sort((a, b) => (a.category.name > b.category.name ? 1 : -1))
+    },
+    exerciseIndex () {
+      return this.exerciseCategories
+        .map(c => {
+          return {
+            category: c,
+            exercises: this.exercises.filter(e => e.category === c.id)
           }
         })
         .sort((a, b) => (a.category.name > b.category.name ? 1 : -1))

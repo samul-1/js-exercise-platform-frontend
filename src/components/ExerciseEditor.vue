@@ -210,7 +210,7 @@ export default {
     this.exercise = this.$attrs.value
   },
   props: {
-    id: { type: [Number, String] },
+    //id: { type: [Number, String] },
     categoryChoices: { type: Array },
     index: { type: Number },
     expanded: { type: Boolean },
