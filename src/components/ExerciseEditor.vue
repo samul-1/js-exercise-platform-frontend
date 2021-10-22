@@ -118,6 +118,27 @@
             :options="aceEditorOptions"
           />
         </div>
+        <div>
+          <h2 class="my-2 text-lg">Soluzione</h2>
+          <AceEditor
+            class="h-full rounded-md"
+            :value="exercise.solution"
+            @input="update('solution', $event)"
+            @init="editorInit"
+            lang="javascript"
+            theme="monokai"
+            width="98%"
+            height="150px"
+            :options="aceEditorOptions"
+          />
+        </div>
+        <div class="flex">
+          <button
+            class="px-12 py-3 my-auto mr-auto text-lg text-white bg-green-700 rounded-md shadow-sm"
+          >
+            <i class="fas fa-chevron-right"></i> Testa soluzione
+          </button>
+        </div>
       </div>
       <div class="flex my-4">
         <p class="my-auto mr-4">
@@ -242,6 +263,7 @@ export default {
         id: null,
         text: '',
         starting_code: '',
+        solution: '',
         min_passing_testcases: 1,
         testcases: [],
         category: null

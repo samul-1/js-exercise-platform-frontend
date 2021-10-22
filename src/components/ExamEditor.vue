@@ -567,6 +567,7 @@ export default {
         stripId: true, // indicate this id is only for local identification and needs to be stripped off when submitting to backend
         text: '',
         starting_code: '',
+        solution: '',
         min_passing_testcases: 1,
         testcases: [],
         category: null
