@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ExamPage from '../views/ExamPage.vue'
-import NewExamPage from '../views/NewExamPage.vue'
+// import NewExamPage from '../views/NewExamPage.vue'
 import Login from '../views/Login.vue'
 import ExamEditor from '../components/ExamEditor.vue'
 import TeacherDashboard from '../views/TeacherDashboard.vue'
@@ -44,15 +44,15 @@ const routes = [
       restart: false
     }
   },
-  {
-    path: '/exam-new/:examId',
-    name: 'NewExamPage',
-    component: NewExamPage,
-    props: {
-      // studentMode: true,
-      // restart: false
-    }
-  },
+  // {
+  //   path: '/exam-new/:examId',
+  //   name: 'NewExamPage',
+  //   component: NewExamPage,
+  //   props: {
+  //     // studentMode: true,
+  //     // restart: false
+  //   }
+  // },
   {
     path: '/login/:role?',
     name: 'Login',
