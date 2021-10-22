@@ -5,7 +5,7 @@
     class="h-full px-2 mb-10 md:h-max md:my-5 md:px-4"
   >
     <Spinner v-if="loading"></Spinner>
-    <div v-if="studentMode" class="flex p-2 bg-gray-100 rounded-md">
+    <!-- <div v-if="studentMode" class="flex p-2 bg-gray-100 rounded-md">
       <router-link class="my-auto mr-2 " to="/exams"
         ><button
           class="pl-1.5 pr-2 text-white bg-gray-900 rounded-lg shadow-inner hover:bg-gray-700 py"
@@ -13,19 +13,19 @@
           <i class="fas fa-chevron-left"></i></button
       ></router-link>
       <h1 class="text-lg">
-        Simulazione esame in modalità studente
+        Simulazione esame in modalità studente NUOVA
       </h1>
-    </div>
+    </div> -->
     <!-- main block -->
     <div class="flex flex-wrap w-full mt-5 md:flex-nowrap">
       <div
         class="w-full h-full transition-all duration-300 border border-gray-300 rounded-lg shadow-xl"
-        :class="{ 'lg:w-3/5': exercise.id }"
+        :class="{ 'lg:w-3/5': currentItemIsExercise }"
       >
         <!-- tabs -->
         <div class="flex bg-gray-900 rounded-t-lg borer">
           <div
-            v-if="exercise.id"
+            v-if="currentItemIsExercise"
             class="px-1 py-1 mr-1 text-white transition-colors duration-75 bg-gray-500 shadow-inner cursor-pointer lg:px-3 hover:bg-gray-700 rounded-t-md"
             @click="pane = 'editor'"
             :class="{ 'bg-gray-700 font-medium': pane == 'editor' }"
@@ -33,7 +33,7 @@
             Editor
           </div>
           <div
-            v-if="exercise.id"
+            v-if="currentItemIsExercise"
             class="px-1 py-1 mr-1 text-white transition-colors duration-75 bg-gray-500 shadow-inner cursor-pointer lg:px-3 rounded-t-md hover:bg-gray-700"
             @click="pane = 'testcases'"
             :class="{
@@ -45,16 +45,16 @@
 
           <!-- question controls -->
           <div
-            v-if="question.id"
+            v-if="currentItemIsQuestion"
             class="px-3 py-1 mr-auto text-white transition-colors duration-75 bg-gray-500 shadow-inner hover:bg-gray-700 rounded-t-md"
             @click="pane = 'question'"
             :class="{ 'bg-gray-700': pane == 'question' }"
           >
-            Domanda {{ currentQuestionNumber + 1 }} di {{ totalItemsCount }}
+            Domanda {{ exam.ordering + 1 }} di {{ exam.total_items_count }}
           </div>
           <!-- exercise controls -->
           <button
-            v-if="exercise.id"
+            v-if="currentItemIsExercise"
             @click="pane = 'text'"
             class="p-1 px-3 mr-1 text-white transition-colors duration-75 bg-indigo-800 shadow-md cursor-pointer rounded-t-md hover:bg-indigo-800"
             :class="{ 'bg-indigo-900 font-medium': pane == 'text' }"
@@ -62,7 +62,7 @@
             Testo
           </button>
           <button
-            v-if="exercise.id && !turnedInSubmission"
+            v-if="currentItemIsExercise && !thereIsValidSubmission"
             @click="submitCode()"
             :disabled="submitCooldown != 0 || !code.length"
             class="w-32 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
@@ -79,8 +79,8 @@
             </p>
             <button
               @click="getExam(-1)"
-              v-if="allowGoingBack"
-              :disabled="controlButtonsDisabled || isFirstItem"
+              v-if="exam.allow_going_back"
+              :disabled="controlButtonsDisabled || exam.is_first_item"
               class="w-20 p-1 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer lg:px-3 disabled:cursor-not-allowed md:w-40 disabled:opacity-40 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
             >
               <i class="md:mr-2 fas fa-chevron-left"></i>
@@ -90,8 +90,13 @@
           <button
             @click="getExam(1)"
             :disabled="controlButtonsDisabled"
-            v-if="!isLastItem"
-            class="relative w-20 p-1 px-3 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer md:w-40 disabled:bg-opacity-40 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
+            v-if="!exam.is_last_item"
+            class="relative w-20 p-1 px-3 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-40 disabled:bg-opacity-40 rounded-t-md"
+            :class="[
+              !currentItemIsExercise || thereIsValidSubmission
+                ? 'bg-gray-700 hover:bg-gray-600 active:bg-gray-700'
+                : 'bg-red-800 hover:bg-red-900 active:bg-red-800'
+            ]"
           >
             <div
               v-if="isSendingAnswer"
@@ -101,41 +106,41 @@
             </div>
             <p :class="{ 'opacity-40': controlButtonsDisabled }">
               <span class="hidden md:inline">{{
-                exercise.id ? 'Salta' : 'Avanti'
+                currentItemIsExercise && !thereIsValidSubmission
+                  ? 'Salta'
+                  : 'Avanti'
               }}</span>
               <i class="md:ml-2 fas fa-chevron-right"></i>
             </p>
           </button>
           <button
-            @click="confirmEndExam(!!exercise.id)"
+            @click="confirmEndExam(currentItemIsExercise)"
             v-else
             :disabled="isSendingAnswer || loading"
             :class="[
-              exercise.id
-                ? 'bg-gray-700 hover:bg-gray-600 active:bg-gray-700'
+              currentItemIsExercise && !thereIsValidSubmission
+                ? 'bg-red-800 hover:bg-red-900 active:bg-red-800'
                 : 'bg-green-700 hover:bg-green-600 active:bg-green-700'
             ]"
             class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-max disabled:opacity-80 rounded-t-md"
           >
             <i
               class="md:mr-1 fas"
-              :class="[exercise.id ? 'fa-exclamation-triangle' : 'fa-check']"
+              :class="[
+                currentItemIsExercise && !thereIsValidSubmission
+                  ? 'fa-exclamation-triangle'
+                  : 'fa-check'
+              ]"
             ></i>
             <span class="hidden md:inline">{{
-              exercise.id ? 'Salta ultimo esercizio' : 'Termina'
+              currentItemIsExercise && !thereIsValidSubmission
+                ? 'Salta ultimo esercizio'
+                : 'Termina'
             }}</span>
           </button>
         </div>
         <!-- editor pane -->
         <div class="relative" v-show="pane == 'editor'">
-          <div
-            v-if="turnedInSubmission"
-            class="absolute z-10 flex w-full h-full opacity-40 bg-gradient-to-br from-gray-300 to-gray-400"
-          >
-            <p class="mx-auto my-auto text-gray-700">
-              Hai già sottomesso una soluzione per questo esercizio
-            </p>
-          </div>
           <AceEditor
             class="rounded-b-lg"
             id="editor-el"
@@ -157,6 +162,7 @@
           v-show="pane == 'testcases'"
         >
           <div
+            v-if="currentItemIsExercise"
             class="p-4 m-2 font-medium bg-gray-400 shadow-md text-gray-50 rounded-xl"
           >
             <i class="mr-2 fas fa-eye-slash"></i> Il tuo codice potrebbe essere
@@ -178,7 +184,7 @@
         >
           <div class="flex w-full">
             <h1 class="my-2 text-2xl font-medium">
-              Esercizio {{ currentQuestionNumber + 1 }}
+              Esercizio {{ exam.ordering + 1 }}
             </h1>
             <button
               @click="popupOpen = true"
@@ -188,8 +194,12 @@
               popup
             </button>
           </div>
-          <Skeleton v-if="!exercise.text.length"></Skeleton>
-          <div v-else v-highlight v-html="highlightCode(exercise.text)"></div>
+          <!-- <Skeleton v-if="!exercise.text.length"></Skeleton> -->
+          <div
+            v-highlight
+            v-if="currentItemIsExercise"
+            v-html="highlightCode(currentExercise.text)"
+          ></div>
         </div>
 
         <!-- question text pane  -->
@@ -199,27 +209,26 @@
           v-show="pane == 'question'"
           id="current-question"
         >
-          <AggregatedQuestionIntroduction
-            v-if="question.introduction"
-            :text="question.introduction"
-          ></AggregatedQuestionIntroduction>
-          <new-question-test
-            :question="question"
-            :examId="$route.params.examId"
-            @sendingAnswer="isSendingAnswer = true"
-            @sentAnswer="isSendingAnswer = false"
-          ></new-question-test>
+          <div v-if="currentItemIsQuestion">
+            <AggregatedQuestionIntroduction
+              v-if="currentQuestion.introduction"
+              :text="currentQuestion.introduction"
+            ></AggregatedQuestionIntroduction>
+            <new-question-test
+              :question="currentQuestion"
+              :examId="exam.id"
+              @sendingAnswer="isSendingAnswer = true"
+              @sentAnswer="isSendingAnswer = false"
+            ></new-question-test>
+          </div>
         </div>
       </div>
       <!-- submissions sidebar -->
       <transition name="bounce-x">
         <div
           class="bg-gray-100 border rounded-lg shadow-sm md:ml-3"
-          v-show="exercise.id"
-          :class="{
-            'w-0 w-lg:0': !exercise.id,
-            'w-full lg:w-2/5': exercise.id
-          }"
+          v-show="currentItemIsExercise"
+          :class="[currentItemIsExercise ? 'w-full lg:w-2/5' : 'w-0 w-lg:0']"
         >
           <h3
             class="p-2 text-xl font-medium text-white bg-gray-800 rounded-t-lg"
@@ -237,12 +246,12 @@
           <div class="overflow-auto">
             <div
               class=""
-              v-for="(submission, index) in submissions"
+              v-for="(submission, index) in exam.submissions"
               :key="submission.id"
             >
               <Submission
                 :canBeTurnedIn="submission.is_eligible && !index"
-                :index="submissions.length - index"
+                :index="exam.submissions.length - index"
                 :submission="submission"
                 @turnInSubmissionCode="
                   confirmTurnInCodeSubmission(submission.id)
@@ -263,11 +272,11 @@
       @yes="dialog.onYes.callback(dialog.onYes.param)"
       @no="dialog.onNo.callback(dialog.onNo.param)"
     ></Dialog>
-    <transition name="bounce">
+    <transition name="bounce" v-if="currentItemIsExercise">
       <DraggablePopup
         v-show="popupOpen"
-        :title="'Esercizio ' + (currentQuestionNumber + 1)"
-        :content="highlightCode(exercise.text)"
+        :title="'Esercizio ' + (exam.ordering + 1)"
+        :content="highlightCode(currentExercise.text)"
         @hide="popupOpen = false"
       ></DraggablePopup>
     </transition>
@@ -281,7 +290,7 @@ import Spinner from '../components/Spinner.vue'
 import Submission from '../components/Submission.vue'
 import TestCase from '../components/TestCase.vue'
 import NewQuestionTest from '../components/NewQuestionTest.vue'
-import Skeleton from '../components/Skeleton.vue'
+// import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
 import DraggablePopup from '../components/DraggablePopup.vue'
@@ -296,14 +305,14 @@ import InlineSmallSpinner from '../components/InlineSmallSpinner.vue'
 import { getDirective } from 'vue-debounce'
 
 export default {
-  name: 'ExamPage',
+  name: 'NewExamPage',
   components: {
     AceEditor,
     Submission,
     TestCase,
     Dialog,
     NewQuestionTest,
-    Skeleton,
+    //Skeleton,
     DraggablePopup,
     Spinner,
     AggregatedQuestionIntroduction,
@@ -348,6 +357,7 @@ export default {
   },
   data () {
     return {
+      exam: {},
       dialog: {
         shown: false
       },
@@ -360,29 +370,9 @@ export default {
       submitCooldown: 0,
       submitCooldownHandle: null,
       editorOptions: {},
-
-      examName: null,
-      allowGoingBack: false,
-
-      exercise: {
-        id: null,
-        public_testcases: [],
-        text: ''
-      },
-      question: {
-        id: null,
-        text: '',
-        answers: []
-      },
       code: '',
 
-      currentQuestionNumber: 0,
-      totalItemsCount: 0,
-      isFirstItem: false,
-      isLastItem: false,
-
       processingSubmission: false,
-      submissions: [],
       pane: 'text',
       popupOpen: false,
 
@@ -403,9 +393,9 @@ export default {
     getExam (delta = 0, y = false) {
       if (
         delta == 1 &&
-        this.exercise.id &&
+        this.currentItemIsExercise &&
         !y &&
-        !this.turnedInSubmission &&
+        !this.thereIsValidSubmission &&
         !confirm(
           'Non hai consegnato soluzioni per questo esercizio. Se hai delle sottomissioni consegnabili, clicca su Consegna accanto alla sottomissione. Sei sicuro di voler andare avanti senza consegnare?'
         )
@@ -414,7 +404,7 @@ export default {
       }
       if (
         delta == 1 &&
-        !this.allowGoingBack &&
+        !this.exam.allow_going_back &&
         !y &&
         !confirm(
           'Sei sicuro di voler andare avanti? Se confermi, non potrai più tornare indietro.'
@@ -453,35 +443,13 @@ export default {
             return
           }
 
-          // save question
-          if (response.data.question) {
-            this.question = response.data.question
-            // move to question pane
+          this.exam = response.data
+          if (this.currentItemIsQuestion) {
             this.pane = 'question'
           } else {
-            this.question.id = null
-          }
-
-          // save exercise
-          if (response.data.exercise) {
-            const { starting_code, ...exercise } = response.data.exercise
-            this.code = starting_code // set initial editor code to that specified in exercise
-            this.exercise = exercise
-            // move to assignment text pane
             this.pane = 'text'
-
-            this.submissions = response.data.submissions
-          } else {
-            this.exercise.id = null
+            this.code = this.currentExercise.starting_code
           }
-
-          // copy rest of response data into the corresponding fields
-          this.examName = response.data.name
-          this.isFirstItem = response.data.is_first_item
-          this.isLastItem = response.data.is_last_item
-          this.allowGoingBack = response.data.allow_going_back
-          this.currentQuestionNumber = response.data.ordering
-          this.totalItemsCount = response.data.total_items_count
         })
         .catch(error => {
           if (error.response.status == 401 || error.response.status == 403) {
@@ -524,13 +492,13 @@ export default {
       // show fake "loading" submission
       this.processingSubmission = true
       axios
-        .post(`/exercises/${this.exercise.id}/submissions/`, {
+        .post(`/exercises/${this.currentExercise.id}/submissions/`, {
           code: this.code
         })
         .then(response => {
           console.log(response.data)
           // add new submission to submission list
-          this.submissions.unshift(response.data)
+          this.exam.submissions.unshift(response.data)
           // hide fake "loading" submission
           this.processingSubmission = false
         })
@@ -592,7 +560,7 @@ export default {
       this.dialog = { shown: false }
       axios
         .put(
-          `/exercises/${this.exercise.id}/submissions/${submissionId}/turn_in/`,
+          `/exercises/${this.currentExercise.id}/submissions/${submissionId}/turn_in/`,
           {}
         )
         .then(() => {
@@ -615,16 +583,34 @@ export default {
     editorInit
   },
   computed: {
-    turnedInSubmission () {
+    currentItemIsExercise () {
+      return !!this.exam.exercise
+    },
+    currentItemIsQuestion () {
+      return !!this.exam.question
+    },
+    currentExercise () {
+      return this.exam.exercise
+    },
+    currentQuestion () {
+      return this.exam.question
+    },
+    thereIsValidSubmission () {
       return (
-        this.exercise.id && this.submissions.some(s => s.has_been_turned_in)
+        this.currentItemIsExercise &&
+        this.exam.submissions.some(s => s.is_eligible)
       )
     },
     controlButtonsDisabled () {
       return this.isSendingAnswer || this.loading
     },
     testCases () {
-      return this.exercise.public_testcases || this.exercise.testcases
+      if (!this.currentItemIsExercise) {
+        return []
+      }
+      return (
+        this.currentExercise.public_testcases || this.currentExercise.testcases
+      )
     }
   }
 }
