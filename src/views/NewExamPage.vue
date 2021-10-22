@@ -62,13 +62,23 @@
             Testo
           </button>
           <button
-            v-if="currentItemIsExercise && !thereIsValidSubmission"
+            v-if="currentItemIsExercise"
             @click="submitCode()"
             :disabled="submitCooldown != 0 || !code.length"
-            class="w-32 p-1 px-3 mr-2 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:opacity-50 rounded-t-md hover:bg-green-700"
+            class="relative p-1 px-4 mr-2 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:bg-opacity-50 rounded-t-md hover:bg-green-700"
           >
-            <i v-show="submitCooldown == 0" class="fas fa-chevron-right"></i>
-            {{ !submitCooldown ? 'Esegui' : submitCooldown }}
+            <!-- {{ submitCooldown == 0 ? 'Salva ed esegui' : submitCooldown }} -->
+            <span
+              :class="[submitCooldown != 0 || !code.length ? 'opacity-40' : '']"
+              ><i class="mr-1 fas fa-chevron-right"></i>Salva ed esegui</span
+            >
+            <div
+              style="text-shadow: 0px 0px 5px #111827;"
+              class="absolute text-xl transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+              v-if="submitCooldown > 0"
+            >
+              {{ submitCooldown }}
+            </div>
           </button>
           <div class="flex ml-auto">
             <p
