@@ -40,19 +40,12 @@
       <p class="text-gray-900">
         {{ passedTests }} su {{ submission.total_testcases }}
       </p>
-      <button
-        @click="$emit('turnInSubmissionCode')"
-        class="px-2 mt-1 ml-auto text-white transition-all duration-100 bg-green-800 border border-green-700 rounded-md shadow-lg hover:bg-green-900 py md:mt-0"
-        :class="{ 'animate-pulse-fast': highlightSubmitButton }"
-        v-if="canBeTurnedIn && !submission.has_been_turned_in"
-      >
-        <i class="mr-1 fas fa-paper-plane"></i> Consegna
-      </button>
       <p
-        v-if="submission.has_been_turned_in"
-        class="ml-auto font-medium text-green-900"
+        v-if="submission.is_eligible"
+        :class="[pulseOkText ? 'animate-pulse-fast' : '']"
+        class="ml-auto font-semibold text-green-900"
       >
-        Consegnata
+        OK!
       </p>
     </div>
 
@@ -137,21 +130,20 @@ export default {
   },
   props: {
     submission: Object,
-    index: Number,
-    canBeTurnedIn: Boolean
+    index: Number
   },
   created () {
     if (this.submission.is_eligible) {
-      this.highlightSubmitButton = true
+      this.pulseOkText = true
       setTimeout(() => {
-        this.highlightSubmitButton = false
-      }, 2700)
+        this.pulseOkText = false
+      }, 2990)
     }
   },
   data () {
     return {
       expanded: false,
-      highlightSubmitButton: false
+      pulseOkText: false
     }
   },
   computed: {
@@ -194,6 +186,6 @@ pre[class*='language-'] {
 }
 
 .animate-pulse-fast {
-  animation: pulse 1s cubic-bezier(0.1, 0, 0.6, 1) infinite;
+  animation: pulse 0.8s cubic-bezier(0.1, 0, 0.6, 1) infinite;
 }
 </style>

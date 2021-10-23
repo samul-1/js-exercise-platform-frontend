@@ -10,7 +10,7 @@
         class="flex my-1 space-x-1"
       >
         <input
-          :disabled="loading"
+          :disabled="disableInputs"
           :type="question.accepts_multiple_answers ? 'checkbox' : 'radio'"
           :value="question.accepts_multiple_answers ? answer.id : [answer.id]"
           :id="'ans-' + answer.id"
@@ -29,7 +29,6 @@
         rows="10"
         style="width: 98%"
         v-model="answerText"
-        v-debounce:5000ms.lock="sendAnswerText"
       ></textarea>
       <div class="my-2" v-if="errorWhileUpdatingAnswerText">
         <span class="inline text-red-500">
@@ -51,8 +50,6 @@
 import 'vue-code-highlight/themes/duotone-sea.css'
 import { highlightCode } from '../constants.js'
 // import { renderTex } from '../utility.js'
-import axios from 'axios'
-import { getDirective } from 'vue-debounce'
 
 export default {
   name: 'NewQuestionTest',
@@ -62,9 +59,12 @@ export default {
     },
     examId: {
       type: [Number, String]
+    },
+    disableInputs: {
+      type: Boolean
+      //default: false
     }
   },
-  directives: { debounce: getDirective() },
   watch: {
     async selectedStringified (_newValue, _oldValue) {
       if (this.ignoreWatchers) {
@@ -102,19 +102,13 @@ export default {
         }
       }
 
-      try {
-        await this.sendAnswerUpdate(apiAction, body)
-      } catch {
-        // roll back to before state as the request to server failed
-        this.noWatcherSetSelectedAnswers(oldValue)
-      }
+      this.$emit('sendAnswer', { apiAction, body })
+      // TODO error detection and handling
     },
     // eslint-disable-next-line no-unused-vars
-    answerText (_newVal, oldVal) {
-      if (!this.answerTextDirty && !this.ignoreWatchers) {
-        this.savedAnswerText = oldVal
-        this.answerTextDirty = true
-        this.$emit('sendingAnswer')
+    answerText (newVal, oldVal) {
+      if (oldVal.length > 0) {
+        this.$emit('sendOpenAnswer', newVal)
       }
     },
     question: {
@@ -132,13 +126,11 @@ export default {
       immediate: true
     }
   },
-
   data () {
     return {
       selected: [],
       answerText: '',
       answerTextDirty: false,
-      loading: false,
       ignoreWatchers: false,
       savedAnswerText: '',
       errorWhileUpdatingAnswerText: false
@@ -146,39 +138,6 @@ export default {
   },
   methods: {
     highlightCode,
-    async sendAnswerUpdate (apiActionUrl, body) {
-      // issue request to update (give/withdraw) an answer to this question
-      this.loading = true
-      this.$emit('sendingAnswer')
-      await axios
-        .post(`/exams/${this.examId}/${apiActionUrl}/`, body)
-        .then(response => {
-          console.log(response)
-          this.errorWhileUpdatingAnswerText = false
-        })
-        .catch(error => {
-          this.$store.commit('setSmallMessage', {
-            severity: 2,
-            msg: error.response.data.message ?? error.message
-          })
-          // throw error back to caller for catching
-          throw error
-        })
-        .finally(() => {
-          this.loading = false
-          this.$emit('sentAnswer')
-          this.answerTextDirty = false
-        })
-    },
-    async sendAnswerText () {
-      try {
-        await this.sendAnswerUpdate('give_answer', {
-          text: this.answerText
-        })
-      } catch {
-        this.errorWhileUpdatingAnswerText = true
-      }
-    },
     noWatcherSetSelectedAnswers (value) {
       // sets the flag to ignore watchers for `selected`, then sets `selected` to the passed value,
       // and finally resets the flag. this is used to roll back the value of `selected` when a server

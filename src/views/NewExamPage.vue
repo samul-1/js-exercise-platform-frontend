@@ -88,7 +88,7 @@
               Salvataggio risposta in corso...
             </p>
             <button
-              @click="getExam(-1)"
+              @click="dirtyOpenAnswer ? flushOpenAnswer(-1) : getExam(-1)"
               v-if="exam.allow_going_back"
               :disabled="controlButtonsDisabled || exam.is_first_item"
               class="w-20 p-1 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer lg:px-3 disabled:cursor-not-allowed md:w-40 disabled:opacity-40 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
@@ -98,7 +98,13 @@
             </button>
           </div>
           <button
-            @click="getExam(1)"
+            @click="
+              dirtyOpenAnswer
+                ? flushOpenAnswer(1)
+                : currentItemIsExercise && !thereIsValidSubmission
+                ? confirmSkippingExercise()
+                : getExam(1)
+            "
             :disabled="controlButtonsDisabled"
             v-if="!exam.is_last_item"
             class="relative w-20 p-1 px-3 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-40 disabled:bg-opacity-40 rounded-t-md"
@@ -124,7 +130,9 @@
             </p>
           </button>
           <button
-            @click="confirmEndExam(currentItemIsExercise)"
+            @click="
+              confirmEndExam(currentItemIsExercise && !thereIsValidSubmission)
+            "
             v-else
             :disabled="isSendingAnswer || loading"
             :class="[
@@ -138,7 +146,7 @@
               class="md:mr-1 fas"
               :class="[
                 currentItemIsExercise && !thereIsValidSubmission
-                  ? 'fa-exclamation-triangle'
+                  ? 'fa-exclamation-triangle md:mr-2'
                   : 'fa-check'
               ]"
             ></i>
@@ -161,7 +169,7 @@
             width="100%"
             :height="editorHeight"
             :options="editorOptions"
-            v-debounce:20000ms.lock="updateDraftCode"
+            v-debounce:30000ms.lock="updateDraftCode"
           />
         </div>
 
@@ -193,8 +201,8 @@
           v-show="pane == 'text'"
         >
           <div class="flex w-full">
-            <h1 class="my-2 text-2xl font-medium">
-              Esercizio {{ exam.ordering + 1 }}
+            <h1 class="my-2 text-2xl font-medium" v-if="!loading">
+              Esercizio {{ exam.ordering + 1 }} di {{ exam.total_items_count }}
             </h1>
             <button
               @click="popupOpen = true"
@@ -226,9 +234,11 @@
             ></AggregatedQuestionIntroduction>
             <new-question-test
               :question="currentQuestion"
+              :key="'q-' + currentQuestion.id"
               :examId="exam.id"
-              @sendingAnswer="isSendingAnswer = true"
-              @sentAnswer="isSendingAnswer = false"
+              @sendAnswer="sendAnswerHandler($event.apiAction, $event.body)"
+              @sendOpenAnswer="openAnswerHandler($event)"
+              :disableInputs="controlButtonsDisabled"
             ></new-question-test>
           </div>
         </div>
@@ -281,11 +291,35 @@
       :severity="dialog.severity"
       @yes="dialog.onYes.callback(dialog.onYes.param)"
       @no="dialog.onNo.callback(dialog.onNo.param)"
-    ></Dialog>
+    >
+      <div class="my-4" v-if="showHowToSubmit">
+        <p>
+          Potresti esserti dimenticato di consegnare. Non basta aver scritto il
+          codice nell'editor, devi anche consegnarlo!
+        </p>
+        <p>
+          Per consegnare, clicca sul pulsante
+          <button
+            class="relative p-1 px-4 mx-2 font-medium text-white transition-all duration-75 bg-green-600 rounded-md shadow-lg cursor-pointer disabled:bg-opacity-50 hover:bg-green-700"
+          >
+            <span
+              ><i class="mr-1 fas fa-chevron-right"></i>Salva ed esegui</span
+            >
+          </button>
+          in alto nella barra con tutti i tab.
+        </p>
+        <p class="pt-6 mt-6 border-t">
+          Sei veramente sicuro di voler <strong>saltare</strong> questo
+          esercizio?
+        </p>
+      </div>
+    </Dialog>
     <transition name="bounce" v-if="currentItemIsExercise">
       <DraggablePopup
         v-show="popupOpen"
-        :title="'Esercizio ' + (exam.ordering + 1)"
+        :title="
+          'Esercizio ' + (exam.ordering + 1) + ' di ' + exam.total_items_count
+        "
         :content="highlightCode(currentExercise.text)"
         @hide="popupOpen = false"
       ></DraggablePopup>
@@ -313,6 +347,7 @@ import {
 } from '../constants'
 import InlineSmallSpinner from '../components/InlineSmallSpinner.vue'
 import { getDirective } from 'vue-debounce'
+import { throttle } from 'lodash'
 
 export default {
   name: 'NewExamPage',
@@ -381,37 +416,31 @@ export default {
       submitCooldownHandle: null,
       editorOptions: {},
       code: '',
+      openAnswer: '',
 
       processingSubmission: false,
       pane: 'text',
       popupOpen: false,
 
+      showHowToSubmit: false,
       showSavingAnswerDontPanic: false,
-      savingAnswerHandle: null
+      savingAnswerHandle: null,
+
+      cancelThrottledUpdate: false
     }
   },
   methods: {
     highlightCode,
     async updateDraftCode () {
-      const examId = this.$route.params.examId
-
       axios
-        .post(`/exams/${examId}/draft_code/`, { code: this.code })
+        .post(`/exams/${this.exam.id}/draft_code/`, { code: this.code })
         .then(response => console.log(response))
         .catch(error => console.log(error))
     },
     getExam (delta = 0, y = false) {
-      if (
-        delta == 1 &&
-        this.currentItemIsExercise &&
-        !y &&
-        !this.thereIsValidSubmission &&
-        !confirm(
-          'Non hai consegnato soluzioni per questo esercizio. Se hai delle sottomissioni consegnabili, clicca su Consegna accanto alla sottomissione. Sei sicuro di voler andare avanti senza consegnare?'
-        )
-      ) {
-        return
-      }
+      // TODO take care of moving these to a better place
+      this.dialog = { shown: false }
+      this.showHowToSubmit = false
       if (
         delta == 1 &&
         !this.exam.allow_going_back &&
@@ -422,7 +451,6 @@ export default {
       ) {
         return
       }
-      const examId = this.$route.params.examId
       this.loading = true
 
       let apiEntryPoint
@@ -439,7 +467,7 @@ export default {
       }
 
       axios
-        .post(`/exams/${examId}/${apiEntryPoint}/`, {
+        .post(`/exams/${this.$route.params.examId}/${apiEntryPoint}/`, {
           ...(this.restart && delta == 0 && { restart: true })
         })
         .then(response => {
@@ -487,6 +515,22 @@ export default {
           this.loading = false
         })
     },
+    confirmSkippingExercise () {
+      this.showHowToSubmit = true
+      this.dialog = {
+        shown: true,
+        string: 'Non hai effettuato consegne!',
+        confirmOnly: false,
+        severity: 2,
+        onYes: { callback: this.getExam, param: 1 },
+        onNo: {
+          callback: () => {
+            this.dialog = { shown: false }
+            this.showHowToSubmit = false
+          }
+        }
+      }
+    },
     submitCode () {
       // submits code to the server, temporarily disables submit button for cooldown,
       // and shows the submission details upon receiving them back from the server
@@ -517,40 +561,33 @@ export default {
           throw error
         })
     },
-    confirmTurnInCodeSubmission (id) {
-      // shows a dialog that prompts the user for confirmation to turn in a submission
-      this.dialog = {
-        shown: true,
-        string: 'Sei sicuro di voler consegnare?',
-        subText:
-          'Una volta confermata, la consegna non potrà più essere modificata.',
-        confirmOnly: false,
-        onYes: { callback: this.turnInSubmissionCode, param: id },
-        onNo: {
-          callback: () => (this.dialog = { shown: false })
-        }
-      }
-    },
     confirmEndExam (skip) {
+      if (skip) {
+        this.showHowToSubmit = true
+      }
       // shows a dialog that prompts the user for confirmation to end the exam
       this.dialog = {
         shown: true,
         string: `Sei sicuro di voler ${
-          skip ? "saltare l'esercizio" : 'consegnare'
+          skip ? "saltare l'<strong>ultimo</strong> esercizio" : 'consegnare'
         }?`,
-        subText: 'Se confermi, non potrai più tornare indietro.',
+        subText:
+          'Se confermi, <strong>non potrai più tornare indietro</strong>.',
         confirmOnly: false,
         severity: 2,
         onYes: { callback: this.endExam },
         onNo: {
-          callback: () => (this.dialog = { shown: false })
+          callback: () => {
+            this.dialog = { shown: false }
+            this.showHowToSubmit = false
+          }
         }
       }
     },
     endExam () {
       this.dialog = { shown: false }
       axios
-        .post(`/exams/${this.$route.params.examId}/end_exam/`, {})
+        .post(`/exams/${this.exam.id}/end_exam/`, {})
         .then(() => {
           this.$store.commit(
             'setMessage',
@@ -565,30 +602,49 @@ export default {
           throw error
         })
     },
-    turnInSubmissionCode (submissionId) {
-      // makes a PUT request to the server asking to turn in an eligible submission
-      this.dialog = { shown: false }
-      axios
-        .put(
-          `/exercises/${this.currentExercise.id}/submissions/${submissionId}/turn_in/`,
-          {}
-        )
-        .then(() => {
-          if (!this.isLastItem) {
-            // ask for next exercise or question
-            this.getExam(1, true)
-          } else {
-            this.endExam()
-          }
+    async sendAnswerHandler (apiActionUrl, body) {
+      // called when the answer(s) to the current question change
+      // issues request to update (give/withdraw) the answer(s) to the current question
+      this.loading = true
+      await axios
+        .post(`/exams/${this.exam.id}/${apiActionUrl}/`, body)
+        .then(response => {
+          console.log(response)
         })
         .catch(error => {
-          this.$store.commit(
-            'setMessage',
-            error.response.data.message ?? error.message
-          )
-          console.log(JSON.stringify(error))
+          this.$store.commit('setSmallMessage', {
+            severity: 2,
+            msg: error.response.data.message ?? error.message
+          })
+          // throw error back to caller for catching
           throw error
         })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    openAnswerHandler (text) {
+      // called when the current item is an open question and the user types text
+      // in the answer textarea
+
+      this.openAnswer = text // save the new content of the answer
+      this.throttledSendAnswerHandler(text)
+    },
+    throttledSendAnswerHandler: throttle(async function (text) {
+      if (!this.cancelThrottledUpdate) {
+        await this.sendAnswerHandler('give_answer', { text })
+      } else {
+        // event was de-scheduled because user clicked forward/back before it fired
+        this.cancelThrottledUpdate = false
+      }
+    }, 10000),
+    async flushOpenAnswer (delta) {
+      // prevent previously scheduled throttled updates from firing
+      this.cancelThrottledUpdate = true
+
+      // send the most recent answer obtained and move forward/back
+      await this.sendAnswerHandler('give_answer', { text: this.openAnswer })
+      this.getExam(delta)
     },
     editorInit
   },
@@ -613,6 +669,11 @@ export default {
     },
     controlButtonsDisabled () {
       return this.isSendingAnswer || this.loading
+    },
+    dirtyOpenAnswer () {
+      return (
+        this.currentItemIsQuestion && this.currentQuestion.question_type == 'o'
+      )
     },
     testCases () {
       if (!this.currentItemIsExercise) {
