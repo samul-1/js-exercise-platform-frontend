@@ -91,7 +91,7 @@
               @click="dirtyOpenAnswer ? flushOpenAnswer(-1) : getExam(-1)"
               v-if="exam.allow_going_back"
               :disabled="controlButtonsDisabled || exam.is_first_item"
-              class="w-20 p-1 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer lg:px-3 disabled:cursor-not-allowed md:w-40 disabled:opacity-40 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
+              class="w-20 p-1 mr-2 font-medium text-white transition-all duration-75 bg-gray-700 shadow-md cursor-pointer lg:px-1.5 disabled:cursor-not-allowed md:w-40 disabled:opacity-40 rounded-t-md hover:bg-gray-600 active:bg-gray-700"
             >
               <i class="md:mr-2 fas fa-chevron-left"></i>
               <span class="hidden md:inline">Indietro</span>
@@ -107,7 +107,7 @@
             "
             :disabled="controlButtonsDisabled"
             v-if="!exam.is_last_item"
-            class="relative w-20 p-1 px-3 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-40 disabled:bg-opacity-40 rounded-t-md"
+            class="relative w-20 p-1 lg:px-1.5 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-40 disabled:bg-opacity-40 rounded-t-md"
             :class="[
               !currentItemIsExercise || thereIsValidSubmission
                 ? 'bg-gray-700 hover:bg-gray-600 active:bg-gray-700'
@@ -140,19 +140,19 @@
                 ? 'bg-red-800 hover:bg-red-900 active:bg-red-800'
                 : 'bg-green-700 hover:bg-green-600 active:bg-green-700'
             ]"
-            class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-max disabled:opacity-80 rounded-t-md"
+            class="w-20 p-1 px-3 font-medium text-white transition-all duration-75 shadow-md cursor-pointer md:w-40 md:w-max disabled:opacity-80 rounded-t-md"
           >
             <i
               class="md:mr-1 fas"
               :class="[
                 currentItemIsExercise && !thereIsValidSubmission
-                  ? 'fa-exclamation-triangle md:mr-2'
+                  ? 'fa-exclamation-triangle md:mr-1'
                   : 'fa-check'
               ]"
             ></i>
             <span class="hidden md:inline">{{
               currentItemIsExercise && !thereIsValidSubmission
-                ? 'Salta ultimo esercizio'
+                ? 'Salta e termina'
                 : 'Termina'
             }}</span>
           </button>
@@ -234,9 +234,16 @@
             ></AggregatedQuestionIntroduction>
             <new-question-test
               :question="currentQuestion"
+              :ref="'q-' + currentQuestion.id"
               :key="'q-' + currentQuestion.id"
               :examId="exam.id"
-              @sendAnswer="sendAnswerHandler($event.apiAction, $event.body)"
+              @sendAnswer="
+                sendAnswerHandler(
+                  $event.apiAction,
+                  $event.body,
+                  $event.oldValue
+                )
+              "
               @sendOpenAnswer="openAnswerHandler($event)"
               :disableInputs="controlButtonsDisabled"
             ></new-question-test>
@@ -490,13 +497,13 @@ export default {
           }
         })
         .catch(error => {
-          if (error.response.status == 401 || error.response.status == 403) {
+          if (error.response?.status == 401 || error.response?.status == 403) {
             this.$store.commit(
               'setRedirectToAfterLogin',
               this.$router.currentRoute.fullPath
             )
             this.$router.push('/login')
-          } else if (error.response.status == 404) {
+          } else if (error.response?.status == 404) {
             this.$store.commit('setSmallMessage', {
               severity: 2,
               msg: 'Esame non trovato.'
@@ -505,7 +512,7 @@ export default {
           } else {
             this.$store.commit(
               'setMessage',
-              error.response.data.message ?? error.message
+              error.response?.data.message ?? error.message
             )
             // let the global handler catch this
             throw error
@@ -602,7 +609,7 @@ export default {
           throw error
         })
     },
-    async sendAnswerHandler (apiActionUrl, body) {
+    async sendAnswerHandler (apiActionUrl, body, oldValue) {
       // called when the answer(s) to the current question change
       // issues request to update (give/withdraw) the answer(s) to the current question
       this.loading = true
@@ -614,8 +621,10 @@ export default {
         .catch(error => {
           this.$store.commit('setSmallMessage', {
             severity: 2,
-            msg: error.response.data.message ?? error.message
+            msg: error.response?.data.message ?? error.message
           })
+
+          this.$refs['q-' + this.currentQuestion.id].rollBackTo(oldValue)
           // throw error back to caller for catching
           throw error
         })

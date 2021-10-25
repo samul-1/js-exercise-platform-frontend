@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-col my-8 mt-2 md:flex-row md:my-0">
+  <div class="relative flex flex-col my-8 mt-2 md:flex-row md:my-2">
     <div class="md:w-4/5">
       <la-tex-preview
         v-show="selection.length"

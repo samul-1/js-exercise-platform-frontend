@@ -102,7 +102,7 @@ export default {
         }
       }
 
-      this.$emit('sendAnswer', { apiAction, body })
+      this.$emit('sendAnswer', { apiAction, body, oldValue })
       // TODO error detection and handling
     },
     // eslint-disable-next-line no-unused-vars
@@ -138,6 +138,11 @@ export default {
   },
   methods: {
     highlightCode,
+    rollBackTo (value) {
+      if (this.question.question_type == 'm') {
+        this.noWatcherSetSelectedAnswers(value)
+      }
+    },
     noWatcherSetSelectedAnswers (value) {
       // sets the flag to ignore watchers for `selected`, then sets `selected` to the passed value,
       // and finally resets the flag. this is used to roll back the value of `selected` when a server

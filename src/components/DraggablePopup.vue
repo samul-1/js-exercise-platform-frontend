@@ -8,7 +8,7 @@
   >
     <div
       :style="overlayStyle"
-      class="absolute bg-transparent "
+      class="absolute bg-transparent"
       @mousedown="dragMouseDown"
     ></div>
     <div class="flex w-full px-4 pt-3">
