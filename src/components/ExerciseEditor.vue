@@ -118,8 +118,16 @@
             :options="aceEditorOptions"
           />
         </div>
-        <div>
-          <h2 class="my-2 text-lg">Soluzione</h2>
+        <div class="mt-2">
+          <div class="flex space-x-2">
+            <h2 class="my-2 text-lg">Soluzione</h2>
+            <button
+              @click="testSolution()"
+              class="px-3 py-1 my-auto mr-auto text-sm text-white bg-green-700 rounded-md shadow-sm"
+            >
+              <i class="fas fa-chevron-right"></i> Testa
+            </button>
+          </div>
           <AceEditor
             class="h-full rounded-md"
             :value="exercise.solution"
@@ -128,16 +136,16 @@
             lang="javascript"
             theme="monokai"
             width="98%"
-            height="150px"
+            height="256px"
             :options="aceEditorOptions"
           />
         </div>
-        <div class="flex">
-          <button
-            class="px-12 py-3 my-auto mr-auto text-lg text-white bg-green-700 rounded-md shadow-sm"
-          >
-            <i class="fas fa-chevron-right"></i> Testa soluzione
-          </button>
+        <div class="flex flex-col mt-10 overflow-y-auto max-h-64">
+          <Submission
+            v-for="(submission, index) in submissions"
+            :key="'s-' + index"
+            :submission="submission"
+          ></Submission>
         </div>
       </div>
       <div class="flex my-4">
@@ -204,10 +212,20 @@
         </transition-group>
       </div>
     </div>
+    <!-- <Dialog
+      v-if="testSubmission"
+      @yes="testSubmission = null"
+      :confirmOnly="true"
+      :dismissible="true"
+    >
+      <Submission :submission="testSubmission"></Submission>
+    </Dialog> -->
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 import { uuid } from 'vue-uuid'
 import { VueEditor } from 'vue2-editor'
 import AceEditor from 'vuejs-ace-editor'
@@ -216,13 +234,17 @@ import { aceEditorOptions, toolbar, editorInit } from '../constants.js'
 import LaTexPreview from '../components/LaTexPreview.vue'
 import { highlightCode } from '../constants.js'
 import { renderTex } from '../utility'
+//import Dialog from './Dialog.vue'
+import Submission from './Submission.vue'
 export default {
   name: 'ExerciseEditor',
   components: {
     VueEditor,
     AceEditor,
     TestCaseEditor,
-    LaTexPreview
+    LaTexPreview,
+    //Dialog,
+    Submission
   },
   created () {
     //this.exercise.uuid = this.id
@@ -268,7 +290,8 @@ export default {
         testcases: [],
         category: null
       },
-      selection: ''
+      selection: '',
+      submissions: []
     }
   },
   methods: {
@@ -281,6 +304,25 @@ export default {
       console.log(editor.quill.getText(range.index, range.length))
       console.log(editor)
       this.selection = editor.quill.getText(range.index, range.length)
+    },
+    testSolution () {
+      axios
+        .post('/exams/test_submission/', {
+          code: this.exercise.solution,
+          testcases: this.strippedIdTestCases
+        })
+        .then(response => {
+          console.log(response)
+          this.submissions.unshift(response.data)
+        })
+        .catch(error => {
+          console.log(error)
+          throw error
+        })
+        .finally(() => {
+          // this.loading = false
+          // this.loadingMessage = ''
+        })
     },
     update (key, value) {
       console.log(value)
@@ -326,6 +368,14 @@ export default {
             ? '...'
             : '')
       )
+    },
+    strippedIdTestCases () {
+      return this.exercise.testcases.map(({ stripId, id, ...rest }) => {
+        return {
+          ...(!stripId && { id: id }),
+          ...rest
+        }
+      })
     }
   }
 }
