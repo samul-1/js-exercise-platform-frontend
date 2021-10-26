@@ -120,13 +120,13 @@ export default {
             jsonData.msg_type === 'lock' ? jsonData.by : null
         }
       }
-      this.socket.onerror = () => {
-        this.$store.commit('setSmallMessage', {
-          severity: 2,
-          msg:
-            "È in corso una modifica all'esame da parte di un altro insegnante."
-        })
-      }
+      // this.socket.onerror = () => {
+      //   this.$store.commit('setSmallMessage', {
+      //     severity: 2,
+      //     msg:
+      //       "È in corso una modifica all'esame da parte di un altro insegnante."
+      //   })
+      // }
     }
   },
   computed: {
