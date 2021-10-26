@@ -255,7 +255,12 @@
           Annulla
         </button></router-link
       >
-      <!-- <button @click="deepCopyExam(processedExamObject)">JSON</button> -->
+      <button
+        class="opacity-0"
+        @click="debugCopy = deepCopyExam(processedExamObject)"
+      >
+        JSON
+      </button>
       <ul
         v-if="editorErrors.globalErrors"
         class="order-first my-auto mt-8 md:order-last md:mt-0 md:ml-10"
@@ -276,6 +281,7 @@
       :questionCategories="exam.questionCategories"
       :exerciseCategories="exam.exerciseCategories"
     ></ExamEditorIndex>
+    <textarea v-model="debugCopy" v-if="debugCopy.length > 0"></textarea>
   </div>
 </template>
 
@@ -448,6 +454,7 @@ export default {
   data () {
     return {
       HELP_TXTS,
+      debugCopy: '',
       dirty: false,
       expandedItems: [],
       teachers: [],

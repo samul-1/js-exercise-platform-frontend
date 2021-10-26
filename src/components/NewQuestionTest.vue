@@ -103,7 +103,6 @@ export default {
       }
 
       this.$emit('sendAnswer', { apiAction, body, oldValue })
-      // TODO error detection and handling
     },
     // eslint-disable-next-line no-unused-vars
     answerText (newVal, oldVal) {

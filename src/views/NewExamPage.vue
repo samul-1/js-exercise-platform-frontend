@@ -604,7 +604,7 @@ export default {
         .catch(error => {
           this.$store.commit(
             'setMessage',
-            error.response.data.message ?? error.message
+            error.response?.data.message ?? error.message
           )
           throw error
         })
@@ -636,17 +636,19 @@ export default {
       // called when the current item is an open question and the user types text
       // in the answer textarea
 
+      // TODO enable asking for confirmation before exiting the page
       this.openAnswer = text // save the new content of the answer
       this.throttledSendAnswerHandler(text)
     },
     throttledSendAnswerHandler: throttle(async function (text) {
       if (!this.cancelThrottledUpdate) {
         await this.sendAnswerHandler('give_answer', { text })
+        // TODO disable asking for confirmation before exiting the page
       } else {
         // event was de-scheduled because user clicked forward/back before it fired
         this.cancelThrottledUpdate = false
       }
-    }, 10000),
+    }, 15000),
     async flushOpenAnswer (delta) {
       // prevent previously scheduled throttled updates from firing
       this.cancelThrottledUpdate = true
