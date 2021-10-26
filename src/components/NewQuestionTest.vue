@@ -106,7 +106,7 @@ export default {
     },
     // eslint-disable-next-line no-unused-vars
     answerText (newVal, oldVal) {
-      if (oldVal.length > 0) {
+      if (oldVal && oldVal.length > 0) {
         this.$emit('sendOpenAnswer', newVal)
       }
     },

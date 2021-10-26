@@ -131,7 +131,11 @@
           </button>
           <button
             @click="
-              confirmEndExam(currentItemIsExercise && !thereIsValidSubmission)
+              dirtyOpenAnswer
+                ? flushOpenAnswer(1, true)
+                : confirmEndExam(
+                    currentItemIsExercise && !thereIsValidSubmission
+                  )
             "
             v-else
             :disabled="isSendingAnswer || loading"
@@ -372,7 +376,18 @@ export default {
   },
   directives: { debounce: getDirective() },
   created () {
+    window.addEventListener('beforeunload', this.beforeWindowUnload)
     this.getExam()
+  },
+  beforeDestroy () {
+    window.removeEventListener('beforeunload', this.beforeWindowUnload)
+  },
+  beforeRouteLeave (_to, _from, next) {
+    if (this.confirmStay()) {
+      next(false)
+    } else {
+      next()
+    }
   },
   mounted () {
     // set the editor height to approximately 70% of parent height
@@ -438,6 +453,17 @@ export default {
   },
   methods: {
     highlightCode,
+    beforeWindowUnload (e) {
+      if (this.confirmStay()) {
+        // Cancel the event
+        e.preventDefault()
+        // Chrome requires returnValue to be set
+        e.returnValue = ''
+      }
+    },
+    confirmStay () {
+      return !window.confirm('Sei sicuro di voler uscire dalla pagina?')
+    },
     async updateDraftCode () {
       axios
         .post(`/exams/${this.exam.id}/draft_code/`, { code: this.code })
@@ -649,13 +675,17 @@ export default {
         this.cancelThrottledUpdate = false
       }
     }, 15000),
-    async flushOpenAnswer (delta) {
+    async flushOpenAnswer (delta, endExam = false) {
       // prevent previously scheduled throttled updates from firing
       this.cancelThrottledUpdate = true
 
       // send the most recent answer obtained and move forward/back
       await this.sendAnswerHandler('give_answer', { text: this.openAnswer })
-      this.getExam(delta)
+      if (!endExam) {
+        this.getExam(delta)
+      } else {
+        this.confirmEndExam(false)
+      }
     },
     editorInit
   },

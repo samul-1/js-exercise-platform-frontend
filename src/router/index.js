@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ExamPage from '../views/ExamPage.vue'
+// import ExamPage from '../views/ExamPage.vue'
 import NewExamPage from '../views/NewExamPage.vue'
 import Login from '../views/Login.vue'
 import ExamEditor from '../components/ExamEditor.vue'
@@ -30,27 +30,18 @@ const routes = [
   {
     path: '/exam/:examId',
     name: 'ExamPage',
-    component: ExamPage,
+    component: NewExamPage,
     meta: {
       studentsOnly: true
     }
   },
   {
     path: '/exam/:examId/simulate',
-    name: 'ExamPage',
-    component: ExamPage,
+    name: 'ExamSimulation',
+    component: NewExamPage,
     props: {
       studentMode: true,
       restart: false
-    }
-  },
-  {
-    path: '/exam-new/:examId',
-    name: 'NewExamPage',
-    component: NewExamPage,
-    props: {
-      // studentMode: true,
-      // restart: true
     }
   },
   {
