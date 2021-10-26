@@ -48,7 +48,7 @@
     <main class="my-auto">
       <div
         v-if="$store.state.msg"
-        class="px-4 py-12 mx-4 text-white bg-gray-900 rounded-lg shadow-md md:mx-auto md:px-36 md:w-max"
+        class="px-4 py-12 mx-4 text-white bg-gray-900 rounded-lg shadow-2xl md:mx-auto md:px-36 md:w-max"
       >
         <h1 class="text-xl text-center" v-html="$store.state.msg"></h1>
       </div>
