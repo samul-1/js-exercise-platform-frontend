@@ -55,4 +55,4 @@ export function highlightCode (text) {
 }
 
 // determines how long users have to wait before they are able to send a second submission after they've sent one
-export const SUBMIT_COOLDOWN = 10
+export const SUBMIT_COOLDOWN = 20

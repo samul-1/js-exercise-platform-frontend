@@ -1,17 +1,11 @@
 <template>
   <div class="grid my-8 mt-2 md:grid-cols-5 md:my-2">
     <div class="col-span-4">
-      <AceEditor
-        class="h-full rounded-md"
+      <CodeEditor
+        :small="true"
         :value="testcase.assertion"
         @input="update('assertion', $event)"
-        @init="editorInit"
-        lang="javascript"
-        theme="monokai"
-        width="100%"
-        height="50px"
-        :options="aceEditorOptions"
-      />
+      ></CodeEditor>
     </div>
     <div class="self-center mt-1 md:mt-0 md:ml-auto">
       <input
@@ -39,13 +33,11 @@
 </template>
 
 <script>
-import AceEditor from 'vuejs-ace-editor'
-import { aceEditorOptions, editorInit } from '../constants'
-
+import CodeEditor from '../components/CodeEditor.vue'
 export default {
   name: 'TestCaseEditor',
   components: {
-    AceEditor
+    CodeEditor
   },
   props: {
     id: {
@@ -57,12 +49,10 @@ export default {
   },
   data () {
     return {
-      aceEditorOptions,
       testcase: { id: null, assertion: '', is_public: true }
     }
   },
   methods: {
-    editorInit,
     update (key, value) {
       this.testcase[key] = value
       this.$emit('input', { ...this.testcase, [key]: value })

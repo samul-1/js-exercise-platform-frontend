@@ -106,23 +106,13 @@
         </div>
         <div>
           <h2 class="my-2 text-lg">Codice iniziale</h2>
-          <!-- <AceEditor
-            class="h-full rounded-md"
+          <CodeEditor
+            :height="'150px'"
             :value="exercise.starting_code"
             @input="update('starting_code', $event)"
-            @init="editorInit"
-            lang="javascript"
-            theme="monokai"
-            width="100%"
-            height="150px"
-            :options="aceEditorOptions"
-          /> -->
-          <MonacoEditor
-            class="w-full h-full rounded-md"
-            v-model="exercise.starting_code"
             theme="vs-dark"
             language="javascript"
-          />
+          ></CodeEditor>
         </div>
         <div class="mt-2">
           <div class="flex space-x-2">
@@ -134,17 +124,14 @@
               <i class="fas fa-chevron-right"></i> Testa
             </button>
           </div>
-          <AceEditor
-            class="h-full rounded-md"
+          <CodeEditor
+            :height="'256px'"
+            style="width: 97.5%"
             :value="exercise.solution"
             @input="update('solution', $event)"
-            @init="editorInit"
-            lang="javascript"
-            theme="monokai"
-            width="98%"
-            height="256px"
-            :options="aceEditorOptions"
-          />
+            theme="vs-dark"
+            language="javascript"
+          ></CodeEditor>
         </div>
         <div class="flex flex-col mt-10 overflow-y-auto max-h-64">
           <Submission
@@ -231,13 +218,11 @@
 
 <script>
 import axios from 'axios'
-import MonacoEditor from 'vue-monaco'
-
 import { uuid } from 'vue-uuid'
 import { VueEditor } from 'vue2-editor'
-import AceEditor from 'vuejs-ace-editor'
+import CodeEditor from '../components/CodeEditor.vue'
 import TestCaseEditor from '../components/TestCaseEditor.vue'
-import { aceEditorOptions, toolbar, editorInit } from '../constants.js'
+import { toolbar } from '../constants.js'
 import LaTexPreview from '../components/LaTexPreview.vue'
 import { highlightCode } from '../constants.js'
 import { renderTex } from '../utility'
@@ -247,12 +232,13 @@ export default {
   name: 'ExerciseEditor',
   components: {
     VueEditor,
-    AceEditor,
+    //AceEditor,
+    CodeEditor,
     TestCaseEditor,
     LaTexPreview,
     //Dialog,
-    Submission,
-    MonacoEditor
+    Submission
+    //MonacoEditor
   },
   created () {
     //this.exercise.uuid = this.id
@@ -275,10 +261,6 @@ export default {
         if (!this.expanded) {
           // render LaTeX code
           renderTex()
-          // setTimeout(
-          //   () => window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]),
-          //   10
-          // )
         }
       },
       deep: true,
@@ -287,7 +269,6 @@ export default {
   },
   data () {
     return {
-      aceEditorOptions,
       toolbar,
       exercise: {
         id: null,
@@ -304,7 +285,7 @@ export default {
   },
   methods: {
     highlightCode,
-    editorInit,
+    //editorInit,
     setPreview (event) {
       console.log(event)
       const editor = this.$refs[this.exercise.id + '-text-editor']
@@ -388,9 +369,3 @@ export default {
   }
 }
 </script>
-<style>
-.monaco-editor {
-  width: 500px;
-  height: 300px;
-}
-</style>
