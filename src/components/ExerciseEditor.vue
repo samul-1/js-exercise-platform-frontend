@@ -106,7 +106,7 @@
         </div>
         <div>
           <h2 class="my-2 text-lg">Codice iniziale</h2>
-          <AceEditor
+          <!-- <AceEditor
             class="h-full rounded-md"
             :value="exercise.starting_code"
             @input="update('starting_code', $event)"
@@ -116,6 +116,12 @@
             width="100%"
             height="150px"
             :options="aceEditorOptions"
+          /> -->
+          <MonacoEditor
+            class="w-full h-full rounded-md"
+            v-model="exercise.starting_code"
+            theme="vs-dark"
+            language="javascript"
           />
         </div>
         <div class="mt-2">
@@ -225,6 +231,7 @@
 
 <script>
 import axios from 'axios'
+import MonacoEditor from 'vue-monaco'
 
 import { uuid } from 'vue-uuid'
 import { VueEditor } from 'vue2-editor'
@@ -244,7 +251,8 @@ export default {
     TestCaseEditor,
     LaTexPreview,
     //Dialog,
-    Submission
+    Submission,
+    MonacoEditor
   },
   created () {
     //this.exercise.uuid = this.id
@@ -380,3 +388,9 @@ export default {
   }
 }
 </script>
+<style>
+.monaco-editor {
+  width: 500px;
+  height: 300px;
+}
+</style>
