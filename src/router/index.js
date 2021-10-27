@@ -41,7 +41,7 @@ const routes = [
     component: NewExamPage,
     props: {
       studentMode: true,
-      restart: false
+      restart: true
     }
   },
   {
