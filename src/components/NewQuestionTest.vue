@@ -65,6 +65,11 @@ export default {
       //default: false
     }
   },
+  created () {
+    if (this.question.question_type == 'o') {
+      this.$emit('sendOpenAnswer', this.answerText)
+    }
+  },
   watch: {
     async selectedStringified (_newValue, _oldValue) {
       if (this.ignoreWatchers) {
