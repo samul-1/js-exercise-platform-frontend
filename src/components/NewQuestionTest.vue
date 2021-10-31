@@ -111,9 +111,11 @@ export default {
     },
     // eslint-disable-next-line no-unused-vars
     answerText (newVal, oldVal) {
-      if (oldVal && oldVal.length > 0) {
-        this.$emit('sendOpenAnswer', newVal)
-      }
+      this.$emit('sendOpenAnswer', newVal)
+
+      // if (oldVal && oldVal.length > 0) {
+      //   this.$emit('sendOpenAnswer', newVal)
+      // }
     },
     question: {
       handler (newVal) {
