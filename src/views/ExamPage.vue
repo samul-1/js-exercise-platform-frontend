@@ -366,7 +366,7 @@ export default {
 
       exercise: {
         id: null,
-        public_testcases: [],
+        testcases: [],
         text: ''
       },
       question: {
@@ -624,7 +624,7 @@ export default {
       return this.isSendingAnswer || this.loading
     },
     testCases () {
-      return this.exercise.public_testcases || this.exercise.testcases
+      return this.exercise.testcases
     }
   }
 }

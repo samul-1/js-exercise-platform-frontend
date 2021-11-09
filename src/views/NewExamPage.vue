@@ -720,9 +720,7 @@ export default {
       if (!this.currentItemIsExercise) {
         return []
       }
-      return (
-        this.currentExercise.public_testcases || this.currentExercise.testcases
-      )
+      return this.currentExercise.testcases
     }
   }
 }
