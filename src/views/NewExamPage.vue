@@ -64,12 +64,14 @@
           <button
             v-if="currentItemIsExercise"
             @click="submitCode()"
-            :disabled="submitCooldown != 0 || !code.length"
+            :disabled="submitCooldown != 0 || !code.trim().length"
             class="relative p-1 px-4 mr-2 font-medium text-white transition-all duration-75 bg-green-600 shadow-md cursor-pointer disabled:bg-opacity-50 rounded-t-md hover:bg-green-700"
           >
             <!-- {{ submitCooldown == 0 ? 'Salva ed esegui' : submitCooldown }} -->
             <span
-              :class="[submitCooldown != 0 || !code.length ? 'opacity-40' : '']"
+              :class="[
+                submitCooldown != 0 || !code.trim().length ? 'opacity-40' : ''
+              ]"
               ><i class="mr-1 fas fa-chevron-right"></i>Salva ed esegui</span
             >
             <div
@@ -162,19 +164,13 @@
           </button>
         </div>
         <!-- editor pane -->
-        <div class="relative" v-show="pane == 'editor'">
-          <AceEditor
-            class="rounded-b-lg"
-            id="editor-el"
+        <div class="relative" v-if="pane == 'editor'">
+          <CodeEditor
             v-model="code"
-            @init="editorInit"
-            lang="javascript"
-            theme="monokai"
-            width="100%"
             :height="editorHeight"
-            :options="editorOptions"
+            :standalone="true"
             v-debounce:30000ms.lock="updateDraftCode"
-          />
+          ></CodeEditor>
         </div>
 
         <!-- test case pane -->
@@ -340,22 +336,17 @@
 
 <script>
 import axios from 'axios'
-import AceEditor from 'vuejs-ace-editor'
 import Spinner from '../components/Spinner.vue'
 import Submission from '../components/Submission.vue'
 import TestCase from '../components/TestCase.vue'
 import NewQuestionTest from '../components/NewQuestionTest.vue'
+import CodeEditor from '../components/CodeEditor.vue'
 // import Skeleton from '../components/Skeleton.vue'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import Dialog from '../components/Dialog.vue'
 import DraggablePopup from '../components/DraggablePopup.vue'
 import AggregatedQuestionIntroduction from '../components/AggregatedQuestionIntroduction.vue'
-import {
-  highlightCode,
-  aceEditorOptions,
-  SUBMIT_COOLDOWN,
-  editorInit
-} from '../constants'
+import { highlightCode, SUBMIT_COOLDOWN, editorInit } from '../constants'
 import InlineSmallSpinner from '../components/InlineSmallSpinner.vue'
 import { getDirective } from 'vue-debounce'
 import { throttle } from 'lodash'
@@ -363,7 +354,7 @@ import { throttle } from 'lodash'
 export default {
   name: 'NewExamPage',
   components: {
-    AceEditor,
+    CodeEditor,
     Submission,
     TestCase,
     Dialog,
@@ -392,10 +383,6 @@ export default {
   mounted () {
     // set the editor height to approximately 70% of parent height
     this.editorHeight = this.$parent.$refs.app.clientHeight / 1.4 + 'px'
-
-    // set editor options asynchronously because the editor height isn't known at create time
-    // and without doing this the font size gets screwed up for some reason
-    setTimeout(() => (this.editorOptions = aceEditorOptions))
   },
   props: {
     restart: {
@@ -424,6 +411,16 @@ export default {
   },
   data () {
     return {
+      monacoOptions: {
+        quickSuggestions: false,
+        //renderLineHighlight: 'none',
+        minimap: {
+          scale: 1.5,
+          renderCharacters: false,
+          size: 'fill'
+        },
+        lineNumbersMinChars: 3
+      },
       exam: {},
       dialog: {
         shown: false
@@ -785,5 +782,12 @@ pre[class*='language-'] {
 .fade-enter-active,
 .fade-leave-active {
   transition: 0.1s opacity ease-out;
+}
+.overflow-guard,
+.monaco-editor {
+  /* monaco editor inner container */
+
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
 </style>
