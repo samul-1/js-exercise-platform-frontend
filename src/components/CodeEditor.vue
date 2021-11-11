@@ -20,7 +20,7 @@ export default {
   props: {
     value: { type: String },
     small: { type: Boolean, default: false },
-    height: { type: String, default: '40px' },
+    height: { type: String, default: '60px' },
     standalone: { type: Boolean, default: false }
   },
   components: {
