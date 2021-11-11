@@ -9,7 +9,7 @@
         lang="javascript"
         theme="monokai"
         width="100%"
-        height="50px"
+        height="60px"
         :options="aceEditorOptions"
       />
     </div>

@@ -519,7 +519,9 @@ export default {
             this.pane = 'question'
           } else {
             this.pane = 'text'
-            this.code = this.currentExercise.starting_code
+            this.code =
+              this.exam.submissions[0]?.code ??
+              this.currentExercise.starting_code
           }
         })
         .catch(error => {
