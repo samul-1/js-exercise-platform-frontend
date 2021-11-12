@@ -41,7 +41,7 @@
     <div v-show="!expanded">
       <div v-html="exerciseTextPreview"></div>
     </div>
-    <div v-show="expanded">
+    <div v-if="expanded">
       <div class="mb-1">
         <span class="mr-2">Categoria</span>
         <select
