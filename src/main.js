@@ -8,6 +8,9 @@ import VueCodeHighlight from 'vue-code-highlight'
 import 'vue-code-highlight/themes/duotone-sea.css'
 import GSignInButton from 'vue-google-signin-button'
 import VueApexCharts from 'vue-apexcharts'
+import * as Sentry from '@sentry/vue'
+import { Integrations } from '@sentry/tracing'
+
 Vue.use(VueApexCharts)
 
 Vue.component('apexchart', VueApexCharts)
@@ -43,6 +46,25 @@ Vue.config.errorHandler = function (err, vm, info) {
     })
   throw err // could remove this once development is over with
 }
+
+if (!dev) {
+  Sentry.init({
+    Vue,
+    dsn:
+      'https://5f257bff75f24847afb3724235cc51e8@o1003719.ingest.sentry.io/6067191',
+    integrations: [
+      new Integrations.BrowserTracing({
+        routingInstrumentation: Sentry.vueRouterInstrumentation(router),
+        tracingOrigins: ['sai.di.unipi.it', /^\//]
+      })
+    ],
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0
+  })
+}
+
 new Vue({
   store,
   router,
