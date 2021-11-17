@@ -8,7 +8,6 @@
     <div class="mt-8">
       <input
         v-model="code"
-        type="number"
         placeholder="Codice esame"
         @keyup.enter="goToExam()"
         class="w-full p-4 text-lg border border-gray-300 rounded-lg shadow-inner"

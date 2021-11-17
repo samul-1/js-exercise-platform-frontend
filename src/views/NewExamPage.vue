@@ -374,7 +374,7 @@ export default {
     window.removeEventListener('beforeunload', this.beforeWindowUnload)
   },
   beforeRouteLeave (_to, _from, next) {
-    if (this.confirmStay()) {
+    if (this.exam.id && this.confirmStay()) {
       next(false)
     } else {
       next()
