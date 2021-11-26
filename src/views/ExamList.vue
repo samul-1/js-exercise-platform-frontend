@@ -114,19 +114,29 @@ export default {
         {
           const jsonData = JSON.parse(e.data)
           const idx = this.exams.findIndex(e => e.id == jsonData.exam_id)
-          console.log(e.data)
+          console.log(jsonData, idx, this.exams[idx])
 
-          this.exams[idx].locked_by =
+          this.$set(
+            this.exams[idx],
+            'locked_by',
             jsonData.msg_type === 'lock' ? jsonData.by : null
+          )
+          if (jsonData.msg_type === 'unlock') {
+            this.$set(this.exams[idx], 'name', jsonData.data.name)
+            this.$set(this.exams[idx], 'draft', jsonData.data.draft)
+            this.$set(
+              this.exams[idx],
+              'begin_timestamp',
+              jsonData.data.begin_timestamp
+            )
+            this.$set(
+              this.exams[idx],
+              'end_timestamp',
+              jsonData.data.end_timestamp
+            )
+          }
         }
       }
-      // this.socket.onerror = () => {
-      //   this.$store.commit('setSmallMessage', {
-      //     severity: 2,
-      //     msg:
-      //       "È in corso una modifica all'esame da parte di un altro insegnante."
-      //   })
-      // }
     }
   },
   computed: {
