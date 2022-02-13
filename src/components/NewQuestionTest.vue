@@ -24,12 +24,19 @@
     </div>
     <div v-else>
       <textarea
+        v-if="false"
         placeholder="Scrivi qui la tua risposta..."
         class="p-2 mx-auto border border-gray-200 rounded-md shadow-sm "
         rows="10"
         style="width: 98%"
         v-model="answerText"
       ></textarea>
+      <VueEditor
+        v-else
+        class="taller"
+        v-model="answerText"
+        :editor-toolbar="toolbar"
+      ></VueEditor>
       <div class="my-2" v-if="errorWhileUpdatingAnswerText">
         <span class="inline text-red-500">
           Si è verificato un errore e parte della tua risposta non è stata
@@ -50,9 +57,12 @@
 import 'vue-code-highlight/themes/duotone-sea.css'
 import { highlightCode } from '../constants.js'
 // import { renderTex } from '../utility.js'
+//import { toolbar } from '../constants'
+import { VueEditor } from 'vue2-editor'
 
 export default {
   name: 'NewQuestionTest',
+  components: { VueEditor },
   props: {
     question: {
       type: Object
@@ -139,7 +149,8 @@ export default {
       answerTextDirty: false,
       ignoreWatchers: false,
       savedAnswerText: '',
-      errorWhileUpdatingAnswerText: false
+      errorWhileUpdatingAnswerText: false,
+      toolbar: [['image']]
     }
   },
   methods: {
@@ -180,5 +191,12 @@ export default {
 input[type='radio'],
 input[type='checkbox'] {
   min-width: 20px !important;
+}
+
+.taller > .ql-editor,
+.taller > .ql-container.ql-snow {
+  height: 350px;
+  border-bottom-left-radius: 0.3rem;
+  border-bottom-right-radius: 0.3rem;
 }
 </style>
