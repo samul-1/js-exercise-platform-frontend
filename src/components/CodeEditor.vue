@@ -6,27 +6,27 @@
       :value="value"
       @change="$emit('input', $event)"
       theme="vs-dark"
-      language="javascript"
+      language="typescript"
       :options="monacoOptions"
     />
   </div>
 </template>
 
 <script>
-import MonacoEditor from 'vue-monaco'
+import MonacoEditor from "vue-monaco";
 
 export default {
-  name: 'CodeEditor',
+  name: "CodeEditor",
   props: {
     value: { type: String },
     small: { type: Boolean, default: false },
-    height: { type: String, default: '60px' },
-    standalone: { type: Boolean, default: false }
+    height: { type: String, default: "60px" },
+    standalone: { type: Boolean, default: false },
   },
   components: {
-    MonacoEditor
+    MonacoEditor,
   },
-  data () {
+  data() {
     return {
       monacoOptions: {
         quickSuggestions: false,
@@ -35,19 +35,19 @@ export default {
           enabled: !this.small,
           scale: 1.5,
           renderCharacters: false,
-          size: 'fill'
+          size: "fill",
         },
-        lineNumbersMinChars: this.small ? 2 : 3
-      }
-    }
+        lineNumbersMinChars: this.small ? 2 : 3,
+      },
+    };
   },
   methods: {
-    update (event) {
-      console.log(event)
-      this.$emit('input', event)
-    }
-  }
-}
+    update(event) {
+      console.log(event);
+      this.$emit("input", event);
+    },
+  },
+};
 </script>
 
 <style>
