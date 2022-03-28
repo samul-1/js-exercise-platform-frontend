@@ -33,7 +33,7 @@
     "vue-monaco": "^1.2.2",
     "vue-router": "^3.2.0",
     "vue-uuid": "^2.0.2",
-    "vue2-datepicker": "^3.9.0",
+    "vue2-datepicker": "^3.9.1",
     "vue2-editor": "^2.10.2",
     "vue2-frappe": "^1.2.3",
     "vuejs-ace-editor": "^1.0.1",
