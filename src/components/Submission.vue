@@ -8,7 +8,7 @@
         'rounded-md': !expanded,
         'rounded-t-md': expanded,
         'bg-green-500': false && submission.is_eligible,
-        'bg-red-400': false && !submission.is_eligible
+        'bg-red-400': false && !submission.is_eligible,
       }"
     >
       <p class="mr-3 font-medium text-md">
@@ -16,7 +16,7 @@
           class="far"
           :class="{
             'fa-check-circle text-green-900': submission.is_eligible,
-            'fa-times-circle text-red-900': !submission.is_eligible
+            'fa-times-circle text-red-900': !submission.is_eligible,
           }"
         ></i>
         <!-- Sott{{ failedTests > 0 ? '.' : 'omissione' }} #{{ index }} -->
@@ -29,7 +29,7 @@
           class="my-auto mr-0.5 text-sm transform fas fa-caret-right"
           :class="{ 'rotate-90 -ml-1 mr-px': expanded }"
         ></i>
-        {{ expanded ? 'Nascondi' : 'Dettagli' }}
+        {{ expanded ? "Nascondi" : "Dettagli" }}
       </button>
       <div class="w-1/3 ml-2 mr-4">
         <progress-bar
@@ -60,6 +60,15 @@
           {{ submissionError }}
         </vue-code-highlight>
       </div>
+      <div v-if="compilationErrors">
+        Errori durante la compilazione:
+        <vue-code-highlight
+          language="javascript"
+          class="p-2 my-1 font-mono text-xs text-white break-all bg-gray-800 rounded-md shadow-sm"
+        >
+          {{ compilationErrors }}
+        </vue-code-highlight>
+      </div>
       <div
         v-for="(testcase, index) in testCasesDetails"
         :key="index"
@@ -71,7 +80,7 @@
               class="far"
               :class="{
                 'fa-check-circle text-green-900': testcase.passed,
-                'fa-times-circle text-red-900': !testcase.passed
+                'fa-times-circle text-red-900': !testcase.passed,
               }"
             ></i>
             Test case
@@ -79,9 +88,9 @@
               class="font-semibold"
               :class="{
                 'text-green-900': testcase.passed,
-                'text-red-900': !testcase.passed
+                'text-red-900': !testcase.passed,
               }"
-              >{{ !testcase.passed ? 'non ' : '' }} superato</span
+              >{{ !testcase.passed ? "non " : "" }} superato</span
             >
           </p>
           <p
@@ -119,66 +128,72 @@
 </template>
 
 <script>
-import { component as VueCodeHighlight } from 'vue-code-highlight'
-import 'vue-code-highlight/themes/duotone-sea.css'
-import ProgressBar from './ProgressBar.vue'
+import { component as VueCodeHighlight } from "vue-code-highlight";
+import "vue-code-highlight/themes/duotone-sea.css";
+import ProgressBar from "./ProgressBar.vue";
 export default {
-  name: 'Submission',
+  name: "Submission",
   components: {
     VueCodeHighlight,
-    ProgressBar
+    ProgressBar,
   },
   props: {
     submission: Object,
-    index: Number
+    index: Number,
   },
-  created () {
+  created() {
     if (this.submission.is_eligible) {
-      this.pulseOkText = true
+      this.pulseOkText = true;
       setTimeout(() => {
-        this.pulseOkText = false
-      }, 2990)
+        this.pulseOkText = false;
+      }, 2990);
     }
   },
-  data () {
+  data() {
     return {
       expanded: false,
-      pulseOkText: false
-    }
+      pulseOkText: false,
+    };
   },
   computed: {
-    failedTests () {
+    failedTests() {
       if (!this.testCasesDetails) {
-        return 0
+        return 0;
       }
       return (
-        this.testCasesDetails.filter(t => !t.passed).length +
+        this.testCasesDetails.filter((t) => !t.passed).length +
         this.failedSecretTests
-      )
+      );
     },
-    failedSecretTests () {
-      return this.submission.details?.failed_secret_tests ?? 0
+    failedSecretTests() {
+      return this.submission.details?.failed_secret_tests ?? 0;
     },
-    passedTests () {
-      if (this.submission.details?.error) {
+    passedTests() {
+      if (
+        this.submission.details?.error ||
+        this.submission.details?.compilation_errors
+      ) {
         // if there was a global error, no test cases passed
-        return 0
+        return 0;
       }
-      return this.submission.total_testcases - this.failedTests
+      return this.submission.total_testcases - this.failedTests;
     },
-    testCasesDetails () {
-      return this.submission.details?.tests
+    testCasesDetails() {
+      return this.submission.details?.tests;
     },
-    submissionError () {
-      return this.submission.details?.error
-    }
-  }
-}
+    submissionError() {
+      return this.submission.details?.error;
+    },
+    compilationErrors() {
+      return this.submission.details?.compilation_errors;
+    },
+  },
+};
 </script>
 
 <style>
-code[class*='language-'],
-pre[class*='language-'] {
+code[class*="language-"],
+pre[class*="language-"] {
   padding: 0;
   margin: 0;
   white-space: pre-wrap;
